@@ -1,0 +1,168 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Primary Colors */
+  --color-primary-50: #fff1ef;
+  --color-primary-100: #ffd2ce;
+  --color-primary-200: #ffbdb6;
+  --color-primary-300: #ff9f95;
+  --color-primary-400: #ff8c81;
+  --color-primary-500: #ff6f61;
+  --color-primary-600: #e86558;
+  --color-primary-700: #b54f45;
+  --color-primary-800: #8c3d35;
+  --color-primary-900: #6b2f29;
+
+  /* Secondary Colors */
+  --color-secondary-50: #e7f2ef;
+  --color-secondary-100: #b6d6cc;
+  --color-secondary-200: #92c2b4;
+  --color-secondary-300: #60a692;
+  --color-secondary-400: #41957d;
+  --color-secondary-500: #127a5c;
+  --color-secondary-600: #106f54;
+  --color-secondary-700: #0d5741;
+  --color-secondary-800: #0a4333;
+  --color-secondary-900: #083327;
+
+  /* System Colors */
+  --color-system-danger: #c22b20;
+  --color-system-warning: #ffe949;
+  --color-system-success: #00c380;
+  --color-system-info: #4fa5ff;
+
+  /* Navy Colors */
+  --color-navy-50: #e8ebf0;
+  --color-navy-100: #b8c2d1;
+  --color-navy-200: #96a4bb;
+  --color-navy-300: #667b9c;
+  --color-navy-400: #496189;
+  --color-navy-500: #1b3a6b;
+  --color-navy-600: #193561;
+  --color-navy-700: #13294c;
+  --color-navy-800: #0f203b;
+  --color-navy-900: #0b182d;
+
+  /* Gray Colors */
+  --color-gray-0: #ffffff;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e0e0e0;
+  --color-gray-300: #cccccc;
+  --color-gray-400: #afafaf;
+  --color-gray-500: #8c8c8c;
+  --color-gray-600: #6b6b6b;
+  --color-gray-700: #4e4e4e;
+  --color-gray-800: #2c2c2c;
+  --color-gray-900: #000000;
+
+  /* Shadow 설정 */
+  --shadow-xxsmall: 0px 2px 14px 2px rgba(33, 33, 33, 0.03);
+  --shadow-xsmall: 0px 2px 12px 1px rgba(33, 33, 33, 0.09);
+  --shadow-small: 0px 3px 6px 0px rgba(33, 33, 33, 0.23);
+  --shadow-medium: 0px 8px 18px 0px rgba(33, 33, 33, 0.14);
+  --shadow-large: 0px 8px 20px 0px rgba(33, 33, 33, 0.22);
+  --shadow-xlarge: 0px 8px 24px 0px rgba(33, 33, 33, 0.37);
+}
+
+@layer utilities {
+  /* Display */
+  .display-xlarge {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 72px;
+    line-height: 74px;
+  }
+
+  .display-large {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 64px;
+    line-height: 70px;
+  }
+
+  .display-medium {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 48px;
+    line-height: 54px;
+  }
+
+  .display-small {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 40px;
+    line-height: 44px;
+  }
+
+  /* Headline */
+  .headline-xlarge {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 32px;
+    line-height: 36px;
+  }
+
+  .headline-large {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 26px;
+    line-height: 30px;
+  }
+
+  .headline-medium {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 22px;
+    line-height: 26px;
+  }
+
+  .headline-small {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  /* Body */
+  .body-medium {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 400; /* Regular */
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .body-medium-bold {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 700; /* Regular */
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .body-small {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 400; /* Regular */
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  /* Caption */
+  .caption-medium {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 400; /* Regular */
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .caption-small {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 400; /* Regular */
+    font-size: 10px;
+    line-height: 12px;
+  }
+
+}
+
+body {
+  font-family: 'Pretendard', sans-serif;
+}
+
