@@ -1,0 +1,9 @@
+server:
+  port: 8082
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
+    elasticsearch:
+      uris: http://${ES_HOST}:${ES_PORT}
