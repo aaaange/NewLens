@@ -1,5 +1,11 @@
+import { Outlet } from 'react-router-dom';
+
 const AuthLayout = () => {
-  return <div>auth 인증된 레이아웃</div>;
+  return (
+    <div className="">
+      <Outlet />
+    </div>
+  );
 };
 
 export default AuthLayout;
