@@ -1,5 +1,6 @@
 import WordCloud from '../components/worldDetail/Wordcloud';
 import StackedColumns from '../components/worldDetail/StackedColumns';
+import MentionChart from '../components/worldDetail/MentionChart';
 
 const country_name = "미국"
 
@@ -29,12 +30,22 @@ const sentimentData = [
   { period: '2025-03-03', positive: 0.8, neutral: 0.15, negative: 0.05 },
 ];
 
+const data = [
+  { period: "2025-03-01", count: 121 },
+  { period: "2025-03-02", count: 126 },
+  { period: "2025-03-03", count: 110 },
+  { period: "2025-03-04", count: 130 },
+  { period: "2025-03-05", count: 90 },
+  { period: "2025-03-06", count: 115 },
+];
+
 const WorldDetail = () => {
   return (
     <div>
       <h2> 워드클라우드 테스트</h2>
       <WordCloud words={words} width={300} height={200} keyword={keyword} country_name={country_name}/>
       <StackedColumns data={sentimentData} width={300} height={200} keyword={keyword} country_name={country_name}/>
+      <MentionChart data={data}  width={300} height={200} keyword={keyword} country_name={country_name} />
     </div>
   );
 };

@@ -68,7 +68,7 @@ const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
         <Flag code="US" width="24" height="12" /> &nbsp;
         {country_name}에서 본&nbsp;
         <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
-        <span className="text-system-warning">언급량 변화</span>
+        <span className="text-system-warning">감정 분석</span>
       </p>
       <Chart
         options={options}
