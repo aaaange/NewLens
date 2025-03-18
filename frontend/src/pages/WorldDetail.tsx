@@ -34,9 +34,7 @@ const WorldDetail = () => {
     <div>
       <h2> 워드클라우드 테스트</h2>
       <WordCloud words={words} width={300} height={200} keyword={keyword} country_name={country_name}/>
-      <WordCloud words={words} width={300} height={200} keyword={keyword} country_name={country_name}/>
-      <h2>100% 누적 그래프</h2>
-      <StackedColumns data={sentimentData} width={300} height={200} />
+      <StackedColumns data={sentimentData} width={300} height={200} keyword={keyword} country_name={country_name}/>
     </div>
   );
 };

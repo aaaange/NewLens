@@ -1,7 +1,7 @@
-import React from 'react';
 import Chart from 'react-apexcharts';
+import Flag from 'react-world-flags';
 
-const StackedColumnChart = ({ data, width = '100%', height = 400 }) => {
+const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
   const options = {
     chart: {
       type: 'bar',
@@ -10,6 +10,9 @@ const StackedColumnChart = ({ data, width = '100%', height = 400 }) => {
       toolbar: {
         show: false, // 햄버거 버튼 없애기
       },
+    },
+    dataLabels: {
+      enabled: false, // ✅ 차트 위 숫자 숨기기
     },
     xaxis: {
       labels: {
@@ -31,16 +34,16 @@ const StackedColumnChart = ({ data, width = '100%', height = 400 }) => {
         formatter: (value) => `${value}%`,
       },
     },
-    colors: ['#4CAF50', '#FFC107', '#F44336'],
+    colors: ['#5279BD', '#D3E67E', '#E2695C'],
     tooltip: {
-      theme: 'dark', // ✅ 툴팁 테마 변경 (light, dark)
+      theme: 'dark', // 툴팁 테마 변경 (light, dark)
       style: {
         fontSize: '14px',
         fontWeight: 'bold',
-        colors: ['#F1C40F'], // ✅ 툴팁 글씨 색상 (예: 노란색)
+        // colors: ['#F1C40F'], // 툴팁 글씨 색상 (예: 노란색)
       },
       marker: {
-        fillColors: ['#4CAF50', '#FFC107', '#F44336'], // ✅ 툴팁 마커 색상
+        fillColors: ['#5279BD', '#D3E67E', '#E2695C'], // 툴팁 마커 색상
       },
       y: {
         formatter: (val) => `${val.toFixed(1)}%`,
@@ -60,13 +63,21 @@ const StackedColumnChart = ({ data, width = '100%', height = 400 }) => {
   ];
 
   return (
-    <Chart
-      options={options}
-      series={series}
-      type="bar"
-      width={typeof width === 'number' ? `${width}px` : width}
-      height={typeof height === 'number' ? `${height}px` : height}
-    />
+    <>
+      <p className="flex">
+        <Flag code="US" width="24" height="12" /> &nbsp;
+        {country_name}에서 본&nbsp;
+        <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
+        <span className="text-system-warning">언급량 변화</span>
+      </p>
+      <Chart
+        options={options}
+        series={series}
+        type="bar"
+        width={typeof width === 'number' ? `${width}px` : width}
+        height={typeof height === 'number' ? `${height}px` : height}
+      />
+    </>
   );
 };
 
