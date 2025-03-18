@@ -1,10 +1,9 @@
 package com.ssafy.searchserver.news.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -15,7 +14,7 @@ public class ForeignNewsResponse {
     private String description;
     private String url;
     private String imageUrl;
-    private LocalDateTime publishedAt;
+    private Instant publishedAt;
     private List<String> categories;
     private String country;
     private List<String> keywords;

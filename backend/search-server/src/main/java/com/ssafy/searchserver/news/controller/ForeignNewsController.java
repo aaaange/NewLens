@@ -1,42 +1,60 @@
 package com.ssafy.searchserver.news.controller;
 
-import com.ssafy.searchserver.common.CommonResponse;
-import com.ssafy.searchserver.news.dto.ForeignNewsListResponse;
-import com.ssafy.searchserver.news.service.ForeignNewsServiceImpl;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.searchserver.news.dto.ForeignNewsListResponse;
+import com.ssafy.searchserver.news.entity.ForeignNewsElastic;
+import com.ssafy.searchserver.news.entity.ForeignNewsMongo;
+import com.ssafy.searchserver.news.service.ForeignNewsServiceImpl;
+
+import lombok.RequiredArgsConstructor;
+
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/news")
 @RequiredArgsConstructor
 public class ForeignNewsController {
 
-    private final ForeignNewsServiceImpl foreignNewsService;
+    private final ForeignNewsServiceImpl service;
 
 
-    @PostMapping("/insert_news")
-    public ResponseEntity<CommonResponse> insertSampleData() {
-        foreignNewsService.insertSampleNews();
-
-        CommonResponse response = CommonResponse.builder()
-                .code("SUCCESS")
-                .success(true)
-                .message("더미 데이터 추가 성공")
-                .build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PostMapping("/mongo")
+    public ForeignNewsMongo save(@RequestBody ForeignNewsMongo news) {
+        return service.save(news);
     }
 
-    @GetMapping("/news")
-    public ResponseEntity<ForeignNewsListResponse> getNewsList() {
-        ForeignNewsListResponse response = foreignNewsService.getNewsList();
+    @GetMapping("/mongo")
+    public ResponseEntity<ForeignNewsListResponse> getMongoDBNewsList() {
+        ForeignNewsListResponse response = service.getNewsList();
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+
+    // @PostMapping("es")
+    // public ForeignNewsElastic saveNews(@RequestBody ForeignNewsElastic news) {
+    //     return service.save(news);
+    // }
+    //
+    //
+    // @GetMapping("/es/keyword")
+    // public ResponseEntity<ForeignNewsListResponse> getNewsByKeyword(@RequestParam String keyword) {
+    //     ForeignNewsListResponse response = service.searchByKeyword(keyword);
+    //     return ResponseEntity.status(HttpStatus.OK).body(response);
+    // }
+    //
+    // @GetMapping("/es/category")
+    // public ResponseEntity<ForeignNewsListResponse> getNewsByCategory(@RequestParam String category) {
+    //     ForeignNewsListResponse response = service.searchByCategory(category);
+    //     return ResponseEntity.status(HttpStatus.OK).body(response);
+    // }
+
 
 }
