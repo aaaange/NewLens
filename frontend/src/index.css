@@ -38,18 +38,31 @@
   --color-secondary-950: #2E2E38;
 
 
-    /* tetiary Colors */
-    --color-tetiary-50: #F4F4F9;
-    --color-tetiary-100: #ECECF3;
-    --color-tetiary-200: #DCDCE9;
-    --color-tetiary-300: #C4C5DA;
-    --color-tetiary-400: #AFAECB;
-    --color-tetiary-500: #9D99BB;
-    --color-tetiary-600: #8982A9;
-    --color-tetiary-700: #776F93;
-    --color-tetiary-800: #615B78;
-    --color-tetiary-900: #514D62;
-    --color-tetiary-950: #302D39;
+  /* Tetiary Colors */
+  --color-tetiary-50: #F4F4F9;
+  --color-tetiary-100: #ECECF3;
+  --color-tetiary-200: #DCDCE9;
+  --color-tetiary-300: #C4C5DA;
+  --color-tetiary-400: #AFAECB;
+  --color-tetiary-500: #9D99BB;
+  --color-tetiary-600: #8982A9;
+  --color-tetiary-700: #776F93;
+  --color-tetiary-800: #615B78;
+  --color-tetiary-900: #514D62;
+  --color-tetiary-950: #302D39;
+
+  /* AmountReference Colors */
+  --color-tetiary-50: #FFF9EB;
+  --color-tetiary-100: #FFEEC6;
+  --color-tetiary-200: #FFD677;
+  --color-tetiary-300: #FFC34A;
+  --color-tetiary-400: #FFAA20;
+  --color-tetiary-500: #F98607;
+  --color-tetiary-600: #DD6102;
+  --color-tetiary-700: #B74106;
+  --color-tetiary-800: #94310C;
+  --color-tetiary-900: #7A290D;
+  --color-tetiary-950: #461302;
 
   /* System Colors */
   --color-system-danger: #c22b20;
