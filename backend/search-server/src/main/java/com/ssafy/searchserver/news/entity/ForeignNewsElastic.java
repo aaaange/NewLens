@@ -21,11 +21,12 @@ public class ForeignNewsElastic {
 	private String title;
 	private String description;
 	private String url;
-	private String image_url;
+	@Field(name = "image_url")
+	private String imageUrl;
 	private int sentiment;
 
-	@Field(type = FieldType.Date)
-	private Instant published_at;
+	@Field(type = FieldType.Date, name = "published_at")
+	private Instant publishedAt;
 
 	@Field(type = FieldType.Keyword)
 	private List<String> categories;

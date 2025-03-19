@@ -1,58 +1,11 @@
+import MindMap from '../components/common/MindMap';
+import SearchInput from '../components/common/SearchInput';
+
 const MainPage = () => {
   return (
     <div className="">
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
+      <MindMap />
+      <SearchInput />
     </div>
   );
 };
