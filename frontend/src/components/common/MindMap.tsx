@@ -13,13 +13,28 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-// 🎨 랜덤 배경색
 const getRandomColor = () => {
-  const colors = ['#ffcc00', '#7ed957', '#ff9900']; // 노랑, 초록, 주황
+  const colors = [
+    '#7ed957', // 초록
+    '#ffb74d', // 연한 주황
+    '#81d4fa', // 연한 파랑
+    '#ff8a80', // 연한 빨강
+    '#ba68c8', // 연한 보라
+    '#4db6ac', // 민트
+    '#f06292', // 연한 핑크
+    '#64b5f6', // 연한 파란색
+    '#a5d6a7', // 연한 초록색
+    '#d1c4e9', // 라벤더
+    '#ffcc80', // 연한 오렌지
+    '#c5e1a5', // 연한 초록색
+    '#c2185b', // 연한 붉은색
+    '#ffca28', // 부드러운 노랑
+    '#80deea', // 연한 청록색
+    '#b39ddb', // 연한 보라색
+  ];
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-// 📌 커스텀 노드 (핸들 추가!)
 const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
   return (
     <div
@@ -36,20 +51,27 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
         borderRadius: '20px',
         width: data.width || 70,
         height: data.height || 40,
-        border: '2px solid rgba(0,0,0,0.1)',
         position: 'relative',
       }}
     >
       {data.label}
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id={`source-${id}`}
-        style={{ opacity: 0 }}
-      />
+      {/* ✅ 중앙 노드에 정확히 중앙 핸들 추가 */}
+      {id === '1' && (
+        <Handle
+          type="source"
+          position={Position.Top} // 🔥 중앙 노드의 정확한 중앙에서 출발
+          id={`source-${id}`}
+          style={{
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: 0,
+          }}
+        />
+      )}
       <Handle
         type="target"
-        position={Position.Top}
+        position={Position.Bottom} // 🔥 다른 노드는 기존처럼 위쪽
         id={`target-${id}`}
         style={{ opacity: 0 }}
       />
@@ -63,7 +85,7 @@ const nodeTypes = { custom: CustomNode };
 // 📌 초기 데이터
 const keyword = 'it';
 const centerX = 150;
-const centerY = 150;
+const centerY = 140;
 const radius = 100; // 원형 배치 반지름
 
 // 🎯 원형 배치 함수
@@ -85,8 +107,8 @@ const initialNodes: Node[] = [
       label: keyword,
       backgroundColor: '#000',
       textColor: '#fff',
-      width: 60,
-      height: 40,
+      width: 70,
+      height: 50,
     },
   },
   ...Array.from({ length: 10 }, (_, i) => ({
@@ -107,20 +129,19 @@ const initialNodes: Node[] = [
         '전문가',
       ][i],
       backgroundColor: getRandomColor(),
-      textColor: '#000',
+      textColor: '#fff',
     },
   })),
 ];
 
-// 📌 엣지 데이터
 const initialEdges: Edge[] = initialNodes.slice(1).map((node) => ({
   id: `e1-${node.id}`,
   source: '1',
-  sourceHandle: `source-1`, // 🔥 중앙 노드의 source 핸들 ID
   target: node.id,
-  targetHandle: `target-${node.id}`, // 🔥 각 노드의 target 핸들 ID
+  sourceHandle: `source-1`,
+  targetHandle: `target-${node.id}`,
   type: 'straight',
-  style: { stroke: '#000', strokeWidth: 3 },
+  style: { stroke: '#f5f7fa', strokeWidth: 1 },
 }));
 
 const MindMap = () => {
@@ -143,34 +164,50 @@ const MindMap = () => {
     <div
       style={{
         width: '400px',
-        height: '400px',
+        height: '100%',
         backgroundColor: '#fff',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        overflow: 'hidden',
+        borderRadius: '20px',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
       }}
     >
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onConnect={onConnect}
-        fitView
-        fitViewOptions={{ padding: 0.1 }}
-        defaultEdgeOptions={{ type: 'straight' }}
-        panOnDrag={false}
-        zoomOnScroll={false}
-        zoomOnDoubleClick={false}
-        elementsSelectable={false}
-        nodesDraggable={false}
-        nodeTypes={nodeTypes}
-        proOptions={{ hideAttribution: true }}
+      <div style={{ paddingLeft: '40px', paddingTop: '20px', color: 'black' }}>
+        <div className="headline-large">연관어</div>
+        <div className="text-tetiary-500 body-small">
+          추천 연관어를 선택하여 검색해보세요!
+        </div>
+      </div>
+
+      <div
+        style={{
+          width: '400px',
+          height: '320px',
+          backgroundColor: '#fff',
+          overflow: 'hidden',
+          borderRadius: '20px',
+          //   margin: '0 auto',
+        }}
       >
-        <Controls
-          showZoom={false}
-          showFitView={false}
-          showInteractive={false}
-        />
-      </ReactFlow>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onConnect={onConnect}
+          fitView
+          fitViewOptions={{ padding: 0.1 }}
+          panOnDrag={false}
+          zoomOnScroll={false}
+          zoomOnDoubleClick={false}
+          elementsSelectable={false}
+          nodesDraggable={false}
+          nodeTypes={nodeTypes}
+          proOptions={{ hideAttribution: true }}
+        >
+          <Controls
+            showZoom={false}
+            showFitView={true}
+            showInteractive={false}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 };
