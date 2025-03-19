@@ -141,16 +141,12 @@ const initialEdges: Edge[] = initialNodes.slice(1).map((node) => ({
   sourceHandle: `source-1`,
   targetHandle: `target-${node.id}`,
   type: 'straight',
-  style: { stroke: '#f5f7fa', strokeWidth: 1 },
+  style: { stroke: '#e1e6ed', strokeWidth: 1 },
 }));
 
 const MindMap = () => {
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
-
-  useEffect(() => {
-    console.log('📌 엣지 리스트:', edges);
-  }, [edges]);
 
   const onConnect = useCallback(
     (params: Connection) =>
@@ -163,24 +159,24 @@ const MindMap = () => {
   return (
     <div
       style={{
-        width: '400px',
+        width: '305px',
         height: '100%',
         backgroundColor: '#fff',
         borderRadius: '20px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
       }}
     >
-      <div style={{ paddingLeft: '40px', paddingTop: '20px', color: 'black' }}>
-        <div className="headline-large">연관어</div>
-        <div className="text-tetiary-500 body-small">
+      <div style={{ paddingLeft: '20px', paddingTop: '10px', color: 'black' }}>
+        <div className="headline-small">연관어</div>
+        <div className="text-tetiary-500 caption-small">
           추천 연관어를 선택하여 검색해보세요!
         </div>
       </div>
 
       <div
         style={{
-          width: '400px',
-          height: '320px',
+          width: '305px',
+          height: '200px',
           backgroundColor: '#fff',
           overflow: 'hidden',
           borderRadius: '20px',
@@ -203,7 +199,7 @@ const MindMap = () => {
         >
           <Controls
             showZoom={false}
-            showFitView={true}
+            showFitView={false}
             showInteractive={false}
           />
         </ReactFlow>
