@@ -20,9 +20,9 @@ const NewsSummary = ({ data, width, height, keyword, country_name }) => {
         style={{
           width: `${width}px`,
           height: `${height}px`,
-          overflowY: "scroll", // 스크롤 동작 가능
-          msOverflowStyle: "none", // IE & Edge
-          scrollbarWidth: "none", // Firefox
+          overflowY: 'scroll', // 스크롤 동작 가능
+          msOverflowStyle: 'none', // IE & Edge
+          scrollbarWidth: 'none', // Firefox
         }}
       >
         <div>{data}</div>
