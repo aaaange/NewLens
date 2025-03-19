@@ -1,6 +1,7 @@
 package com.ssafy.searchserver.news.service;
 
 import com.ssafy.searchserver.news.dto.ForeignNewsListResponse;
+import com.ssafy.searchserver.news.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.news.entity.ForeignNewsElastic;
 import com.ssafy.searchserver.news.entity.ForeignNewsMongo;
 
@@ -11,8 +12,9 @@ public interface ForeignNewsService {
 
 
     // elasticsearch
-    // ForeignNewsElastic save(ForeignNewsElastic news);
-    // ForeignNewsListResponse searchByKeyword(String keyword);
-    // ForeignNewsListResponse searchByCategory(String category);
+    ForeignNewsResponse save(ForeignNewsElastic news);
+    ForeignNewsListResponse searchByKeyword(String keyword);
+    ForeignNewsListResponse searchByCategory(String category);
+    ForeignNewsListResponse searchByPeriod(int period);
 
 }
