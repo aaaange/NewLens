@@ -1,9 +1,9 @@
 import Flag from 'react-world-flags';
 import NewsItem from './NewsItem';
 
-const NewsList = ({ news, width, height, keyword, country_name }) => {
+const NewsList = ({ news, width, keyword, country_name }) => {
   return (
-    <div className="gap-2" style={{ width: `${width}px`, height: `${height}px` }}>
+    <div className="gap-2" style={{ width: `${width}px`}}>
       {/* 뉴스 리스트 헤더 */}
       <p className="flex">
         <Flag code="US" width="24" height="12" /> &nbsp;

@@ -108,7 +108,6 @@ const WorldDetail = () => {
       <NewsList
         news={newsData}
         width={400}
-        height={400}
         keyword={keyword}
         country_name={country_name}
       />
