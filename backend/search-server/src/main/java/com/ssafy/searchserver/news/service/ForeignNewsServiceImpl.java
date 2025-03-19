@@ -5,26 +5,24 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.json.JsonData;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.ssafy.searchserver.news.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.news.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.news.entity.ForeignNewsElastic;
 import com.ssafy.searchserver.news.entity.ForeignNewsMongo;
 import com.ssafy.searchserver.news.repository.ForeignNewsElasticsearchRepository;
 import com.ssafy.searchserver.news.repository.ForeignNewsMongoDBRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -177,7 +175,6 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
-			String fromDateStr = from.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
 			Query boolQuery = Query.of(q -> q.bool(b -> b
 					.must(List.of(
@@ -188,19 +185,21 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 							Query.of(m -> m.terms(t -> t
 									.field("categories")
 									.terms(ts -> ts.value(List.of(FieldValue.of(category))))
+							)),
+							Query.of(m -> m.range(r -> r
+									.date(d -> d
+											.field("published_at")
+											.gte(from.toString())
+											.lte(now.toString())
+									)
 							))
-//							Query.of(m -> m.range(r -> r
-//									.field("published_at")
-//									.gte(fromDateStr)
-//							))
+
 					))
 			));
 
-			// SearchRequest 구성
 			var searchRequest = SearchRequest.of(s -> s
 					.index("foreign_news")
 					.query(boolQuery)
-					.size(30)
 					.sort(so -> so.field(f -> f
 							.field("published_at")
 							.order(SortOrder.Desc)
