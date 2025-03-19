@@ -52,17 +52,17 @@
   --color-tetiary-950: #302D39;
 
   /* AmountReference Colors */
-  --color-tetiary-50: #FFF9EB;
-  --color-tetiary-100: #FFEEC6;
-  --color-tetiary-200: #FFD677;
-  --color-tetiary-300: #FFC34A;
-  --color-tetiary-400: #FFAA20;
-  --color-tetiary-500: #F98607;
-  --color-tetiary-600: #DD6102;
-  --color-tetiary-700: #B74106;
-  --color-tetiary-800: #94310C;
-  --color-tetiary-900: #7A290D;
-  --color-tetiary-950: #461302;
+  --color-amount-50: #FFF9EB;
+  --color-amount-100: #FFEEC6;
+  --color-amount-200: #FFD677;
+  --color-amount-300: #FFC34A;
+  --color-amount-400: #FFAA20;
+  --color-amount-500: #F98607;
+  --color-amount-600: #DD6102;
+  --color-amount-700: #B74106;
+  --color-amount-800: #94310C;
+  --color-amount-900: #7A290D;
+  --color-amount-950: #461302;
 
   /* System Colors */
   --color-system-danger: #c22b20;

@@ -4,8 +4,12 @@ import SearchInput from '../components/common/SearchInput';
 const MainPage = () => {
   return (
     <div className="">
-      <MindMap />
-      <SearchInput />
+      <div>
+        <MindMap />
+      </div>
+      <div>
+        <SearchInput />
+      </div>
     </div>
   );
 };
