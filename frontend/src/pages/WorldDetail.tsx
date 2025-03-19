@@ -1,6 +1,7 @@
 import WordCloud from '../components/worldDetail/Wordcloud';
 import StackedColumns from '../components/worldDetail/StackedColumns';
 import MentionChart from '../components/worldDetail/MentionChart';
+import CountryDropdown from '../components/worldDetail/CountryDropdown';
 
 const country_name = "미국"
 
@@ -43,6 +44,7 @@ const WorldDetail = () => {
   return (
     <div>
       <h2> 워드클라우드 테스트</h2>
+      <CountryDropdown width="250px" height="60px" />
       <WordCloud words={words} width={300} height={200} keyword={keyword} country_name={country_name}/>
       <StackedColumns data={sentimentData} width={300} height={200} keyword={keyword} country_name={country_name}/>
       <MentionChart data={data}  width={300} height={200} keyword={keyword} country_name={country_name} />
