@@ -3,15 +3,18 @@ import NewsItem from './NewsItem';
 
 const NewsList = ({ news, width, keyword, country_name }) => {
   return (
-    <div className="gap-2" style={{ width: `${width}px`}}>
+    <div className="gap-2" style={{ width: `${width}px` }}>
       {/* 뉴스 리스트 헤더 */}
-      <p className="flex">
-        <Flag code="US" width="24" height="12" /> &nbsp;
-        <span className="text-lg "> {country_name}</span>에서 본&nbsp;
-        <span className="text-system-warning text-lg ">{keyword}</span>
-        의 관련&nbsp;
-        <span className="text-system-warning text-lg "> 뉴스</span>
-      </p>
+      <div className='flex justify-between '>
+        <p className="flex items-center">
+          <Flag code="US" width="24" height="12" /> &nbsp;
+          <span className="text-lg "> {country_name}</span>에서 본&nbsp;
+          <span className="text-system-warning text-lg ">{keyword}</span>의
+          관련&nbsp;
+          <span className="text-system-warning text-lg "> 뉴스</span>
+        </p>
+        <a className='p-2'>+ 더보기</a>
+      </div>
 
       {/* 뉴스 리스트 영역 */}
       <div className="space-y-2 p-2 border-2 border-gray-500 rounded-lg">
