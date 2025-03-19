@@ -47,7 +47,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({ width = "200px", heig
           color: "white", // 드롭다운 아이콘 흰색으로 변경
         },
       }}
-      IconComponent={(props) => <ExpandMore {...props} className="text-white" />} // 흰색 아이콘 적용
+      IconComponent={(props) => <ExpandMore {...props} className="text-white" />} // 흰색 아이콘 적용 
       renderValue={(selected) => {
         const country = g20Countries.find((c) => c.code === selected);
         return (
