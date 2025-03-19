@@ -2,10 +2,11 @@ import WordCloud from '../components/worldDetail/Wordcloud';
 import StackedColumns from '../components/worldDetail/StackedColumns';
 import MentionChart from '../components/worldDetail/MentionChart';
 import CountryDropdown from '../components/worldDetail/CountryDropdown';
+import NewsList from '../components/worldDetail/NewsList';
 
-const country_name = "미국"
+const country_name = '미국';
 
-const keyword = "속초 도련님"
+const keyword = '속초 도련님';
 
 const words = [
   { text: '시간', value: 30 },
@@ -32,12 +33,50 @@ const sentimentData = [
 ];
 
 const data = [
-  { period: "2025-03-01", count: 121 },
-  { period: "2025-03-02", count: 126 },
-  { period: "2025-03-03", count: 110 },
-  { period: "2025-03-04", count: 130 },
-  { period: "2025-03-05", count: 90 },
-  { period: "2025-03-06", count: 115 },
+  { period: '2025-03-01', count: 121 },
+  { period: '2025-03-02', count: 126 },
+  { period: '2025-03-03', count: 110 },
+  { period: '2025-03-04', count: 130 },
+  { period: '2025-03-05', count: 90 },
+  { period: '2025-03-06', count: 115 },
+];
+
+const newsData = [
+  {
+    title: 'AI 기술의 발전과 미래',
+    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    published_date: '2025-03-11',
+    image_url:
+      'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
+  },
+  {
+    title: '챗봇이 바꾸는 고객 서비스',
+    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    published_date: '2025-03-10',
+    image_url:
+      'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
+  },
+  {
+    title: '챗봇이 바꾸는 고객 서비스',
+    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    published_date: '2025-03-10',
+    image_url:
+      'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
+  },
+  {
+    title: '챗봇이 바꾸는 고객 서비스',
+    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    published_date: '2025-03-10',
+    image_url:
+      'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
+  },
+  {
+    title: '챗봇이 바꾸는 고객 서비스',
+    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    published_date: '2025-03-10',
+    image_url:
+      'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
+  },
 ];
 
 const WorldDetail = () => {
@@ -45,9 +84,34 @@ const WorldDetail = () => {
     <div>
       <h2> 워드클라우드 테스트</h2>
       <CountryDropdown width="250px" height="60px" />
-      <WordCloud words={words} width={300} height={200} keyword={keyword} country_name={country_name}/>
-      <StackedColumns data={sentimentData} width={300} height={200} keyword={keyword} country_name={country_name}/>
-      <MentionChart data={data}  width={300} height={200} keyword={keyword} country_name={country_name} />
+      <WordCloud
+        words={words}
+        width={300}
+        height={200}
+        keyword={keyword}
+        country_name={country_name}
+      />
+      <StackedColumns
+        data={sentimentData}
+        width={300}
+        height={200}
+        keyword={keyword}
+        country_name={country_name}
+      />
+      <MentionChart
+        data={data}
+        width={300}
+        height={200}
+        keyword={keyword}
+        country_name={country_name}
+      />
+      <NewsList
+        news={newsData}
+        width={400}
+        height={400}
+        keyword={keyword}
+        country_name={country_name}
+      />
     </div>
   );
 };
