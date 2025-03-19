@@ -1,115 +1,77 @@
+import { useState } from 'react';
+
 const Category = () => {
+  const categories = [
+    { id: 'all', label: '전체' },
+    { id: 'general', label: '일반' },
+    { id: 'science', label: '과학' },
+    { id: 'sports', label: '스포츠' },
+    { id: 'business', label: '비즈니스' },
+    { id: 'health', label: '헬스' },
+    { id: 'entertainment', label: '엔터테인먼트' },
+    { id: 'tech', label: '테크' },
+    { id: 'politics', label: '정치' },
+    { id: 'food', label: '식품' },
+    { id: 'travel', label: '여행' },
+  ];
+
+  const periods = [
+    { id: 'day', label: '하루전' },
+    { id: 'week', label: '1주 전' },
+    { id: 'month', label: '1달 전' },
+  ];
+
+  const [selectedCategory, setSelectedCategory] = useState('science');
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+  };
+
+  const handlePeriodClick = (periodId: any) => {
+    setSelectedPeriod(periodId);
+  };
+
   return (
-    <div className="w-[938px] h-24 relative">
-      <div className="w-[938px] h-24 left-0 top-0 absolute rounded-lg outline outline-1 outline-offset-[-1px] outline-slate-400">
-        <div className="w-[921px] h-20 left-[17px] top-[6px] absolute">
-          <div className="w-[915px] h-12 left-0 top-0 absolute inline-flex justify-start items-center">
-            <div className="justify-start text-white text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-              카테고리
-            </div>
-            <div className="w-[823px] h-12">
-              <div className="size- opacity-0 bg-white rounded-[20px]" />
-            </div>
+    <div className="w-full max-w-[938px] h-auto rounded-lg border border-primary-400">
+      <div className="px-4 py-1.5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center py-2">
+          <div className="text-white caption-large mr-4 mb-2 sm:mb-0">
+            카테고리
           </div>
-          <div className="size- left-0 top-[59px] absolute inline-flex justify-start items-center gap-20">
-            <div className="justify-start text-white text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-              기간
-            </div>
-            <div className="w-56 self-stretch flex justify-start items-center gap-6">
-              <div>하루전</div>
-              <div>1주 전</div>
-              <div>1달 전</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="size- left-[118px] top-[17px] absolute inline-flex justify-start items-center gap-1.5">
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            전체
+          <div className="flex flex-wrap gap-3">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryClick(category.id)}
+                className={`cursor-pointer px-4 py-2 rounded-full text-sm font-normal transition-colors ${
+                  selectedCategory === category.id
+                    ? 'bg-primary-500 text-white'
+                    : 'bg-violet-50 text-neutral-800 hover:bg-tetiary-200'
+                }`}
+              >
+                {category.label}
+              </button>
+            ))}
           </div>
         </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            일반
-          </div>
-        </div>
-        <div
-          data-state="Active"
-          className="size- px-4 py-2 bg-slate-400 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-white text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            과학
-          </div>
-        </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            스포츠
-          </div>
-        </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            비즈니스
-          </div>
-        </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            헬스
-          </div>
-        </div>
-        <div
-          data-state="Active"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-slate-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            엔터테인먼트
-          </div>
-        </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            테크
-          </div>
-        </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            정치
-          </div>
-        </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            식품
-          </div>
-        </div>
-        <div
-          data-state="Default"
-          className="size- px-4 py-2 bg-violet-50 rounded-[100px] flex justify-start items-start gap-2.5"
-        >
-          <div className="text-right justify-start text-neutral-800 text-sm font-normal font-['Nunito_Sans'] capitalize leading-none">
-            여행
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center py-2">
+          <div className="text-whitecaption-large mr-4 mb-2 sm:mb-0">기간</div>
+          <div className="ml-8 flex flex-wrap gap-6">
+            {periods.map((period) => (
+              <button
+                key={period.id}
+                onClick={() => handlePeriodClick(period.id)}
+                className={`cursor-pointer text-sm transition-colors ${
+                  selectedPeriod === period.id
+                    ? 'font-semibold text-white'
+                    : 'font-normal text-gray-300 hover:text-white'
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
