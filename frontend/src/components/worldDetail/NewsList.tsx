@@ -13,7 +13,7 @@ const NewsList = ({ news, width, keyword, country_name }) => {
           관련&nbsp;
           <span className="text-system-warning text-lg "> 뉴스</span>
         </p>
-        <a className='p-2'>+ 더보기</a>
+        <a href="" className='p-2'>+ 더보기</a>
       </div>
 
       {/* 뉴스 리스트 영역 */}
