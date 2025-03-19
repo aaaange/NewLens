@@ -22,7 +22,7 @@ public class ForeignNewsMongo {
     private String title;
     private String description;
     private String url;
-    private Instant publishedAt;
+    private LocalDateTime publishedAt;
     private String imageUrl;
     private List<String> categories;
     private String country;
