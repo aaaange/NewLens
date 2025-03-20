@@ -41,8 +41,8 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 				.id(news.getId())
 				.title(news.getTitle())
 				.description(news.getDescription())
-				// .publishedAt(news.getPublishedAt())
-				.imageUrl(news.getImageUrl())
+				.publishedAt(news.getPublished_at())
+				.imageUrl(news.getImage_url())
 				.url(news.getUrl())
 				.build())
 			.collect(Collectors.toList());

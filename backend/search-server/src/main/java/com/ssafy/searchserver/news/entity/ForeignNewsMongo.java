@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -22,8 +23,10 @@ public class ForeignNewsMongo {
     private String title;
     private String description;
     private String url;
-    private LocalDateTime publishedAt;
-    private String imageUrl;
+    @Field(name = "published_at")
+    private LocalDateTime published_at;
+    @Field(name = "image_url")
+    private String image_url;
     private List<String> categories;
     private String country;
     private List<String> keywords;
