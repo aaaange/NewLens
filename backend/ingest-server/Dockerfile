@@ -5,15 +5,15 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # 시스템 패키지 설치 (필요한 경우 추가 패키지를 설치)
-RUN apt-get update && apt-get install -y build-essential
+RUN apt-get update && apt-get install -y build-essential && apt-get clean
 
 # 의존성 파일 복사 및 설치
-COPY requirements.txt .
+COPY requirements.txt /app/
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 소스 코드 전체 복사 (.venv 등은 보통 .gitignore 처리)
-COPY . .
+COPY . /app
 
 # FastAPI가 사용할 포트 공개
 EXPOSE 8000
