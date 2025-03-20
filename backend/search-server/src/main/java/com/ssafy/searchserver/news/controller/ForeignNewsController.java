@@ -39,29 +39,11 @@ public class ForeignNewsController {
     }
 
     //elasticsearch
-    @PostMapping("es")
+    @PostMapping("/es")
     public ForeignNewsResponse saveNews(@RequestBody ForeignNewsElastic news) {
         return service.save(news);
     }
 
-
-    @GetMapping("/es/keyword")
-    public ResponseEntity<ForeignNewsListResponse> getNewsByKeyword(@RequestParam String keyword) {
-        ForeignNewsListResponse response = service.searchByKeyword(keyword);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @GetMapping("/es/category")
-    public ResponseEntity<ForeignNewsListResponse> getNewsByCategory(@RequestParam String category) {
-        ForeignNewsListResponse response = service.searchByCategory(category);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @GetMapping("/es/period")
-    public ResponseEntity<ForeignNewsListResponse> getNewsByPeriod(@RequestParam int period) {
-        ForeignNewsListResponse response = service.searchByPeriod(period);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
 
     @GetMapping("/es/search")
     public ResponseEntity<ForeignNewsListResponse> getSearch(@RequestParam String keyword, String category, int period) {

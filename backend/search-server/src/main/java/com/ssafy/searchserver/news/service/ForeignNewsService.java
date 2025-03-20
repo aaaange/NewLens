@@ -13,9 +13,6 @@ public interface ForeignNewsService {
 
     // elasticsearch
     ForeignNewsResponse save(ForeignNewsElastic news);
-    ForeignNewsListResponse searchByKeyword(String keyword);
-    ForeignNewsListResponse searchByCategory(String category);
-    ForeignNewsListResponse searchByPeriod(int period);
     ForeignNewsListResponse searchByKeywordCategoryAndPeriod(String keyword, String category, int period);
 
 

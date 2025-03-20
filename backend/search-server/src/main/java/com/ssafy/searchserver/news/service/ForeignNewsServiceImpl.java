@@ -5,9 +5,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.json.JsonData;
 import com.ssafy.searchserver.news.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.news.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.news.entity.ForeignNewsElastic;
@@ -19,8 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +25,6 @@ import java.util.stream.Collectors;
 public class ForeignNewsServiceImpl implements ForeignNewsService {
 
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
-	private final ForeignNewsElasticsearchRepository esRepository;
 	private final ElasticsearchClient esClient;
 
 
@@ -46,7 +41,7 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 				.id(news.getId())
 				.title(news.getTitle())
 				.description(news.getDescription())
-				.publishedAt(news.getPublishedAt())
+				// .publishedAt(news.getPublishedAt())
 				.imageUrl(news.getImageUrl())
 				.url(news.getUrl())
 				.build())
@@ -77,10 +72,6 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 
 		return ForeignNewsResponse.builder()
 				.id(news.getId())
-				.title(news.getTitle())
-				.description(news.getDescription())
-				.url(news.getUrl())
-				.imageUrl(news.getImageUrl())
 				.publishedAt(news.getPublishedAt())
 				.categories(news.getCategories())
 				.country(news.getCountry())
@@ -88,86 +79,7 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 				.sentiment(news.getSentiment())
 				.build();
 	}
-	@Override
-	public ForeignNewsListResponse searchByKeyword(String keyword) {
-		List<ForeignNewsResponse> newsList = esRepository.findByKeywords(keyword).stream()
-			.map(news -> ForeignNewsResponse.builder()
-				.id(news.getId())
-				.title(news.getTitle())
-				.description(news.getDescription())
-				.publishedAt(news.getPublishedAt())
-				.imageUrl(news.getImageUrl())
-				.url(news.getUrl())
-				.country(news.getCountry())
-				.categories(news.getCategories())
-				.keywords(news.getKeywords())
-				.build())
-			.collect(Collectors.toList());
 
-		return ForeignNewsListResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(newsList)
-			.build();
-	}
-	@Override
-	public ForeignNewsListResponse searchByCategory(String category) {
-		List<ForeignNewsResponse> newsList = esRepository.findByCategories(
-				category).stream()
-			.map(news -> ForeignNewsResponse.builder()
-				.id(news.getId())
-				.title(news.getTitle())
-				.description(news.getDescription())
-				.publishedAt(news.getPublishedAt())
-				.imageUrl(news.getImageUrl())
-				.url(news.getUrl())
-				.country(news.getCountry())
-				.categories(news.getCategories())
-				.keywords(news.getKeywords())
-				.build())
-			.collect(Collectors.toList());
-
-		return ForeignNewsListResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(newsList)
-			.build();
-	}
-
-
-
-
-	@Override
-	public ForeignNewsListResponse searchByPeriod(int period) {
-		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime from = now.minus(period, ChronoUnit.DAYS);
-
-		// ES 쿼리 호출
-		List<ForeignNewsElastic> searchResult = esRepository.findByPublishedAtBetween(from, now);
-
-		List<ForeignNewsResponse> newsList = searchResult.stream()
-			.map(news -> ForeignNewsResponse.builder()
-				.id(news.getId())
-				.title(news.getTitle())
-				.description(news.getDescription())
-				.publishedAt(news.getPublishedAt())
-				.imageUrl(news.getImageUrl())
-				.url(news.getUrl())
-				.country(news.getCountry())
-				.categories(news.getCategories())
-				.keywords(news.getKeywords())
-				.build())
-			.collect(Collectors.toList());
-
-		return ForeignNewsListResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(newsList)
-			.build();
-	}
 
 
 	@Override
@@ -213,10 +125,6 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 						ForeignNewsElastic news = hit.source();
 						return ForeignNewsResponse.builder()
 								.id(news.getId())
-								.title(news.getTitle())
-								.description(news.getDescription())
-								.url(news.getUrl())
-								.imageUrl(news.getImageUrl())
 								.publishedAt(news.getPublishedAt())
 								.categories(news.getCategories())
 								.country(news.getCountry())
@@ -241,7 +149,6 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 					.data(List.of())
 					.build();
 		}
-
 
 
 	}

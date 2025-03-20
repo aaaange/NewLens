@@ -28,10 +28,6 @@ public class ForeignNewsElastic {
 	private String id;
 	private String title;
 	private String description;
-	private String url;
-	@JsonProperty("image_url")
-	private String imageUrl;
-	private int sentiment;
 
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -50,4 +46,5 @@ public class ForeignNewsElastic {
 	@Field(type = FieldType.Keyword)
 	private List<String> keywords;
 
+	private Integer sentiment;
 }
