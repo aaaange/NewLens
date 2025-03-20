@@ -1,58 +1,9 @@
+import WorldMap from '../components/world/Map';
+
 const MainPage = () => {
   return (
     <div className="">
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
-      <div>메인페이지!!</div>
+      <WorldMap />
     </div>
   );
 };
