@@ -6,7 +6,7 @@ def extract_sentiment(text) -> list:
     classifier = pipeline(
         "sentiment-analysis",
         model="nlptown/bert-base-multilingual-uncased-sentiment",
-        top_k=None,
+        return_all_scores=True,
     )
 
     # 기사 원문 예시 (영어 뉴스 기사)
@@ -16,23 +16,27 @@ def extract_sentiment(text) -> list:
     # )
 
     # 모델 예측 (모든 별에 대한 확률 분포가 리스트로 반환됨)
-    scores = classifier(text)[
-        0
-    ]  # 예: [{'label': '1 star', 'score': 0.10}, {'label': '2 stars', 'score': 0.20}, ...]
+    scores = classifier(text)[0]  # 예: [{'label': '1 star', 'score': 0.10}, ...]
 
-    # 매핑 규칙에 따라 점수 합산
-    negative = sum(
-        score["score"] for score in scores if score["label"] in ["1 star", "2 stars"]
-    )
-    neutral = sum(score["score"] for score in scores if score["label"] == "3 stars")
-    positive = sum(
-        score["score"] for score in scores if score["label"] in ["4 stars", "5 stars"]
-    )
+    # 가중 평균 계산
+    # 각 label에서 첫 글자가 별점(예: "1", "2", ...)이라고 가정하여 정수로 변환
+    weighted_score = sum(int(score["label"][0]) * score["score"] for score in scores)
 
-    result = [positive, neutral, negative]
+    # weighted_score는 1~5 범위이므로 이를 0~1 범위로 정규화 (1점이 0%, 5점이 100%가 되도록)
+    normalized_score = (weighted_score - 1) / 4
 
-    return result
+    # 정규화된 점수를 백분율로 변환 (0~100%)
+    percentage_score = int(normalized_score * 100)
 
-    # print("Positive: {:.2%}".format(positive))
-    # print("Neutral:  {:.2%}".format(neutral))
-    # print("Negative: {:.2%}".format(negative))
+    # 임계값에 따른 분류
+    if percentage_score < 33:
+        sentiment = "부정"
+    elif percentage_score < 66:
+        sentiment = "중립"
+    else:
+        sentiment = "긍정"
+
+    return [sentiment, percentage_score]
+
+    # print("Weighted Score: {:.2f}%".format(percentage_score))
+    # print("Overall Sentiment:", sentiment)
