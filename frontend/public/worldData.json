@@ -1,0 +1,51 @@
+{
+  "code": "SUCCESS",
+  "success": true,
+  "message": "요청 성공",
+  "data": {
+    "sentiment": [
+      { "name": "kr", "positive": 0.7, "neutral": 0.2, "negative": 0.1 },
+      { "name": "us", "positive": 0.3, "neutral": 0.5, "negative": 0.2 },
+      { "name": "ar", "positive": 0.5, "neutral": 0.3, "negative": 0.2 },
+      { "name": "au", "positive": 0.6, "neutral": 0.2, "negative": 0.2 },
+      { "name": "br", "positive": 0.4, "neutral": 0.4, "negative": 0.2 },
+      { "name": "ca", "positive": 0.7, "neutral": 0.2, "negative": 0.1 },
+      { "name": "cn", "positive": 0.6, "neutral": 0.3, "negative": 0.1 },
+      { "name": "fr", "positive": 0.5, "neutral": 0.3, "negative": 0.2 },
+      { "name": "de", "positive": 0.6, "neutral": 0.2, "negative": 0.2 },
+      { "name": "in", "positive": 0.7, "neutral": 0.1, "negative": 0.2 },
+      { "name": "id", "positive": 0.5, "neutral": 0.3, "negative": 0.2 },
+      { "name": "it", "positive": 0.6, "neutral": 0.2, "negative": 0.2 },
+      { "name": "jp", "positive": 0.7, "neutral": 0.2, "negative": 0.1 },
+      { "name": "mx", "positive": 0.4, "neutral": 0.4, "negative": 0.2 },
+      { "name": "ru", "positive": 0.5, "neutral": 0.3, "negative": 0.2 },
+      { "name": "sa", "positive": 0.6, "neutral": 0.2, "negative": 0.2 },
+      { "name": "za", "positive": 0.5, "neutral": 0.3, "negative": 0.2 },
+      { "name": "tr", "positive": 0.4, "neutral": 0.4, "negative": 0.2 },
+      { "name": "gb", "positive": 0.6, "neutral": 0.2, "negative": 0.2 },
+      { "name": "eu", "positive": 0.5, "neutral": 0.3, "negative": 0.2 }
+    ],
+    "mention": [
+      { "name": "kr", "count": 125 },
+      { "name": "us", "count": 119 },
+      { "name": "ar", "count": 95 },
+      { "name": "au", "count": 88 },
+      { "name": "br", "count": 104 },
+      { "name": "ca", "count": 120 },
+      { "name": "cn", "count": 135 },
+      { "name": "fr", "count": 98 },
+      { "name": "de", "count": 110 },
+      { "name": "in", "count": 140 },
+      { "name": "id", "count": 102 },
+      { "name": "it", "count": 99 },
+      { "name": "jp", "count": 130 },
+      { "name": "mx", "count": 93 },
+      { "name": "ru", "count": 105 },
+      { "name": "sa", "count": 91 },
+      { "name": "za", "count": 89 },
+      { "name": "tr", "count": 92 },
+      { "name": "gb", "count": 115 },
+      { "name": "eu", "count": 108 }
+    ]
+  }
+}
