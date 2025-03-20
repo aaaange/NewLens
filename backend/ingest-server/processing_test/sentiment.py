@@ -30,11 +30,11 @@ def extract_sentiment(text) -> list:
 
     # 임계값에 따른 분류
     if percentage_score < 33:
-        sentiment = "부정"
+        sentiment = "negative"
     elif percentage_score < 66:
-        sentiment = "중립"
+        sentiment = "neutral"
     else:
-        sentiment = "긍정"
+        sentiment = "positive"
 
     return [sentiment, percentage_score]
 
