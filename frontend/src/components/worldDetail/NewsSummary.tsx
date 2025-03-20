@@ -16,16 +16,20 @@ const NewsSummary = ({ data, width, height, keyword, country_name }) => {
         </p>
       </div>
       <div
-        className="space-y-2 p-2 border-2 border-gray-500 rounded-lg"
-        style={{
-          width: `${width}px`,
-          height: `${height}px`,
-          overflowY: 'scroll', // 스크롤 동작 가능
-          msOverflowStyle: 'none', // IE & Edge
-          scrollbarWidth: 'none', // Firefox
-        }}
+        className="border-2 py-2 border-gray-500 rounded-lg"
+        style={{ width: `${width}px`, height: `${height}px` }}
       >
-        <div>{data}</div>
+        {/* 스크롤 박스(자식) */}
+        <div
+          className="px-2 h-full overflow-y-scroll"
+          style={{
+            msOverflowStyle: 'none', // IE & Edge
+            scrollbarWidth: 'none', // Firefox
+          }}
+        >
+          {/* 실제 내용 */}
+          <div>{data}</div>
+        </div>
       </div>
     </div>
   );
