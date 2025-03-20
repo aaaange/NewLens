@@ -22,11 +22,11 @@ const WordCloud = ({ words, width, height, keyword, country_name }) => {
 
   return (
     <>
-      <p className='flex'>
-        <span className='text-system-warning'>{keyword}</span>에 대한&nbsp;
+      <p className="flex">
+        <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
         <Flag code="US" width="24" height="12" /> &nbsp;
-        <span className='text-system-warning'> {country_name}</span>
-        의 관련 키워드
+        <span className="text-system-warning"> {country_name}</span>의 관련
+        키워드
       </p>
       <svg width={width} height={height}>
         <Wordcloud
