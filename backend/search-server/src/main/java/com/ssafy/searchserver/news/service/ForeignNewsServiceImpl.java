@@ -2,20 +2,27 @@ package com.ssafy.searchserver.news.service;
 
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.json.JsonData;
 import com.ssafy.searchserver.news.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.news.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.news.entity.ForeignNewsElastic;
 import com.ssafy.searchserver.news.entity.ForeignNewsMongo;
 import com.ssafy.searchserver.news.repository.ForeignNewsElasticsearchRepository;
 import com.ssafy.searchserver.news.repository.ForeignNewsMongoDBRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,22 +59,34 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 			.data(newsList)
 			.build();
 	}
+
+
+
 	@Override
 	public ForeignNewsResponse save(ForeignNewsElastic news) {
-		esRepository.save(news);
-		ForeignNewsResponse response = ForeignNewsResponse.builder()
-			.id(news.getId())
-			.title(news.getTitle())
-			.description(news.getDescription())
-			.url(news.getUrl())
-			.imageUrl(news.getImageUrl()) // document의 imageUrl getter 호출
-			.publishedAt(news.getPublishedAt()) // document getter 호출
-			.categories(news.getCategories())
-			.country(news.getCountry())
-			.keywords(news.getKeywords())
-			.sentiment(news.getSentiment())
-			.build();
-		return response;
+		try {
+			esClient.index(i -> i
+					.index("foreign_news")
+					.id(news.getId())
+					.document(news)
+					.refresh(co.elastic.clients.elasticsearch._types.Refresh.True)
+			);
+		} catch (IOException e) {
+			throw new RuntimeException("Elasticsearch 저장 실패", e);
+		}
+
+		return ForeignNewsResponse.builder()
+				.id(news.getId())
+				.title(news.getTitle())
+				.description(news.getDescription())
+				.url(news.getUrl())
+				.imageUrl(news.getImageUrl())
+				.publishedAt(news.getPublishedAt())
+				.categories(news.getCategories())
+				.country(news.getCountry())
+				.keywords(news.getKeywords())
+				.sentiment(news.getSentiment())
+				.build();
 	}
 	@Override
 	public ForeignNewsListResponse searchByKeyword(String keyword) {
@@ -122,8 +141,8 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 
 	@Override
 	public ForeignNewsListResponse searchByPeriod(int period) {
-		Instant now = Instant.now();
-		Instant from = now.minus(period, ChronoUnit.DAYS);
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime from = now.minus(period, ChronoUnit.DAYS);
 
 		// ES 쿼리 호출
 		List<ForeignNewsElastic> searchResult = esRepository.findByPublishedAtBetween(from, now);
@@ -151,4 +170,79 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 	}
 
 
+	@Override
+	public ForeignNewsListResponse searchByKeywordCategoryAndPeriod(String keyword, String category, int period) {
+		try {
+			LocalDateTime now = LocalDateTime.now();
+			LocalDateTime from = now.minusDays(period);
+
+			Query boolQuery = Query.of(q -> q.bool(b -> b
+					.must(List.of(
+							Query.of(m -> m.terms(t -> t
+									.field("keywords")
+									.terms(ts -> ts.value(List.of(FieldValue.of(keyword))))
+							)),
+							Query.of(m -> m.terms(t -> t
+									.field("categories")
+									.terms(ts -> ts.value(List.of(FieldValue.of(category))))
+							)),
+							Query.of(m -> m.range(r -> r
+									.date(d -> d
+											.field("published_at")
+											.gte(from.toString())
+											.lte(now.toString())
+									)
+							))
+
+					))
+			));
+
+			var searchRequest = SearchRequest.of(s -> s
+					.index("foreign_news")
+					.query(boolQuery)
+					.sort(so -> so.field(f -> f
+							.field("published_at")
+							.order(SortOrder.Desc)
+					))
+			);
+
+			var response = esClient.search(searchRequest, ForeignNewsElastic.class);
+
+			List<ForeignNewsResponse> newsList = response.hits().hits().stream()
+					.map(hit -> {
+						ForeignNewsElastic news = hit.source();
+						return ForeignNewsResponse.builder()
+								.id(news.getId())
+								.title(news.getTitle())
+								.description(news.getDescription())
+								.url(news.getUrl())
+								.imageUrl(news.getImageUrl())
+								.publishedAt(news.getPublishedAt())
+								.categories(news.getCategories())
+								.country(news.getCountry())
+								.keywords(news.getKeywords())
+								.sentiment(news.getSentiment())
+								.build();
+					})
+					.collect(Collectors.toList());
+
+			return ForeignNewsListResponse.builder()
+					.code("SUCCESS")
+					.success(true)
+					.message("요청 성공")
+					.data(newsList)
+					.build();
+
+		} catch (IOException e) {
+			return ForeignNewsListResponse.builder()
+					.code("FAIL")
+					.success(false)
+					.message("Elasticsearch 검색 실패: " + e.getMessage())
+					.data(List.of())
+					.build();
+		}
+
+
+
+	}
 }

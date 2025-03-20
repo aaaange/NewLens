@@ -63,5 +63,11 @@ public class ForeignNewsController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping("/es/search")
+    public ResponseEntity<ForeignNewsListResponse> getSearch(@RequestParam String keyword, String category, int period) {
+        ForeignNewsListResponse response = service.searchByKeywordCategoryAndPeriod(keyword, category, period);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
 }

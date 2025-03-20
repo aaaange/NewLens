@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -14,7 +15,7 @@ public class ForeignNewsResponse {
     private String description;
     private String url;
     private String imageUrl;
-    private Instant publishedAt;
+    private LocalDateTime publishedAt;
     private List<String> categories;
     private String country;
     private List<String> keywords;
