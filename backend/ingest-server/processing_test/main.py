@@ -39,11 +39,7 @@ def main():
 
     # 감성 분석 (긍정, 중립, 부정 점수)
     sentiment_scores = extract_sentiment(text)
-    sentiment_dic = {
-        "positive": sentiment_scores[0],
-        "neutral": sentiment_scores[1],
-        "negative": sentiment_scores[2],
-    }
+    sentiment_dic = {sentiment_scores[0]: sentiment_scores[1]}
 
     # 뉴스 기사가 한국어가 아니면 한국어로 번역
     if news_item.get("language") != "ko":
@@ -75,7 +71,7 @@ def main():
     print("ImageUrl:", news_item["image_url"])
     print("분류된 카테고리:", categories)
     print("핵심 키워드:", keywords)
-    print("감성 점수 (긍정, 중립, 부정):", sentiment_scores)
+    print("감성 점수:", sentiment_scores)
     print("URL:", news_item["url"])
 
 
