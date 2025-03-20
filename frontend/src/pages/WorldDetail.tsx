@@ -4,6 +4,7 @@ import MentionChart from '../components/worldDetail/MentionChart';
 import CountryDropdown from '../components/worldDetail/CountryDropdown';
 import NewsList from '../components/worldDetail/NewsList';
 import NewsSummary from '../components/worldDetail/NewsSummary';
+import GptSummary from '../components/worldDetail/GptSummary';
 
 const country_name = '미국';
 
@@ -83,11 +84,14 @@ const newsData = [
 const description =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
 
+const analysis = "한줄 비교 요약본 from gpt"
+
 const WorldDetail = () => {
   return (
     <div>
       <h2> 워드클라우드 테스트</h2>
       <CountryDropdown width="250px" height="60px" />
+      <GptSummary analysis={analysis} width={900} height={125}/>
       <WordCloud
         words={words}
         width={300}
