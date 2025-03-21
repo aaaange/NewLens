@@ -34,7 +34,7 @@ const words: WordType[] = [
   { text: '자유', value: 18 },
 ];
 
-type SentimentData = {
+export type SentimentData = {
   period: string;
   positive: number;
   neutral: number;

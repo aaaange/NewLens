@@ -1,8 +1,24 @@
 import Chart from 'react-apexcharts';
 import Flag from 'react-world-flags';
+import { SentimentData } from '../../pages/WorldDetail';
+import { ApexOptions } from 'apexcharts';
 
-const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
-  const options = {
+interface StackedColumnChartProps {
+  data: SentimentData[];
+  width: number;
+  height: number;
+  keyword: string;
+  country_name: string;
+}
+
+const StackedColumnChart = ({
+  data,
+  width,
+  height,
+  keyword,
+  country_name,
+}: StackedColumnChartProps) => {
+  const options: ApexOptions = {
     chart: {
       type: 'bar',
       stacked: true,
@@ -12,7 +28,7 @@ const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
       },
     },
     dataLabels: {
-      enabled: false, // ✅ 차트 위 숫자 숨기기
+      enabled: false, // 차트 위 숫자 숨기기
     },
     xaxis: {
       labels: {
@@ -31,7 +47,7 @@ const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
           fontSize: '12px',
           fontWeight: 500,
         },
-        formatter: (value) => `${value}%`,
+        formatter: (value: number) => `${value}%`,
       },
     },
     colors: ['#5279BD', '#D3E67E', '#E2695C'],
@@ -46,7 +62,7 @@ const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
         fillColors: ['#5279BD', '#D3E67E', '#E2695C'], // 툴팁 마커 색상
       },
       y: {
-        formatter: (val) => `${val.toFixed(1)}%`,
+        formatter: (val: number) => `${val.toFixed(1)}%`,
       },
     },
     legend: {
@@ -56,7 +72,7 @@ const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
     },
   };
 
-  const series = [
+  const series: { name: string; data: number[] }[] = [
     { name: 'Positive', data: data.map((item) => item.positive * 100) },
     { name: 'Neutral', data: data.map((item) => item.neutral * 100) },
     { name: 'Negative', data: data.map((item) => item.negative * 100) },
@@ -74,8 +90,8 @@ const StackedColumnChart = ({ data, width, height, keyword, country_name }) => {
         options={options}
         series={series}
         type="bar"
-        width={typeof width === 'number' ? `${width}px` : width}
-        height={typeof height === 'number' ? `${height}px` : height}
+        width={width}
+        height={height}
       />
     </>
   );
