@@ -5,9 +5,17 @@ import {
   ChevronLast,
   ChevronLeft,
   ChevronRight,
-  Flag,
-  FlagIcon,
 } from 'lucide-react';
+import Flag from 'react-world-flags';
+interface propsType {
+  date: string;
+  title: string;
+  image: string;
+  sentiment: string;
+  tags: string[];
+  bookmarked: boolean;
+  onToggleBookmark: () => {};
+}
 
 const NewsItem = ({
   date,
@@ -17,7 +25,7 @@ const NewsItem = ({
   tags,
   bookmarked,
   onToggleBookmark,
-}) => {
+}: propsType) => {
   // 감정에 따라서 태그의 스타일 결정
   const getSentimentStyle = (sentiment: string) => {
     switch (sentiment) {
@@ -43,7 +51,7 @@ const NewsItem = ({
   };
 
   return (
-    <div className="flex items-start md:items-center mb-6 hover:bg-gray-50 p-2 rounded transition-colors">
+    <div className="flex items-start md:items-center mb-2 hover:bg-gray-50 p-2 rounded transition-colors">
       <img
         className="w-20 h-14 mr-4 object-fit"
         src="/assets/images/logo-newLens.png"
@@ -58,7 +66,7 @@ const NewsItem = ({
           >
             #{getSentimentText(sentiment)}
           </span>
-          {tags.map((tag, index) => (
+          {tags.map((tag: string, index: number) => (
             <span
               key={index}
               className="px-2 py-1 bg-gray-100 rounded-full text-zinc-500 text-xs"
@@ -69,7 +77,7 @@ const NewsItem = ({
         </div>
       </div>
       <button
-        className="w-8 h-8 flex items-center justify-centerrounded-full hover:bg-gray-100"
+        className="flex items-center justify-centerrounded-full cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           onToggleBookmark();
@@ -79,7 +87,7 @@ const NewsItem = ({
         <Bookmark
           size={18}
           className={
-            bookmarked ? 'fill-amber-300 text-amber-300' : 'text-gray-300'
+            bookmarked ? 'fill-amount-300 text-amount-300' : 'text-gray-300'
           }
         />
       </button>
@@ -88,7 +96,16 @@ const NewsItem = ({
 };
 
 // 페이지네이션도 공통으로 빼야할지 고민해보기
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+interface paginationPropsType {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: paginationPropsType) => {
   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxPagesToShow = 5;
@@ -234,8 +251,11 @@ const NewsModal = () => {
     <div className="p-12 w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden">
       <div className="md:p-6">
         <div className="flex items-start justify-between">
-          <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2">
-            "국가아이콘" 미국
+          <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2 flex">
+            <div>
+              <Flag code="US" width="50" />
+            </div>
+            <div className="text-black ml-4">미국</div>
           </h2>
           <img
             className="cursor-pointer"
@@ -257,7 +277,7 @@ const NewsModal = () => {
             기사
           </span>
         </div>
-        <p className="text-slate-400 text-xs mb-6">총 120건</p>
+        <p className="text-slate-400 text-xs mb-2">총 120건</p>
 
         <div className="space-y-4">
           {allNewsItems.map((item) => (
@@ -269,7 +289,7 @@ const NewsModal = () => {
               <NewsItem
                 {...item}
                 bookmarked={!!bookmarks[item.id]}
-                onToggleBookmark={() => toggleBookmark(item.id)}
+                onToggleBookmark={async () => toggleBookmark(item.id)}
               />
             </div>
           ))}
