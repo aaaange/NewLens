@@ -7,11 +7,16 @@ import NewsSummary from '../components/worldDetail/NewsSummary';
 import GptSummary from '../components/worldDetail/GptSummary';
 import VideoList from '../components/worldDetail/VideoList';
 
-const country_name = '미국';
+const country_name: string = '미국';
 
-const keyword = '속초 도련님';
+const keyword: string = '속초 도련님';
 
-const words = [
+type WordType = {
+  text: string;
+  value: number;
+};
+
+const words: WordType[] = [
   { text: '시간', value: 30 },
   { text: '절대적인', value: 20 },
   { text: '사람들', value: 40 },
@@ -29,13 +34,25 @@ const words = [
   { text: '자유', value: 18 },
 ];
 
-const sentimentData = [
+type SentimentData = {
+  period: string;
+  positive: number;
+  neutral: number;
+  negative: number;
+};
+
+const sentimentData: SentimentData[] = [
   { period: '2025-03-01', positive: 0.7, neutral: 0.2, negative: 0.1 },
   { period: '2025-03-02', positive: 0.6, neutral: 0.3, negative: 0.1 },
   { period: '2025-03-03', positive: 0.8, neutral: 0.15, negative: 0.05 },
 ];
 
-const data = [
+type MentionData = {
+  period: string;
+  count: number;
+};
+
+const data: MentionData[] = [
   { period: '2025-03-01', count: 121 },
   { period: '2025-03-02', count: 126 },
   { period: '2025-03-03', count: 110 },
@@ -44,7 +61,14 @@ const data = [
   { period: '2025-03-06', count: 115 },
 ];
 
-const newsData = [
+type NewsItem = {
+  title: string;
+  url: string;
+  published_date: string;
+  image_url: string;
+};
+
+const newsData: NewsItem[] = [
   {
     title: 'AI 기술의 발전과 미래',
     url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
@@ -82,12 +106,19 @@ const newsData = [
   },
 ];
 
-const description =
+const description: string =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
 
-const analysis = '한줄 비교 요약본 from gpt';
+const analysis: string = '한줄 비교 요약본 from gpt';
 
-const videos = [
+type VideoItem = {
+  title: string;
+  url: string;
+  published_date: string;
+  thumbnail_url: string;
+};
+
+const videos: VideoItem[] = [
   {
     title: 'G-DRAGON - POWER (Official Video)',
     url: 'https://youtu.be/NMjhjrBIrG8?si=qiVz-RwxTNtVomuY',
