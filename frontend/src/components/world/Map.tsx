@@ -12,7 +12,13 @@ interface countryNameType {
   [key: string]: string;
 }
 
-const WorldMap = () => {
+interface WorldMapProps {
+  tabId: string;
+}
+
+const WorldMap = ({ tabId }: WorldMapProps) => {
+  console.log('tabId', tabId);
+
   const chartContainerRef = useRef<HTMLDivElement>(null); // 차트 컨테이너 ref
   const chartRef = useRef<am5.Root>(null); // amCharts 인스턴스 저장
   const [mentionData, setMentionData] = useState<MentionDataType | null>(null); // API에서 받아올 데이터 상태

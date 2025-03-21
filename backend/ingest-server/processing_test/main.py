@@ -4,6 +4,7 @@ from keyword_extraction import extract_keywords
 from sentiment import extract_sentiment
 from translation import translate
 from utils import format_published_at
+from country_extraction import determine_source_country
 from pymongo import MongoClient
 
 client = MongoClient("mongodb://localhost:27017/")
@@ -39,11 +40,7 @@ def main():
 
     # 감성 분석 (긍정, 중립, 부정 점수)
     sentiment_scores = extract_sentiment(text)
-    sentiment_dic = {
-        "positive": sentiment_scores[0],
-        "neutral": sentiment_scores[1],
-        "negative": sentiment_scores[2],
-    }
+    sentiment_dic = {sentiment_scores[0]: sentiment_scores[1]}
 
     # 뉴스 기사가 한국어가 아니면 한국어로 번역
     if news_item.get("language") != "ko":
@@ -51,6 +48,9 @@ def main():
 
     # Komoran + TF-IDF를 이용한 핵심 키워드 추출 (최대 5개)
     keywords = extract_keywords(text, max_keywords=10)
+
+    # 국가 추출
+    country = determine_source_country(news_item["source"])
 
     # mongoDB에 데이터 입력
     collection.insert_one(
@@ -61,6 +61,7 @@ def main():
             "published_at": formatted_date,
             "image_url": news_item["image_url"],
             "categories": categories,
+            "country": country,
             "keywords": keywords,
             "sentiment": sentiment_dic,
             "raw_data_ref": news_item["uuid"],
@@ -68,15 +69,16 @@ def main():
     )
 
     # 결과 출력
-    print("UUID:", news_item["uuid"])
-    print("제목:", translate({news_item["language"]: news_item["title"]}))
-    print("요약:", translate({news_item["language"]: news_item["description"]}))
-    print("발행일시:", formatted_date)
-    print("ImageUrl:", news_item["image_url"])
-    print("분류된 카테고리:", categories)
-    print("핵심 키워드:", keywords)
-    print("감성 점수 (긍정, 중립, 부정):", sentiment_scores)
-    print("URL:", news_item["url"])
+    # print("UUID:", news_item["uuid"])
+    # print("제목:", translate({news_item["language"]: news_item["title"]}))
+    # print("요약:", translate({news_item["language"]: news_item["description"]}))
+    # print("발행일시:", formatted_date)
+    # print("ImageUrl:", news_item["image_url"])
+    # print("분류된 카테고리:", categories)
+    # print("국가: ", country)
+    # print("핵심 키워드:", keywords)
+    # print("감성 점수:", sentiment_scores)
+    # print("URL:", news_item["url"])
 
 
 if __name__ == "__main__":
