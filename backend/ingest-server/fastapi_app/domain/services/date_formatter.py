@@ -1,8 +1,7 @@
-# utils.py
 import datetime
 
 
-def format_published_at(published_at_str: str) -> str:
+def format_date(published_at_str: str) -> str:
     """
     ISO 8601 형식의 날짜 문자열 (예: "2025-03-06T23:49:31.000000Z")을 받아서
     "YYYY-MM-DDTHH:MM:SS" 형식으로 변환하여 반환합니다.

@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
 
-def extract_keywords(text: str, max_keywords=5) -> list:
+def extract_keywords(text: str) -> list:
     """
     Komoran으로 텍스트에서 명사(주로 핵심 단어)를 추출한 후,
     TF-IDF를 적용하여 핵심 키워드(max_keywords)를 선택합니다.
@@ -33,17 +33,10 @@ def extract_keywords(text: str, max_keywords=5) -> list:
     sorted_indices = np.argsort(scores)[::-1]
 
     # 상위 max_keywords 개의 인덱스 선택
+    max_keywords = 20
     top_indices = sorted_indices[:max_keywords]
 
     # TF-IDF 점수가 0보다 큰 단어들만 키워드로 선택
     top_keywords = [feature_names[i] for i in top_indices if scores[i] > 0]
 
     return top_keywords
-
-
-# if __name__ == "__main__":
-#     # 테스트용 한국어 예시 문장
-#     test_text = "서울 – 2025년 3월 18일, 서울시청은 오늘 오전 기자간담회를 통해 새로운 도시 재생 정책을 발표했다. "
-#
-#     keywords = extract_keywords(test_text, max_keywords=50)
-#     print("핵심 키워드:", keywords)
