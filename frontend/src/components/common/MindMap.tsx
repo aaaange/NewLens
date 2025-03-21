@@ -160,13 +160,13 @@ const MindMap = () => {
     <div
       style={{
         width: '305px',
-        height: '100%',
+        height: '275px',
         backgroundColor: '#fff',
         borderRadius: '20px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
       }}
     >
-      <div style={{ paddingLeft: '20px', paddingTop: '10px', color: 'black' }}>
+      <div style={{ paddingLeft: '20px', paddingTop: '20px', color: 'black' }}>
         <div className="headline-small">연관어</div>
         <div className="text-tetiary-500 caption-small">
           추천 연관어를 선택하여 검색해보세요!

@@ -5,6 +5,7 @@ import CountryDropdown from '../components/worldDetail/CountryDropdown';
 import NewsList from '../components/worldDetail/NewsList';
 import NewsSummary from '../components/worldDetail/NewsSummary';
 import GptSummary from '../components/worldDetail/GptSummary';
+import VideoList from '../components/worldDetail/VideoList';
 
 const country_name = '미국';
 
@@ -84,14 +85,38 @@ const newsData = [
 const description =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
 
-const analysis = "한줄 비교 요약본 from gpt"
+const analysis = '한줄 비교 요약본 from gpt';
+
+const videos = [
+  {
+    title: 'G-DRAGON - POWER (Official Video)',
+    url: 'https://youtu.be/NMjhjrBIrG8?si=qiVz-RwxTNtVomuY',
+    published_date: '2025-03-11',
+    thumbnail_url:
+      'https://i.ytimg.com/vi/NMjhjrBIrG8/hqdefault.jpg?sqp=-oaymwEnCNACELwBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLAGqn1htTmmis_gJ3WCAXl_sb4JHg',
+  },
+  {
+    title: 'G-DRAGON - TOO BAD (feat. Anderson .Paak) (Official Video)',
+    url: 'https://youtu.be/o9DhvbqYzns?si=z0o-ST5hR1WPVqJ0',
+    published_date: '2025-03-10',
+    thumbnail_url:
+      'https://i.ytimg.com/vi/o9DhvbqYzns/hqdefault.jpg?sqp=-oaymwEnCPYBEIoBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBMTNwTl1ohpQtxXpB6o3-lJ33k-g',
+  },
+  {
+    title: 'G-DRAGON - DRAMA (Official Video)',
+    url: 'https://youtu.be/I8I51kSq448?si=3pUvce2mNg_cQqZw',
+    published_date: '2025-03-10',
+    thumbnail_url:
+      'https://i.ytimg.com/vi/I8I51kSq448/hqdefault.jpg?sqp=-oaymwEnCPYBEIoBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDlkVggOMAhjX3Q7NCYizt895AOmg',
+  },
+];
 
 const WorldDetail = () => {
   return (
     <div>
       <h2> 워드클라우드 테스트</h2>
       <CountryDropdown width="250px" height="60px" />
-      <GptSummary analysis={analysis} width={900} height={125}/>
+      <GptSummary analysis={analysis} width={900} height={125} />
       <WordCloud
         words={words}
         width={300}
@@ -123,6 +148,13 @@ const WorldDetail = () => {
       <NewsList
         news={newsData}
         width={400}
+        keyword={keyword}
+        country_name={country_name}
+      />
+      <VideoList
+        videos={videos || []}
+        width={410}
+        height={265}
         keyword={keyword}
         country_name={country_name}
       />

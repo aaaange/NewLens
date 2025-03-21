@@ -22,52 +22,33 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ForeignNewsController {
 
-    private final ForeignNewsServiceImpl service;
+	private final ForeignNewsServiceImpl service;
 
-    //mongo
-    @PostMapping("/mongo")
-    public ForeignNewsMongo save(@RequestBody ForeignNewsMongo news) {
-        return service.save(news);
-    }
+	//mongo
+	@PostMapping("/mongo")
+	public ForeignNewsMongo save(@RequestBody ForeignNewsMongo news) {
+		return service.save(news);
+	}
 
-    @GetMapping("/mongo")
-    public ResponseEntity<ForeignNewsListResponse> getMongoDBNewsList() {
-        ForeignNewsListResponse response = service.getNewsList();
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
-    }
+	@GetMapping("/mongo")
+	public ResponseEntity<ForeignNewsListResponse> getMongoDBNewsList() {
+		ForeignNewsListResponse response = service.getNewsList();
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(response);
+	}
 
-    //elasticsearch
-    @PostMapping("es")
-    public ForeignNewsResponse saveNews(@RequestBody ForeignNewsElastic news) {
-        return service.save(news);
-    }
+	//elasticsearch
+	@PostMapping("/es")
+	public ForeignNewsResponse saveNews(@RequestBody ForeignNewsElastic news) {
+		return service.save(news);
+	}
 
-
-    @GetMapping("/es/keyword")
-    public ResponseEntity<ForeignNewsListResponse> getNewsByKeyword(@RequestParam String keyword) {
-        ForeignNewsListResponse response = service.searchByKeyword(keyword);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @GetMapping("/es/category")
-    public ResponseEntity<ForeignNewsListResponse> getNewsByCategory(@RequestParam String category) {
-        ForeignNewsListResponse response = service.searchByCategory(category);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @GetMapping("/es/period")
-    public ResponseEntity<ForeignNewsListResponse> getNewsByPeriod(@RequestParam int period) {
-        ForeignNewsListResponse response = service.searchByPeriod(period);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @GetMapping("/es/search")
-    public ResponseEntity<ForeignNewsListResponse> getSearch(@RequestParam String keyword, String category, int period) {
-        ForeignNewsListResponse response = service.searchByKeywordCategoryAndPeriod(keyword, category, period);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
+	@GetMapping("/es/search")
+	public ResponseEntity<ForeignNewsListResponse> getSearch(@RequestParam String keyword, String category,
+		int period) {
+		ForeignNewsListResponse response = service.search(keyword, category, period);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 
 }
