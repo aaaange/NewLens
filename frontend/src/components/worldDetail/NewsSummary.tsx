@@ -1,6 +1,14 @@
 import Flag from 'react-world-flags';
 
-const NewsSummary = ({ data, width, height, keyword, country_name }) => {
+interface NewsSummaryProps {
+  data: string;
+  width: number;
+  height: number;
+  keyword: string;
+  country_name: string;
+}
+
+const NewsSummary = ({ data, width, height, keyword, country_name }: NewsSummaryProps) => {
   return (
     <div>
       <div className="flex justify-between ">
