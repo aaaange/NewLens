@@ -13,7 +13,7 @@ public interface ForeignNewsService {
 
     // elasticsearch
     ForeignNewsResponse save(ForeignNewsElastic news);
-    ForeignNewsListResponse searchByKeywordCategoryAndPeriod(String keyword, String category, int period);
+    ForeignNewsListResponse search(String keyword, String category, int period);
 
 
 }
