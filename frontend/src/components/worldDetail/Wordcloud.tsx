@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { Wordcloud } from '@visx/wordcloud';
 import Flag from 'react-world-flags';
+import { WordType } from '../../pages/WorldDetail';
 
-const colors = [
+const colors: string[] = [
   '#FFD700',
   '#FF5733',
   '#36D7B7',
@@ -13,10 +14,26 @@ const colors = [
   '#58D68D',
 ];
 
-const WordCloud = ({ words, width, height, keyword, country_name }) => {
-  const [hoveredWord, setHoveredWord] = useState(null);
+interface WordCloudProps {
+  words: WordType[];
+  width: number;
+  height: number;
+  keyword: string;
+  country_name: string;
+}
 
-  const handleWordClick = (word) => {
+interface CloudWord {
+  text: string
+  value: number
+  x: number
+  y: number
+  size: number
+  rotate: number
+}
+
+const WordCloud = ({ words, width, height, keyword, country_name }:WordCloudProps) => {
+
+  const handleWordClick = (word: CloudWord) :void => { // alert는 반환 값이 없음으로 void
     alert(`클릭한 단어: ${word.text}, 빈도: ${word.value}`);
   };
 
@@ -49,11 +66,16 @@ const WordCloud = ({ words, width, height, keyword, country_name }) => {
   );
 };
 
-// 단어 렌더링을 최적화한 컴포넌트 (불필요한 재렌더링 방지)
-const WordRenderer = React.memo(({ cloudWords, handleWordClick }) => {
-  const [hoveredWord, setHoveredWord] = useState(null);
+interface WordRendererProps {
+  cloudWords: CloudWord[]
+  handleWordClick: (word: CloudWord) => void;
+}
 
-  const handleMouseEnter = useCallback((word) => {
+// 단어 렌더링을 최적화한 컴포넌트 (불필요한 재렌더링 방지)
+const WordRenderer = React.memo(({ cloudWords, handleWordClick }:WordRendererProps) => {
+  const [hoveredWord, setHoveredWord] = useState<string | null>(null);
+
+  const handleMouseEnter = useCallback((word:CloudWord) => {
     setHoveredWord(word.text);
   }, []);
 
@@ -83,10 +105,5 @@ const WordRenderer = React.memo(({ cloudWords, handleWordClick }) => {
   ));
 });
 
-// 기본 props 설정 (사용자가 크기를 지정하지 않으면 기본값 적용)
-WordCloud.defaultProps = {
-  width: 500,
-  height: 500,
-};
 
 export default WordCloud;
