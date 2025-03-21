@@ -219,9 +219,7 @@ def determine_source_country(source):
 
     # 3️⃣ TLD 매핑으로도 알 수 없다면 GPT 사용
     if country == "Unknown":
-        print("나라 몰라요")
         country = get_country_by_gpt(source)
-        print("GPT가 찾아준 나라 : " + country)
 
     # 4️⃣ DB에 삽입 및 반환
     insert_source_country(source, country)
