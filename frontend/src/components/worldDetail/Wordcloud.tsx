@@ -32,7 +32,6 @@ interface CloudWord {
 }
 
 const WordCloud = ({ words, width, height, keyword, country_name }:WordCloudProps) => {
-  const [hoveredWord, setHoveredWord] = useState(null); // 이건 ...
 
   const handleWordClick = (word: CloudWord) :void => { // alert는 반환 값이 없음으로 void
     alert(`클릭한 단어: ${word.text}, 빈도: ${word.value}`);
