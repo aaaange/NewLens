@@ -32,16 +32,12 @@ const g20Countries = [
 ];
 
 // 가로(width)와 세로(height)를 프롭스로 받아서 조절 가능하게 변경
-interface CountryDropdownProps extends SelectProps {
+interface CountryDropdownProps {
   width?: string;
   height?: string;
 }
 
-const CountryDropdown: React.FC<CountryDropdownProps> = ({
-  width = '200px',
-  height = '50px',
-  ...props
-}) => {
+const CountryDropdown = ({ width, height }:CountryDropdownProps) => {
   const [selectedCountry, setSelectedCountry] = useState(g20Countries[0].code);
 
   return (
@@ -73,7 +69,6 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
           </div>
         );
       }}
-      {...props} // 추가적인 프롭 전달 가능
     >
       {g20Countries.map((country) => (
         <MenuItem
