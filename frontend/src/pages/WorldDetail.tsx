@@ -11,7 +11,7 @@ const country_name: string = '미국';
 
 const keyword: string = '속초 도련님';
 
-type WordType = {
+export type WordType = {
   text: string;
   value: number;
 };
