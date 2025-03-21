@@ -19,6 +19,7 @@ public class ForeignNewsResponse {
     private List<String> categories;
     private String country;
     private List<String> keywords;
-    private int sentiment;
+    private Integer sentiment;
+    private String rawDataRef;
 
 }
