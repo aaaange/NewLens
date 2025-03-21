@@ -47,7 +47,7 @@ const sentimentData: SentimentData[] = [
   { period: '2025-03-03', positive: 0.8, neutral: 0.15, negative: 0.05 },
 ];
 
-type MentionData = {
+export type MentionData = {
   period: string;
   count: number;
 };
