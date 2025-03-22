@@ -7,3 +7,11 @@ spring:
       uri: mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
     elasticsearch:
       uris: http://${ES_HOST}:${ES_PORT}
+
+kafka:
+  bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+  admin:
+    auto-create: true
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
