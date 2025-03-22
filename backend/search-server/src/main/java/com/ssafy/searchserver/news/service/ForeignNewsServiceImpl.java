@@ -14,6 +14,7 @@ import com.ssafy.searchserver.news.repository.ForeignNewsMongoDBRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final ElasticsearchClient esClient;
+	private final KafkaTemplate<String, List<String>> kafkaTemplate;
 
 	@Override
 	public ForeignNewsMongo save(ForeignNewsMongo news) {
@@ -127,6 +129,9 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 			List<String> idList = response.hits().hits().stream()
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
+
+			// kafka로 전송
+			kafkaTemplate.send("foreign_news", idList);
 
 			List<ForeignNewsResponse> newsList = mongoDBRepository.findByIdIn(idList).stream()
 				.map(news -> ForeignNewsResponse.builder()
