@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.searchserver.search.dto.KeywordRankingData;
+import com.ssafy.searchserver.search.dto.KeywordRankingResponse;
+import com.ssafy.searchserver.search.dto.KeywordResponse;
 import com.ssafy.searchserver.search.dto.MindMapResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -140,5 +143,35 @@ public class SearchSwaggerController {
 			.data(relatedWords)
 			.build();
 	}
+
+	@GetMapping("/keyword-ranking")
+	public KeywordRankingResponse extractKeywordRanking(
+		@RequestHeader(name = "Authorization", required = false) String authorization,
+		@Parameter(description = "카테고리", example = "sports")
+		@RequestParam String category,
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
+		@RequestParam int period,
+		@Parameter(description = "한국 여부", example = "false")
+		@RequestParam boolean isKorea
+	) {
+		// 예시 더미 데이터
+		List<KeywordResponse> keywordRanking = List.of(
+			KeywordResponse.builder().name("도널드").state("new").build(),
+			KeywordResponse.builder().name("덕덕").state("hot").build(),
+			KeywordResponse.builder().name("트럼프").state("").build()
+		);
+
+		KeywordRankingData keywordRankingData = KeywordRankingData.builder()
+			.keywords(keywordRanking)
+			.build();
+
+		return KeywordRankingResponse.builder()
+			.code("SUCCESS")
+			.success(true)
+			.message("요청 성공")
+			.data(keywordRankingData)
+			.build();
+	}
+
 
 }
