@@ -39,7 +39,7 @@ const MainPage = () => {
       <div>
         {/* 토글 버튼에 따른 세계 지도 렌더링 */}
 
-        <div className="w-[150px] h-[50px] flex justify-between rounded-4xl overflow-hidden border border-white p-1.5">
+        <div className="w-[150px] h-[50px] flex justify-between rounded-[20px] overflow-hidden border border-white p-1.5">
           {tabs.map((tab) => (
             <div
               key={tab.id}
