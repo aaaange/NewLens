@@ -1,6 +1,12 @@
 import Flag from 'react-world-flags';
 import NewsItem from './NewsItem';
-import { NewsItemType } from '../../pages/WorldDetail';
+
+interface NewsItemType {
+  title: string;
+  url: string;
+  published_date: string;
+  image_url: string;
+}
 
 interface NewsListProps {
   news: NewsItemType[];
@@ -36,7 +42,8 @@ const NewsList = ({
       <div className="space-y-2 border-2 border-gray-500 rounded-lg">
         {news.map((item, index) => (
           <NewsItem
-            key={item.url}
+            // key={item.url}
+            key={index}
             title={item.title} // 뉴스 제목
             url={item.url} // 뉴스 URL
             publishedDate={item.published_date} // 뉴스 발행 날짜

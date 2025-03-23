@@ -1,7 +1,13 @@
 import { Typography } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
 import Flag from 'react-world-flags';
-import { VideoItemType } from '../../pages/WorldDetail';
+
+interface VideoItemType {
+  title: string;
+  url: string;
+  published_date: string;
+  thumbnail_url: string;
+}
 
 interface VideoListProps {
   videos: VideoItemType[];

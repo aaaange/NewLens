@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Wordcloud } from '@visx/wordcloud';
 import Flag from 'react-world-flags';
-import { WordType } from '../../pages/WorldDetail';
 
 const colors: string[] = [
   '#FFD700',
@@ -14,8 +13,13 @@ const colors: string[] = [
   '#58D68D',
 ];
 
+interface WordType {
+  text: string;
+  value: number;
+}
+
 interface WordCloudProps {
-  words: WordType[];
+  keywords: WordType[];
   width: number;
   height: number;
   keyword: string;
@@ -33,13 +37,14 @@ interface CloudWord {
 }
 
 const WordCloud = ({
-  words,
+  keywords,
   width,
   height,
   keyword,
   country_name,
   country_code,
 }: WordCloudProps) => {
+  // console.log('워드클라우드 키워드:', keyword);
   const handleWordClick = (word: CloudWord): void => {
     // alert는 반환 값이 없음으로 void
     alert(`클릭한 단어: ${word.text}, 빈도: ${word.value}`);
@@ -55,7 +60,7 @@ const WordCloud = ({
       </p>
       <svg width={width} height={height}>
         <Wordcloud
-          words={words}
+          words={keywords}
           width={width}
           height={height}
           fontSize={(word) => Math.sqrt(word.value) * 5}
