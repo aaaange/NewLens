@@ -1,4 +1,4 @@
-package com.ssafy.searchserver.news.entity;
+package com.ssafy.searchserver.search.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +8,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 

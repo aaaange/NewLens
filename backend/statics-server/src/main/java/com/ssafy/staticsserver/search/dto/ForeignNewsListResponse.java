@@ -1,9 +1,9 @@
-package com.ssafy.searchserver.news.dto;
+package com.ssafy.staticsserver.search.dto;
+
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 @Builder

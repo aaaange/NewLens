@@ -1,4 +1,4 @@
-package com.ssafy.searchserver.news.dto;
+package com.ssafy.searchserver.search.dto;
 
 import java.util.List;
 
