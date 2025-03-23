@@ -1,4 +1,11 @@
-const NewsItem = ({ title, url, publishedDate, imageUrl }) => {
+interface NewsItemProps {
+  title: string;
+  url: string;
+  publishedDate: string;
+  imageUrl: string;
+}
+
+const NewsItem = ({ title, url, publishedDate, imageUrl }: NewsItemProps) => {
   return (
     <a
       href={url}
