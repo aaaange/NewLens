@@ -1,8 +1,25 @@
 import { Typography } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
 import Flag from 'react-world-flags';
+import { VideoItemType } from '../../pages/WorldDetail';
 
-const VideoList = ({ videos, width, height, keyword, country_name }) => {
+interface VideoListProps {
+  videos: VideoItemType[];
+  width: number;
+  height: number;
+  keyword: string;
+  country_name: string;
+  country_code: string;
+}
+
+const VideoList = ({
+  videos,
+  width,
+  height,
+  keyword,
+  country_name,
+  country_code,
+}: VideoListProps) => {
   return (
     <>
       <div
@@ -14,7 +31,7 @@ const VideoList = ({ videos, width, height, keyword, country_name }) => {
         }}
       >
         <p className="flex items-center">
-          <Flag code="US" width="24" height="12" /> &nbsp;
+          <Flag code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
           <span className="text-system-warning text-lg ">{keyword}</span>의
           관련&nbsp;
@@ -47,7 +64,7 @@ const VideoList = ({ videos, width, height, keyword, country_name }) => {
           >
             {videos.map((content, idx) => (
               <div
-                key={idx}
+                key={content.url}
                 style={{
                   display: 'flex',
                   flexDirection: 'column', // 텍스트와 이미지를 위아래로 배치
