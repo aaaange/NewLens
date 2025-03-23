@@ -1,10 +1,10 @@
 interface GptSummaryProps {
-  analysis: string;
+  description: string;
   width: number;
   height: number;
 }
 
-const GptSummary = ({ analysis, width, height }: GptSummaryProps) => {
+const GptSummary = ({ description, width, height }: GptSummaryProps) => {
   return (
     <>
       <div
@@ -14,7 +14,7 @@ const GptSummary = ({ analysis, width, height }: GptSummaryProps) => {
           height: `${height}px`,
         }}
       >
-        <p>{analysis}</p>
+        <p>{description}</p>
       </div>
     </>
   );
