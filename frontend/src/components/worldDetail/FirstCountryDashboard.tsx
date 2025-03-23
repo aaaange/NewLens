@@ -1,6 +1,4 @@
 import useCountryData from '../../hooks/useCountryData';
-import CountryDropdown from './CountryDropdown';
-import GptSummary from './GptSummary';
 import MentionChart from './MentionChart';
 import NewsList from './NewsList';
 import NewsSummary from './NewsSummary';
