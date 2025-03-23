@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import CountryDropdown from '../components/worldDetail/CountryDropdown';
 import GptSummary from '../components/worldDetail/GptSummary';
 import FirstCountryBoard from '../components/worldDetail/FirstCountryDashboard';
@@ -10,12 +11,23 @@ const description: string =
 const analysis: string = '한줄 비교 요약본 from gpt';
 
 const WorldDetail = () => {
+  const [secondCountryCode, setSecondCountryCode] = useState('US');
+  const [secondCountryName, setSecondCountryName] = useState('미국');
+
   return (
     <div className="mt-5">
       <div className="flex flex-col items-center gap-3">
         <div className="flex gap-10">
           <CountryDropdown width="410px" height="60px" />
-          <CountryDropdown width="410px" height="60px" />
+          <CountryDropdown
+            width="410px"
+            height="60px"
+            value={secondCountryCode}
+            onChange={(code, name) => {
+              setSecondCountryCode(code);
+              setSecondCountryName(name);
+            }}
+          />
         </div>
         <GptSummary description={description} width={880} height={125} />
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
@@ -27,10 +39,10 @@ const WorldDetail = () => {
               period="week"
             />
           </div>
-          {/* <VerticalDivider /> */}
           <div className="p-5">
             <SecondCountryBoard
-              country="US"
+              country_name={secondCountryName}
+              country={secondCountryCode}
               keyword={mockKeyword}
               category="general"
               period="week"
