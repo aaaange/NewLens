@@ -8,11 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.searchserver.search.country.dto.AnalysisData;
 import com.ssafy.searchserver.search.country.dto.ArticleResponse;
+import com.ssafy.searchserver.search.country.dto.CompareInfoResponse;
 import com.ssafy.searchserver.search.country.dto.DashboardData;
 import com.ssafy.searchserver.search.country.dto.DashboardResponse;
 import com.ssafy.searchserver.search.country.dto.KeywordResponse;
 import com.ssafy.searchserver.search.country.dto.MentionResponse;
+import com.ssafy.searchserver.search.country.dto.NewsData;
+import com.ssafy.searchserver.search.country.dto.NewsResponse;
+import com.ssafy.searchserver.search.country.dto.SearchNewsResponse;
 import com.ssafy.searchserver.search.country.dto.SentimentResponse;
 import com.ssafy.searchserver.search.country.dto.VideoResponse;
 
@@ -131,7 +136,7 @@ public class CountrySwaggerController {
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "week")
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프, 관세")
 		@RequestParam String keyword,
@@ -213,11 +218,11 @@ public class CountrySwaggerController {
 	}
 
 	@GetMapping("/compare-info")
-	public KeywordRankingResponse extractKeywordRanking(
+	public CompareInfoResponse extractCompareInfo(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "week")
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프, 관세")
 		@RequestParam String keyword,
@@ -225,54 +230,63 @@ public class CountrySwaggerController {
 		@RequestParam String country
 	) {
 		// 예시 더미 데이터
-		List<KeywordResponse> keywordRanking = List.of(
-			KeywordResponse.builder().name("도널드").state("new").build(),
-			KeywordResponse.builder().name("덕덕").state("hot").build(),
-			KeywordResponse.builder().name("트럼프").state("").build()
-		);
-
-		KeywordRankingData keywordRankingData = KeywordRankingData.builder()
-			.keywords(keywordRanking)
+		AnalysisData data = AnalysisData.builder()
+			.analysis("한줄 비교 요약본 from gpt")
 			.build();
 
-		return KeywordRankingResponse.builder()
+		return CompareInfoResponse.builder()
 			.code("SUCCESS")
 			.success(true)
 			.message("요청 성공")
-			.data(keywordRankingData)
+			.data(data)
 			.build();
 	}
 
 	@GetMapping("/news")
-	public SentimentMentionResponse extractSentimentMention(
+	public SearchNewsResponse searchNews(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "week")
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프")
-		@RequestParam String keyword
+		@RequestParam String keyword,
+		@Parameter(description = "국가", example = "ko")
+		@RequestParam String country,
+		@Parameter(description = "페이지", example = "1")
+		@RequestParam String page,
+		@Parameter(description = "페이지 당 보여줄 개수", example = "5")
+		@RequestParam String size
 	) {
 		// 예시 더미 데이터
-		// Sentiment 더미 데이터
-		List<SentimentResponse> sentimentList = List.of(
-			SentimentResponse.builder().name("ko").positive(0.7).neutral(0.2).negative(0.1).build(),
-			SentimentResponse.builder().name("us").positive(0.3).neutral(0.5).negative(0.2).build()
+		// 뉴스 항목 더미 데이터
+		List<NewsResponse> newsList = List.of(
+			NewsResponse.builder()
+				.title("AI 기술의 발전과 미래")
+				.url("https://example.com/article1")
+				.publishedDate("2025-03-11")
+				.imageUrl("https://example.com/images/article1.jpg")
+				.build(),
+			NewsResponse.builder()
+				.title("챗봇이 바꾸는 고객 서비스")
+				.url("https://example.com/article2")
+				.publishedDate("2025-03-10")
+				.imageUrl("https://example.com/images/article2.jpg")
+				.build()
 		);
 
-		// Mention 더미 데이터
-		List<MentionResponse> mentionList = List.of(
-			MentionResponse.builder().name("ko").count(125).build(),
-			MentionResponse.builder().name("us").count(119).build()
-		);
-
-		// 데이터를 하나의 객체로 묶기
-		SentimentMentionData data = SentimentMentionData.builder()
-			.sentiment(sentimentList)
-			.mention(mentionList)
+		// 뉴스 데이터 구성
+		NewsData data = NewsData.builder()
+			.news(newsList)
+			.page(1)
+			.size(10)
+			.totalElements(1024)
+			.totalPages(103)
+			.hasNext(true)
+			.hasPrevious(false)
 			.build();
 
-		return SentimentMentionResponse.builder()
+		return SearchNewsResponse.builder()
 			.code("SUCCESS")
 			.success(true)
 			.message("요청 성공")
