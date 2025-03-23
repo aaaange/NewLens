@@ -1,27 +1,15 @@
-import WordCloud from '../components/worldDetail/Wordcloud';
-import StackedColumns from '../components/worldDetail/StackedColumns';
-import MentionChart from '../components/worldDetail/MentionChart';
-import CountryDropdown from '../components/worldDetail/CountryDropdown';
-import NewsList from '../components/worldDetail/NewsList';
-import NewsSummary from '../components/worldDetail/NewsSummary';
-import GptSummary from '../components/worldDetail/GptSummary';
-import VideoList from '../components/worldDetail/VideoList';
-import FirstCountryBoard from '../components/worldDetail/FirstCountryDashboard';
-import SecondCountryBoard from '../components/worldDetail/SecondCountryDashboard';
-import { keyword as mockKeyword } from '../components/worldDetail/MockData';
+export const country_name: string = '미국';
 
-const country_name: string = '미국';
+export const country_code: string = 'US';
 
-const country_code: string = 'US';
-
-const keyword: string = '속초 도련님';
+export const keyword: string = '속초 도련님';
 
 export type WordType = {
   text: string;
   value: number;
 };
 
-const words: WordType[] = [
+export const words: WordType[] = [
   { text: '시간', value: 30 },
   { text: '절대적인', value: 20 },
   { text: '사람들', value: 40 },
@@ -46,7 +34,7 @@ export type SentimentData = {
   negative: number;
 };
 
-const sentimentData: SentimentData[] = [
+export const sentimentData: SentimentData[] = [
   { period: '2025-03-01', positive: 0.7, neutral: 0.2, negative: 0.1 },
   { period: '2025-03-02', positive: 0.6, neutral: 0.3, negative: 0.1 },
   { period: '2025-03-03', positive: 0.8, neutral: 0.15, negative: 0.05 },
@@ -57,7 +45,7 @@ export type MentionData = {
   count: number;
 };
 
-const data: MentionData[] = [
+export const mentionData: MentionData[] = [
   { period: '2025-03-01', count: 121 },
   { period: '2025-03-02', count: 126 },
   { period: '2025-03-03', count: 110 },
@@ -73,7 +61,7 @@ export type NewsItemType = {
   image_url: string;
 };
 
-const newsData: NewsItemType[] = [
+export const newsData: NewsItemType[] = [
   {
     title: 'AI 기술의 발전과 미래',
     url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
@@ -90,28 +78,28 @@ const newsData: NewsItemType[] = [
   },
   {
     title: '챗봇이 바꾸는 고객 서비스',
-    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    url: 'https://n.news.naver.com/mnews/article/018/0005968438',
     published_date: '2025-03-10',
     image_url:
       'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
   },
   {
     title: '챗봇이 바꾸는 고객 서비스',
-    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    url: 'https://n.news.naver.com/mnews/article/011/0004464558',
     published_date: '2025-03-10',
     image_url:
       'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
   },
   {
     title: '챗봇이 바꾸는 고객 서비스',
-    url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
+    url: 'https://n.news.naver.com/mnews/article/277/0005565230',
     published_date: '2025-03-10',
     image_url:
       'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
   },
 ];
 
-const description: string =
+export const description: string =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
 
 const analysis: string = '한줄 비교 요약본 from gpt';
@@ -123,7 +111,7 @@ export type VideoItemType = {
   thumbnail_url: string;
 };
 
-const videos: VideoItemType[] = [
+export const videos: VideoItemType[] = [
   {
     title: 'G-DRAGON - POWER (Official Video)',
     url: 'https://youtu.be/NMjhjrBIrG8?si=qiVz-RwxTNtVomuY',
@@ -146,89 +134,3 @@ const videos: VideoItemType[] = [
       'https://i.ytimg.com/vi/I8I51kSq448/hqdefault.jpg?sqp=-oaymwEnCPYBEIoBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDlkVggOMAhjX3Q7NCYizt895AOmg',
   },
 ];
-
-const WorldDetail = () => {
-  return (
-    <div className="mt-5">
-      {/* <h2> 워드클라우드 테스트</h2>
-      <CountryDropdown width="250px" height="60px" />
-      <GptSummary description={analysis} width={900} height={125} />
-      <WordCloud
-        keywords={words}
-        width={300}
-        height={200}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country_code}
-      />
-      <NewsSummary
-        description={description}
-        width={410}
-        height={150}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country_code}
-      />
-      <StackedColumns
-        data={sentimentData}
-        width={300}
-        height={200}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country_code}
-      />
-      <MentionChart
-        data={data}
-        width={300}
-        height={200}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country_code}
-      />
-      <NewsList
-        news={newsData}
-        width={400}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country_code}
-      />
-      <VideoList
-        videos={videos}
-        width={410}
-        height={265}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country_code}
-      /> */}
-
-      <div className="flex flex-col items-center gap-3">
-        <div className="flex gap-10">
-          <CountryDropdown width="410px" height="60px" />
-          <CountryDropdown width="410px" height="60px" />
-        </div>
-        <GptSummary description={description} width={880} height={125} />
-        <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
-          <div className="p-5">
-            <FirstCountryBoard
-              country="US"
-              keyword={mockKeyword}
-              category="general"
-              period="week"
-            />
-          </div>
-          {/* <VerticalDivider /> */}
-          <div className="p-5">
-            <SecondCountryBoard
-              country="US"
-              keyword={mockKeyword}
-              category="general"
-              period="week"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default WorldDetail;

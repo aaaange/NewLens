@@ -12,7 +12,7 @@ interface StackedColumnChartProps {
   country_code: string;
 }
 
-const StackedColumnChart = ({
+const StackedColumns = ({
   data,
   width,
   height,
@@ -99,4 +99,4 @@ const StackedColumnChart = ({
   );
 };
 
-export default StackedColumnChart;
+export default StackedColumns;

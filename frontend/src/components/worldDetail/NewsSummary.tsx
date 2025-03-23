@@ -1,7 +1,7 @@
 import Flag from 'react-world-flags';
 
 interface NewsSummaryProps {
-  data: string;
+  description: string;
   width: number;
   height: number;
   keyword: string;
@@ -10,7 +10,7 @@ interface NewsSummaryProps {
 }
 
 const NewsSummary = ({
-  data,
+  description,
   width,
   height,
   keyword,
@@ -44,7 +44,7 @@ const NewsSummary = ({
           }}
         >
           {/* 실제 내용 */}
-          <div>{data}</div>
+          <div>{description}</div>
         </div>
       </div>
     </div>
