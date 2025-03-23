@@ -113,14 +113,14 @@ const description: string =
 
 const analysis: string = '한줄 비교 요약본 from gpt';
 
-type VideoItem = {
+export type VideoItemType = {
   title: string;
   url: string;
   published_date: string;
   thumbnail_url: string;
 };
 
-const videos: VideoItem[] = [
+const videos: VideoItemType[] = [
   {
     title: 'G-DRAGON - POWER (Official Video)',
     url: 'https://youtu.be/NMjhjrBIrG8?si=qiVz-RwxTNtVomuY',
@@ -187,11 +187,12 @@ const WorldDetail = () => {
         country_code={country_code}
       />
       <VideoList
-        videos={videos || []}
+        videos={videos}
         width={410}
         height={265}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
     </div>
   );
