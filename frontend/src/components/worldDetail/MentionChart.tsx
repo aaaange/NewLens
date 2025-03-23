@@ -1,7 +1,11 @@
 import Chart from 'react-apexcharts';
 import Flag from 'react-world-flags';
-import { MentionData } from '../../pages/WorldDetail';
 import { ApexOptions } from 'apexcharts';
+
+interface MentionData {
+  period: string;
+  count: number;
+}
 
 interface MentionChartProps {
   data: MentionData[];

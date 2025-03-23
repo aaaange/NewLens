@@ -1,6 +1,12 @@
 import Flag from 'react-world-flags';
 import NewsItem from './NewsItem';
-import { NewsItemType } from '../../pages/WorldDetail';
+
+interface NewsItemType {
+  title: string;
+  url: string;
+  published_date: string;
+  image_url: string;
+}
 
 interface NewsListProps {
   news: NewsItemType[];

@@ -1,7 +1,13 @@
 import Chart from 'react-apexcharts';
 import Flag from 'react-world-flags';
-import { SentimentData } from '../../pages/WorldDetail';
 import { ApexOptions } from 'apexcharts';
+
+interface SentimentData {
+  period: string;
+  positive: number;
+  neutral: number;
+  negative: number;
+}
 
 interface StackedColumnChartProps {
   data: SentimentData[];
