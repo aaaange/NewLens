@@ -18,6 +18,7 @@ import {
 
 interface FirstCountryBoardProps {
   country: string;
+  country_name: string;
   keyword: string | string[];
   category: string;
   period: string;
@@ -25,6 +26,7 @@ interface FirstCountryBoardProps {
 
 const FirstCountryBoard = ({
   country,
+  country_name,
   keyword,
   category,
   period,
@@ -32,12 +34,13 @@ const FirstCountryBoard = ({
   const memoizedParams = useMemo(
     () => ({
       country,
+      country_name,
       keyword,
       category,
       period,
       is_korea: country === 'kr',
     }),
-    [country, keyword, category, period]
+    [country, country_name, keyword, category, period]
   );
 
   const { data, isLoading, error } = useCountryData(memoizedParams);
@@ -46,7 +49,7 @@ const FirstCountryBoard = ({
   if (error) return <div>Error! {error.message}</div>;
   // if (!data) return <div>No Data</div>;
 
-  const country_name: string = '미국';
+  // const country_name: string = '미국';
 
   // 서버 응답 없을 경우 목데이터로 대체
   const safeData = data ?? {
