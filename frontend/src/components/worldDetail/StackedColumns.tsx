@@ -9,6 +9,7 @@ interface StackedColumnChartProps {
   height: number;
   keyword: string;
   country_name: string;
+  country_code: string;
 }
 
 const StackedColumnChart = ({
@@ -17,6 +18,7 @@ const StackedColumnChart = ({
   height,
   keyword,
   country_name,
+  country_code,
 }: StackedColumnChartProps) => {
   const options: ApexOptions = {
     chart: {
@@ -81,7 +83,7 @@ const StackedColumnChart = ({
   return (
     <>
       <p className="flex">
-        <Flag code="US" width="24" height="12" /> &nbsp;
+        <Flag code={country_code} width="24" height="12" /> &nbsp;
         {country_name}에서 본&nbsp;
         <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
         <span className="text-system-warning">감정 분석</span>
