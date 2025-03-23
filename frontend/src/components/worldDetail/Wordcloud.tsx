@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Wordcloud } from '@visx/wordcloud';
 import Flag from 'react-world-flags';
-import { WordType } from '../../pages/WorldDetail';
 
 const colors: string[] = [
   '#FFD700',
@@ -13,6 +12,11 @@ const colors: string[] = [
   '#F5B7B1',
   '#58D68D',
 ];
+
+interface WordType {
+  text: string;
+  value: number;
+}
 
 interface WordCloudProps {
   keywords: WordType[];
