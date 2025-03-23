@@ -28,7 +28,7 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
   //===========================================================================
   const fetchWorldData = async () => {
     try {
-      const response = await fetch('/worldData.json'); // JSON 데이터 가져오기
+      const response = await fetch('/worldData.json');
       const jsonData = await response.json();
       // const jsonData = await getWorldMapData();
       // console.log('jsonData', jsonData);
@@ -81,14 +81,14 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
       );
 
       setSentimentData(sentimentObj);
-      console.log('sentimentData', sentimentData);
+      // console.log('sentimentData', sentimentData);
     } catch (error) {
       console.error('API 데이터 가져오기 실패:', error);
     }
   };
 
   useEffect(() => {
-    fetchWorldData(); // 호출
+    fetchWorldData();
   }, []);
 
   useEffect(() => {
@@ -116,6 +116,9 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
       Indonesia: 'id',
       Argentina: 'ar',
     };
+    //===========================================================================
+    // 기본 설정
+    //===========================================================================
 
     // 핵심 amCharts 루트 요소 생성
     const root = am5.Root.new(chartContainerRef.current);
@@ -141,102 +144,14 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
     );
 
     // console.log('mentionData', mentionData);
-    //===========================================================================
-    // 색상 변경 설정 함수
-    //===========================================================================
-
-    // 언급량에 따른 색상 설정 함수
-    const getColorByMention = (count: number): string => {
-      if (count <= 90) return '#E2695C'; // 매우 낮음
-      if (count <= 110) return '#5279BD'; // 낮음
-      if (count <= 120) return '#BBFF00'; // 보통
-      if (count <= 130) return '#80BF56'; // 높음
-      if (count > 130) return '#FFD700'; // 매우 높음
-      return '#E0E0E0'; // 기본 설정(그레이)
-    };
-
-    // 긍부정에 따른 색상 설정 함수 //////////////////////////////////////////////////수정해라!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    const getColorBySentiment = (primarySentiment: string): string => {
-      if (primarySentiment === 'positive') return '#AF5C97'; // 긍정
-      if (primarySentiment === 'neutral') return '#89C462'; // 중립
-      if (primarySentiment === 'negative') return '#89C462'; // 부정
-      return '#E0E0E0';
-    };
-
-    // 폴리곤 데이터가 준비되면 실행
-    polygonSeries.events.on('datavalidated', () => {
-      polygonSeries.mapPolygons.each((polygon) => {
-        const fullName = (polygon.dataItem?.dataContext as { name: string })
-          .name;
-        const shortName = countryName[fullName];
-        (polygon.dataItem?.dataContext as { shortName: string }).shortName =
-          shortName; // shortName 추가
-
-        //===========================================================================
-        // 언급량 관련 설정
-        //===========================================================================
-        if (!mentionData) return;
-        const mentionCount = mentionData[shortName];
-
-        (
-          polygon.dataItem?.dataContext as { mentionCount: number }
-        ).mentionCount = mentionCount; // mention 추가
-
-        //===========================================================================
-        // 감정 관련 설정
-        //===========================================================================
-        if (!sentimentData) return;
-        const sentiment = sentimentData[shortName];
-        if (!sentiment) return; // 해당 국가 데이터 없으면 return
-        const { positive, neutral, negative, primarySentiment } = sentiment;
-
-        //===========================================================================
-        // props로 내려 받은 tab에 따른 컬러와 툴팁 설정
-        //===========================================================================
-
-        if (tabId === 'mention') {
-          polygon.set('fill', am5.color(getColorByMention(mentionCount)));
-          polygon.set(
-            'tooltipText',
-            mentionCount
-              ? `${fullName}\n(언급량: {mentionCount})`
-              : `${fullName}`
-          );
-        } else {
-          polygon.set('fill', am5.color(getColorBySentiment(primarySentiment)));
-          polygon.set(
-            'tooltipText',
-            sentiment
-              ? `${fullName}\n긍정: ${positive}\n중립: ${neutral}\n부정: ${negative}\n우세: ${primarySentiment}`
-              : `${fullName}`
-          );
-        }
-      });
-    });
 
     // 폴리곤(국가) 기본 스타일 설정
     polygonSeries.mapPolygons.template.setAll({
       toggleKey: 'active',
-      interactive: true,
+      // interactive: true,
       fill: am5.color('#E0E0E0'),
       strokeWidth: 0.2,
       stroke: am5.color('#011728'),
-    });
-
-    // console.log('언급 데이터', mentionData);
-
-    // Hover 및 Active 상태 정의
-    polygonSeries.mapPolygons.template.states.create('hover', {
-      // fill: root.interfaceColors.get('primaryButtonHover'),
-      stroke: am5.color('#FFFFFF'),
-      strokeWidth: 4,
-      scale: 1.02,
-      cursorOverStyle: 'pointer',
-    });
-
-    polygonSeries.mapPolygons.template.states.create('active', {
-      fill: root.interfaceColors.get('primaryButtonHover'),
-      cursorOverStyle: 'pointer',
     });
 
     // 호버시 zindex 설정
@@ -278,6 +193,90 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
 
     // 지도 렌더링 시, 애니메이션 효과
     chart.appear(1000, 100);
+
+    //===========================================================================
+    // 언급량, 긍부정에 따른 설정
+    //===========================================================================
+
+    // 언급량에 따른 색상 설정 함수
+    const getColorByMention = (count: number): string => {
+      if (count <= 90) return '#FFEEC6'; // 매우 낮음(100)
+      if (count <= 110) return '#FFD677'; // 낮음(200)
+      if (count <= 120) return '#FFAA20'; // 보통(400)
+      if (count <= 130) return '#F98607'; // 높음(500)
+      if (count > 130) return '#DD6102'; // 매우 높음(600)
+      return '#E0E0E0'; // 기본 설정(그레이)
+    };
+
+    // 긍부정에 따른 색상 설정 함수
+    const getColorBySentiment = (primarySentiment: string): string => {
+      if (primarySentiment === 'positive') return '#5279BD'; // 긍정
+      if (primarySentiment === 'neutral') return '#BBFF00'; // 중립
+      if (primarySentiment === 'negative') return '#E2695C'; // 부정
+      return '#E0E0E0';
+    };
+
+    // 폴리곤 데이터가 준비되면 실행
+    polygonSeries.events.on('datavalidated', () => {
+      polygonSeries.mapPolygons.each((polygon) => {
+        const fullName = (polygon.dataItem?.dataContext as { name: string })
+          .name;
+        const shortName = countryName[fullName];
+        (polygon.dataItem?.dataContext as { shortName: string }).shortName =
+          shortName; // shortName 추가
+
+        //===========================================================================
+        // 언급량 관련 설정
+        //===========================================================================
+        if (!mentionData) return;
+        const mentionCount = mentionData[shortName];
+
+        (
+          polygon.dataItem?.dataContext as { mentionCount: number }
+        ).mentionCount = mentionCount; // mention 추가
+
+        //===========================================================================
+        // 감정 관련 설정
+        //===========================================================================
+        if (!sentimentData) return;
+        const sentiment = sentimentData[shortName];
+        if (!sentiment) return; // 해당 국가 데이터 없으면 return
+        const { positive, neutral, negative, primarySentiment } = sentiment;
+
+        //===========================================================================
+        // props로 내려 받은 tab에 따른 컬러와 툴팁 설정
+        //===========================================================================
+        if (
+          mentionData?.[shortName] !== undefined ||
+          sentimentData?.[shortName] !== undefined
+        ) {
+          polygon.set('cursorOverStyle', 'pointer');
+          polygon.states.create('hover', {
+            stroke: am5.color('#FFFFFF'),
+            strokeWidth: 4,
+            scale: 1.02,
+          });
+        }
+
+        if (tabId === 'mention') {
+          polygon.set('fill', am5.color(getColorByMention(mentionCount)));
+          polygon.set(
+            'tooltipText',
+            mentionCount
+              ? `${fullName}\n(언급량: {mentionCount})`
+              : `${fullName}`
+          );
+        } else {
+          polygon.set('fill', am5.color(getColorBySentiment(primarySentiment)));
+          polygon.set(
+            'tooltipText',
+            sentiment
+              ? `${fullName}\n긍정: ${positive}\n중립: ${neutral}\n부정: ${negative}`
+              : `${fullName}`
+          );
+        }
+      });
+    });
 
     // 차트 인스턴스 저장
     chartRef.current = root;
