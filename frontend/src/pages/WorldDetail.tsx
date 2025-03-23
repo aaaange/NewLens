@@ -9,6 +9,8 @@ import VideoList from '../components/worldDetail/VideoList';
 
 const country_name: string = '미국';
 
+const country_code: string = 'US';
+
 const keyword: string = '속초 도련님';
 
 export type WordType = {
@@ -175,6 +177,7 @@ const WorldDetail = () => {
         height={200}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <NewsList
         news={newsData}
