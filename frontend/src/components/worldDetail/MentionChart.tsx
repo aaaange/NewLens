@@ -1,12 +1,28 @@
 import Chart from 'react-apexcharts';
 import Flag from 'react-world-flags';
+import { MentionData } from '../../pages/WorldDetail';
+import { ApexOptions } from 'apexcharts';
 
-const MentionChart = ({ data, width, height, keyword, country_name }) => {
+interface MentionChartProps {
+  data: MentionData[];
+  width: number;
+  height: number;
+  keyword: string;
+  country_name: string;
+}
+
+const MentionChart = ({
+  data,
+  width,
+  height,
+  keyword,
+  country_name,
+}: MentionChartProps) => {
   // x축과 y축 데이터를 변환
   const categories = data.map((item) => item.period);
   const seriesData = data.map((item) => item.count);
 
-  const options = {
+  const options: ApexOptions = {
     chart: {
       type: 'area',
       background: 'transparent',
