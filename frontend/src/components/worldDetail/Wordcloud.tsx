@@ -20,20 +20,28 @@ interface WordCloudProps {
   height: number;
   keyword: string;
   country_name: string;
+  country_code: string;
 }
 
 interface CloudWord {
-  text: string
-  value: number
-  x: number
-  y: number
-  size: number
-  rotate: number
+  text: string;
+  value: number;
+  x: number;
+  y: number;
+  size: number;
+  rotate: number;
 }
 
-const WordCloud = ({ words, width, height, keyword, country_name }:WordCloudProps) => {
-
-  const handleWordClick = (word: CloudWord) :void => { // alert는 반환 값이 없음으로 void
+const WordCloud = ({
+  words,
+  width,
+  height,
+  keyword,
+  country_name,
+  country_code,
+}: WordCloudProps) => {
+  const handleWordClick = (word: CloudWord): void => {
+    // alert는 반환 값이 없음으로 void
     alert(`클릭한 단어: ${word.text}, 빈도: ${word.value}`);
   };
 
@@ -41,7 +49,7 @@ const WordCloud = ({ words, width, height, keyword, country_name }:WordCloudProp
     <>
       <p className="flex">
         <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
-        <Flag code="US" width="24" height="12" /> &nbsp;
+        <Flag code={country_code} width="24" height="12" /> &nbsp;
         <span className="text-system-warning"> {country_name}</span>의 관련
         키워드
       </p>
@@ -67,43 +75,44 @@ const WordCloud = ({ words, width, height, keyword, country_name }:WordCloudProp
 };
 
 interface WordRendererProps {
-  cloudWords: CloudWord[]
+  cloudWords: CloudWord[];
   handleWordClick: (word: CloudWord) => void;
 }
 
 // 단어 렌더링을 최적화한 컴포넌트 (불필요한 재렌더링 방지)
-const WordRenderer = React.memo(({ cloudWords, handleWordClick }:WordRendererProps) => {
-  const [hoveredWord, setHoveredWord] = useState<string | null>(null);
+const WordRenderer = React.memo(
+  ({ cloudWords, handleWordClick }: WordRendererProps) => {
+    const [hoveredWord, setHoveredWord] = useState<string | null>(null);
 
-  const handleMouseEnter = useCallback((word:CloudWord) => {
-    setHoveredWord(word.text);
-  }, []);
+    const handleMouseEnter = useCallback((word: CloudWord) => {
+      setHoveredWord(word.text);
+    }, []);
 
-  const handleMouseLeave = useCallback(() => {
-    setHoveredWord(null);
-  }, []);
+    const handleMouseLeave = useCallback(() => {
+      setHoveredWord(null);
+    }, []);
 
-  return cloudWords.map((word, i) => (
-    <text
-      key={word.text}
-      fill={colors[i % colors.length]}
-      textAnchor="middle"
-      transform={`translate(${word.x}, ${word.y}) rotate(${word.rotate})`}
-      fontSize={hoveredWord === word.text ? word.size + 5 : word.size}
-      style={{
-        cursor: 'pointer',
-        userSelect: 'none',
-        opacity: hoveredWord === word.text ? 1 : 0.7,
-        transition: 'font-size 0.2s ease, opacity 0.2s ease',
-      }}
-      onClick={() => handleWordClick(word)}
-      onMouseEnter={() => handleMouseEnter(word)}
-      onMouseLeave={handleMouseLeave}
-    >
-      {word.text}
-    </text>
-  ));
-});
-
+    return cloudWords.map((word, i) => (
+      <text
+        key={word.text}
+        fill={colors[i % colors.length]}
+        textAnchor="middle"
+        transform={`translate(${word.x}, ${word.y}) rotate(${word.rotate})`}
+        fontSize={hoveredWord === word.text ? word.size + 5 : word.size}
+        style={{
+          cursor: 'pointer',
+          userSelect: 'none',
+          opacity: hoveredWord === word.text ? 1 : 0.7,
+          transition: 'font-size 0.2s ease, opacity 0.2s ease',
+        }}
+        onClick={() => handleWordClick(word)}
+        onMouseEnter={() => handleMouseEnter(word)}
+        onMouseLeave={handleMouseLeave}
+      >
+        {word.text}
+      </text>
+    ));
+  }
+);
 
 export default WordCloud;

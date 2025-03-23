@@ -156,6 +156,7 @@ const WorldDetail = () => {
         height={200}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <NewsSummary
         data={description}
@@ -163,6 +164,7 @@ const WorldDetail = () => {
         height={150}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <StackedColumns
         data={sentimentData}
@@ -170,6 +172,7 @@ const WorldDetail = () => {
         height={200}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <MentionChart
         data={data}
