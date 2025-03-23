@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   MenuItem,
   Select,
@@ -35,15 +35,38 @@ const g20Countries = [
 interface CountryDropdownProps {
   width?: string;
   height?: string;
+  value?: string; // 선택된 국가 코드
+  onChange?: (code: string, name: string) => void; // 선택 변경시 호출되는 콜백
 }
 
-const CountryDropdown = ({ width, height }:CountryDropdownProps) => {
+const CountryDropdown = ({
+  width,
+  height,
+  value,
+  onChange,
+}: CountryDropdownProps) => {
   const [selectedCountry, setSelectedCountry] = useState(g20Countries[0].code);
+
+  // value가 외부에서 변경되면 내부 상태도 동기화 (1회성)
+  useEffect(() => {
+    if (value !== undefined && value !== selectedCountry) {
+      setSelectedCountry(value);
+    }
+  }, [value]);
+
+  const handleChange = (e: any) => {
+    const newCode = e.target.value;
+    const selectedCountry = g20Countries.find((c) => c.code === newCode);
+    if (onChange && selectedCountry) {
+      onChange(newCode, selectedCountry.name); 
+    }
+  };
 
   return (
     <Select
       value={selectedCountry}
-      onChange={(e) => setSelectedCountry(e.target.value)}
+      // onChange={(e) => setSelectedCountry(e.target.value)}
+      onChange={handleChange}
       className="bg-transparent text-white border-0 border-b border-white !rounded-none"
       sx={{
         width,
