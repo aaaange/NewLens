@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.searchserver.news.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.news.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.news.entity.ForeignNewsElastic;
@@ -14,6 +15,7 @@ import com.ssafy.searchserver.news.repository.ForeignNewsMongoDBRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,9 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final ElasticsearchClient esClient;
-	private final KafkaTemplate<String, List<String>> kafkaTemplate;
+	private final KafkaTemplate<String, String> kafkaTemplate;
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Override
 	public ForeignNewsMongo save(ForeignNewsMongo news) {
@@ -131,7 +135,9 @@ public class ForeignNewsServiceImpl implements ForeignNewsService {
 				.collect(Collectors.toList());
 
 			// kafka로 전송
-			kafkaTemplate.send("foreign_news", idList);
+			String json = objectMapper.writeValueAsString(idList);
+			kafkaTemplate.send("foreign_news", json);
+			// kafkaTemplate.send("foreign_news", idList);
 
 			List<ForeignNewsResponse> newsList = mongoDBRepository.findByIdIn(idList).stream()
 				.map(news -> ForeignNewsResponse.builder()
