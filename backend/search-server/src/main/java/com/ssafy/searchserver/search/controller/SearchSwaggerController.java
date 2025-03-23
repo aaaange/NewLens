@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssafy.searchserver.search.dto.KeywordRankingData;
 import com.ssafy.searchserver.search.dto.KeywordRankingResponse;
 import com.ssafy.searchserver.search.dto.KeywordResponse;
+import com.ssafy.searchserver.search.dto.MentionResponse;
 import com.ssafy.searchserver.search.dto.MindMapResponse;
+import com.ssafy.searchserver.search.dto.SentimentMentionData;
+import com.ssafy.searchserver.search.dto.SentimentMentionResponse;
+import com.ssafy.searchserver.search.dto.SentimentResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -173,5 +177,41 @@ public class SearchSwaggerController {
 			.build();
 	}
 
+	@GetMapping("/worldwide")
+	public SentimentMentionResponse extractSentimentMention(
+		@RequestHeader(name = "Authorization", required = false) String authorization,
+		@Parameter(description = "카테고리", example = "sports")
+		@RequestParam String category,
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
+		@RequestParam int period,
+		@Parameter(description = "검색 키워드", example = "트럼프")
+		@RequestParam String keyword
+	) {
+		// 예시 더미 데이터
+		// Sentiment 더미 데이터
+		List<SentimentResponse> sentimentList = List.of(
+			SentimentResponse.builder().name("ko").positive(0.7).neutral(0.2).negative(0.1).build(),
+			SentimentResponse.builder().name("us").positive(0.3).neutral(0.5).negative(0.2).build()
+		);
+
+		// Mention 더미 데이터
+		List<MentionResponse> mentionList = List.of(
+			MentionResponse.builder().name("ko").count(125).build(),
+			MentionResponse.builder().name("us").count(119).build()
+		);
+
+		// 데이터를 하나의 객체로 묶기
+		SentimentMentionData data = SentimentMentionData.builder()
+			.sentiment(sentimentList)
+			.mention(mentionList)
+			.build();
+
+		return SentimentMentionResponse.builder()
+			.code("SUCCESS")
+			.success(true)
+			.message("요청 성공")
+			.data(data)
+			.build();
+	}
 
 }
