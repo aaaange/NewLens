@@ -11,6 +11,9 @@ const description: string =
 const analysis: string = '한줄 비교 요약본 from gpt';
 
 const WorldDetail = () => {
+  const [firstCountryCode, setFirstCountryCode] = useState('KR');
+  const [firstCountryName, setFirstCountryName] = useState('대한민국');
+
   const [secondCountryCode, setSecondCountryCode] = useState('US');
   const [secondCountryName, setSecondCountryName] = useState('미국');
 
@@ -18,7 +21,15 @@ const WorldDetail = () => {
     <div className="mt-5">
       <div className="flex flex-col items-center gap-3">
         <div className="flex gap-10">
-          <CountryDropdown width="410px" height="60px" />
+          <CountryDropdown
+            width="410px"
+            height="60px"
+            value={firstCountryCode}
+            onChange={(code, name) => {
+              setFirstCountryCode(code);
+              setFirstCountryName(name);
+            }}
+          />
           <CountryDropdown
             width="410px"
             height="60px"
@@ -33,7 +44,8 @@ const WorldDetail = () => {
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
           <div className="p-5">
             <FirstCountryBoard
-              country="US"
+              country={firstCountryCode}
+              country_name={firstCountryName}
               keyword={mockKeyword}
               category="general"
               period="week"
