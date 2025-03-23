@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5map from '@amcharts/amcharts5/map';
 import am5geodata_worldLow from '@amcharts/amcharts5-geodata/worldLow';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
+  WorldMapProps,
   worldMentionType,
   countryNameType,
   SentimentName,
@@ -13,8 +15,11 @@ import {
   getWorldMapData,
 } from '../../services/api/worldService';
 
-const WorldMap = ({ tabId }: { tabId: string }) => {
+const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
   // console.log('tabId', tabId);
+  // console.log('category', category);
+  // console.log('period', period);
+  // console.log('keyword', keyword);
 
   const chartContainerRef = useRef<HTMLDivElement>(null); // 차트 컨테이너 ref
   const chartRef = useRef<am5.Root | null>(null);
@@ -22,6 +27,7 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
   const [sentimentData, setSentimentData] = useState<worldSentimentType | null>(
     null
   );
+  const navigate = useNavigate();
 
   //===========================================================================
   // 데이터 가져오기
@@ -159,23 +165,39 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
       event.target.toFront();
     });
 
-    // console.log('states!!!!', polygonSeries.mapPolygons.template.states);
-
     // 이전 클릭한 폴리곤 저장용 변수
     let previousPolygon: am5map.MapPolygon | null = null;
 
-    // 국가 클릭 시 확대 / 홈 이동 로직
+    // 국가 클릭 시 확대 및 상세 페이지 이동 / 홈 이동 로직
     polygonSeries.mapPolygons.template.on('active', (active, target) => {
       if (previousPolygon && previousPolygon !== target) {
         previousPolygon.set('active', false);
       }
-      if (target && target.get('active')) {
-        polygonSeries.zoomToDataItem(
-          target.dataItem as am5.DataItem<am5map.IMapPolygonSeriesDataItem>
-        );
+
+      if (target) {
+        const dataContext = target.dataItem?.dataContext as {
+          shortName?: string;
+        };
+        const shortName = dataContext?.shortName;
+
+        if (shortName) {
+          if (shortName === 'ru') {
+            chart.zoomToGeoPoint({ latitude: 60, longitude: 90 }, 3, true);
+          } else {
+            polygonSeries.zoomToDataItem(
+              target.dataItem as am5.DataItem<am5map.IMapPolygonSeriesDataItem>
+            );
+          }
+          setTimeout(() => {
+            // navigate(`/worldDetail/${shortName}`);
+            window.scrollTo(0, 0); //
+            navigate(`/worldDetail/`);
+          }, 1000);
+        }
       } else {
         chart.goHome();
       }
+
       previousPolygon = target ?? null;
     });
 
@@ -221,6 +243,7 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
       polygonSeries.mapPolygons.each((polygon) => {
         const fullName = (polygon.dataItem?.dataContext as { name: string })
           .name;
+
         const shortName = countryName[fullName];
         (polygon.dataItem?.dataContext as { shortName: string }).shortName =
           shortName; // shortName 추가
@@ -291,10 +314,7 @@ const WorldMap = ({ tabId }: { tabId: string }) => {
   }, [mentionData, sentimentData, tabId]);
 
   return (
-    <div
-      ref={chartContainerRef}
-      style={{ width: '1000px', height: '600px', margin: '0 auto' }}
-    />
+    <div ref={chartContainerRef} className="w-[1000px] h-[600px] mx-auto" />
   );
 };
 

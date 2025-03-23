@@ -4,6 +4,13 @@ import { api, multipartApi } from './Api';
 //==============================================
 // 인터페이스 정의
 //==============================================
+export interface WorldMapProps {
+  tabId: string;
+  category: string;
+  period: number;
+  keyword: string;
+}
+
 export interface worldMentionType {
   [key: string]: number;
 }
@@ -34,7 +41,13 @@ export interface worldSentimentType {
 //==============================================
 // API 정의
 //==============================================
-export const getWorldMapData = async () => {
-  const response = await api.get(`search/worldwide`);
+export const getWorldMapData = async (
+  category: string,
+  period: number,
+  keyword: string
+) => {
+  const response = await api.get(`search/worldwide`, {
+    params: { category, period, keyword },
+  });
   return response.data;
 };

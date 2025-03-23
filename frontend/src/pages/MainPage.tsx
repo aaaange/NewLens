@@ -5,10 +5,13 @@ import NewsModal from '../components/common/NewsModal';
 import SearchInput from '../components/common/SearchInput';
 
 import WorldMap from '../components/world/Map';
-import MapSwitchTab from '../components/world/MapSwitchTab';
+
 import { useState } from 'react';
 
 const MainPage = () => {
+  //==============================================
+  // 지도 토글 버튼 관련
+  //==============================================
   const [activeTab, setActiveTab] = useState('mention');
 
   const tabs = [
@@ -19,39 +22,46 @@ const MainPage = () => {
   const clickTab = (tabId: string) => {
     setActiveTab(tabId);
   };
+
+  //==============================================
+  // 지도에 넘겨줄 데이터
+  //==============================================
+  const [category, setCategory] = useState('전체');
+  const [period, setPeriod] = useState(1);
+  const [keyword, setKeyword] = useState('');
   return (
-    <div className="">
-      <div>
+    <div className="flex px-[100px] py-[40px] justify-between">
+      <div className="flex flex-col gap-[20px]">
         <SearchInput />
-      </div>
-      <div>
         <MindMap />
-      </div>
-      <div>
-        <Category />
-      </div>
-      <div>
         <KeywordRanking />
       </div>
-      <div>
-        <NewsModal />
-      </div>
-      <div>
+      <div className="flex flex-col gap-[40px] items-end">
+        <Category />
         {/* 토글 버튼에 따른 세계 지도 렌더링 */}
 
-        <div className="w-[150px] h-[50px] flex justify-between rounded-[20px] overflow-hidden border border-white p-1.5">
+        <div className="w-[150px] h-[40px] flex justify-between rounded-[20px] overflow-hidden border border-primary-400 p-1.5">
           {tabs.map((tab) => (
             <div
               key={tab.id}
-              className={`flex flex-1 justify-center items-center cursor-pointer text-black ${activeTab === tab.id ? 'flex justify-center items-center w-[70px] rounded-4xl bg-yellow-400' : ' text-gray-200'}`}
+              className={`flex flex-1 justify-center items-center cursor-pointer text-black ${activeTab === tab.id ? 'flex justify-center items-center w-[70px] rounded-4xl bg-amount-300' : ' text-gray-200'}`}
               onClick={() => clickTab(tab.id)}
             >
               {tab.label}
             </div>
           ))}
         </div>
-        <WorldMap tabId={activeTab} />
+        <WorldMap
+          tabId={activeTab}
+          category={category}
+          period={period}
+          keyword={keyword}
+        />
       </div>
+
+      {/* <div>
+        <NewsModal />
+      </div> */}
     </div>
   );
 };
