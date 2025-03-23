@@ -1,6 +1,5 @@
-package com.ssafy.searchserver.news.entity;
+package com.ssafy.searchserver.search.entity;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.ssafy.staticsserver.news.dto;
+package com.ssafy.staticsserver.search.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
