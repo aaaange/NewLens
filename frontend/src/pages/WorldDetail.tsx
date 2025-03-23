@@ -63,14 +63,14 @@ const data: MentionData[] = [
   { period: '2025-03-06', count: 115 },
 ];
 
-type NewsItem = {
+export type NewsItemType = {
   title: string;
   url: string;
   published_date: string;
   image_url: string;
 };
 
-const newsData: NewsItem[] = [
+const newsData: NewsItemType[] = [
   {
     title: 'AI 기술의 발전과 미래',
     url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
@@ -184,6 +184,7 @@ const WorldDetail = () => {
         width={400}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <VideoList
         videos={videos || []}
