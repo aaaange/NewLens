@@ -3,41 +3,85 @@ import * as am5 from '@amcharts/amcharts5';
 import * as am5map from '@amcharts/amcharts5/map';
 import am5geodata_worldLow from '@amcharts/amcharts5-geodata/worldLow';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
+import {
+  worldMentionType,
+  countryNameType,
+  SentimentName,
+  sentimentType,
+  sentimentResType,
+  worldSentimentType,
+  getWorldMapData,
+} from '../../services/api/worldService';
 
-interface MentionDataType {
-  [key: string]: number;
-}
-
-interface countryNameType {
-  [key: string]: string;
-}
-
-interface WorldMapProps {
-  tabId: string;
-}
-
-const WorldMap = ({ tabId }: WorldMapProps) => {
-  console.log('tabId', tabId);
+const WorldMap = ({ tabId }: { tabId: string }) => {
+  // console.log('tabId', tabId);
 
   const chartContainerRef = useRef<HTMLDivElement>(null); // 차트 컨테이너 ref
-  const chartRef = useRef<am5.Root>(null); // amCharts 인스턴스 저장
-  const [mentionData, setMentionData] = useState<MentionDataType | null>(null); // API에서 받아올 데이터 상태
-  // const [nation, setNation] = useState<string>(''); // 현재 선택한 국가 상태 추가
+  const chartRef = useRef<am5.Root | null>(null);
+  const [mentionData, setMentionData] = useState<worldMentionType | null>(null);
+  const [sentimentData, setSentimentData] = useState<worldSentimentType | null>(
+    null
+  );
 
-  // worldData.json에서 로컬 데이터 가져오기
+  //===========================================================================
+  // 데이터 가져오기
+  //===========================================================================
   const fetchWorldData = async () => {
     try {
       const response = await fetch('/worldData.json'); // JSON 데이터 가져오기
       const jsonData = await response.json();
-      console.log('jsonData', jsonData);
+      // const jsonData = await getWorldMapData();
+      // console.log('jsonData', jsonData);
 
-      // response형태를 배열에서 객체로 변환(검색 시, 속도 차이)
-      const mentionObj: MentionDataType = {};
-      jsonData.data.mention.forEach((item: MentionDataType) => {
+      const { mention, sentiment } = jsonData.data;
+
+      //===========================================================================
+      // 언급량 데이터 response 변환 => response형태를 배열에서 객체로 변환(검색 시, 속도 차이)
+      //===========================================================================
+
+      const mentionObj: worldMentionType = {};
+      mention.forEach((item: worldMentionType) => {
         mentionObj[item.name] = item.count;
       });
+      setMentionData(mentionObj);
+      // console.log('mentionData', mentionData);
 
-      setMentionData(mentionObj); // 상태 업데이트
+      //===========================================================================
+      // 긍부정 데이터 response 변환
+      //===========================================================================
+
+      // primarySentiment 찾는 함수
+      const getPrimarySentiment = (
+        positive: number,
+        neutral: number,
+        negative: number
+      ): SentimentName => {
+        if (positive >= neutral && positive > negative) return 'positive';
+        if (negative >= neutral && negative > positive) return 'negative';
+        return 'neutral';
+      };
+
+      const sentimentObj: worldSentimentType = {};
+
+      sentiment.forEach(
+        ({ name, positive, neutral, negative }: sentimentResType) => {
+          const primarySentiment = getPrimarySentiment(
+            positive,
+            neutral,
+            negative
+          );
+
+          sentimentObj[name] = {
+            positive,
+            neutral,
+            negative,
+            primarySentiment,
+          };
+        }
+      );
+
+      setSentimentData(sentimentObj);
+      console.log('sentimentData', sentimentData);
     } catch (error) {
       console.error('API 데이터 가져오기 실패:', error);
     }
@@ -48,7 +92,7 @@ const WorldMap = ({ tabId }: WorldMapProps) => {
   }, []);
 
   useEffect(() => {
-    if (!chartContainerRef.current) return; // 데이터가 없으면 실행 X     ////////////////////////////////////////////////////////////////////////////
+    if (!chartContainerRef.current) return; // 데이터가 없으면 실행 X
 
     const countryName: countryNameType = {
       'South Korea': 'kr',
@@ -97,6 +141,9 @@ const WorldMap = ({ tabId }: WorldMapProps) => {
     );
 
     // console.log('mentionData', mentionData);
+    //===========================================================================
+    // 색상 변경 설정 함수
+    //===========================================================================
 
     // 언급량에 따른 색상 설정 함수
     const getColorByMention = (count: number): string => {
@@ -108,30 +155,62 @@ const WorldMap = ({ tabId }: WorldMapProps) => {
       return '#E0E0E0'; // 기본 설정(그레이)
     };
 
+    // 긍부정에 따른 색상 설정 함수 //////////////////////////////////////////////////수정해라!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    const getColorBySentiment = (primarySentiment: string): string => {
+      if (primarySentiment === 'positive') return '#AF5C97'; // 긍정
+      if (primarySentiment === 'neutral') return '#89C462'; // 중립
+      if (primarySentiment === 'negative') return '#89C462'; // 부정
+      return '#E0E0E0';
+    };
+
     // 폴리곤 데이터가 준비되면 실행
     polygonSeries.events.on('datavalidated', () => {
       polygonSeries.mapPolygons.each((polygon) => {
         const fullName = (polygon.dataItem?.dataContext as { name: string })
           .name;
         const shortName = countryName[fullName];
-
-        if (!mentionData) return;
-        let mentionCount = mentionData[shortName];
-
         (polygon.dataItem?.dataContext as { shortName: string }).shortName =
           shortName; // shortName 추가
+
+        //===========================================================================
+        // 언급량 관련 설정
+        //===========================================================================
+        if (!mentionData) return;
+        const mentionCount = mentionData[shortName];
+
         (
           polygon.dataItem?.dataContext as { mentionCount: number }
         ).mentionCount = mentionCount; // mention 추가
 
-        // 데이터가 있는 국가의 경우에만 툴팁에 언급량 추가
-        polygon.set(
-          'tooltipText',
-          mentionCount ? `${fullName}\n(언급량: {mentionCount})` : `${fullName}`
-        );
+        //===========================================================================
+        // 감정 관련 설정
+        //===========================================================================
+        if (!sentimentData) return;
+        const sentiment = sentimentData[shortName];
+        if (!sentiment) return; // 해당 국가 데이터 없으면 return
+        const { positive, neutral, negative, primarySentiment } = sentiment;
 
-        // 언급량에 따른 컬러 설정
-        polygon.set('fill', am5.color(getColorByMention(mentionCount)));
+        //===========================================================================
+        // props로 내려 받은 tab에 따른 컬러와 툴팁 설정
+        //===========================================================================
+
+        if (tabId === 'mention') {
+          polygon.set('fill', am5.color(getColorByMention(mentionCount)));
+          polygon.set(
+            'tooltipText',
+            mentionCount
+              ? `${fullName}\n(언급량: {mentionCount})`
+              : `${fullName}`
+          );
+        } else {
+          polygon.set('fill', am5.color(getColorBySentiment(primarySentiment)));
+          polygon.set(
+            'tooltipText',
+            sentiment
+              ? `${fullName}\n긍정: ${positive}\n중립: ${neutral}\n부정: ${negative}\n우세: ${primarySentiment}`
+              : `${fullName}`
+          );
+        }
       });
     });
 
@@ -139,6 +218,7 @@ const WorldMap = ({ tabId }: WorldMapProps) => {
     polygonSeries.mapPolygons.template.setAll({
       toggleKey: 'active',
       interactive: true,
+      fill: am5.color('#E0E0E0'),
       strokeWidth: 0.2,
       stroke: am5.color('#011728'),
     });
@@ -184,32 +264,32 @@ const WorldMap = ({ tabId }: WorldMapProps) => {
       previousPolygon = target ?? null;
     });
 
-    // 📌 줌 컨트롤 추가
+    // 줌 컨트롤
     const zoomControl = chart.set(
       'zoomControl',
       am5map.ZoomControl.new(root, {})
     );
     zoomControl.homeButton.set('visible', true);
 
-    // 📌 지도 바탕 클릭 시 원래 위치로 이동
+    // 지도 바탕 클릭 시 원래 위치로 이동
     chart.chartContainer.get('background')!.events.on('click', () => {
       chart.goHome();
     });
 
-    // 📌 애니메이션 효과 추가
+    // 지도 렌더링 시, 애니메이션 효과
     chart.appear(1000, 100);
 
-    // 📌 차트 인스턴스 저장
+    // 차트 인스턴스 저장
     chartRef.current = root;
 
-    // 📌 Cleanup: 컴포넌트 언마운트 시 차트 제거 (메모리 누수 방지)
+    // 컴포넌트 언마운트 시 차트 제거 (메모리 누수 방지)
     return () => {
       if (chartRef.current) {
         chartRef.current.dispose();
         chartRef.current = null;
       }
     };
-  }, [mentionData]);
+  }, [mentionData, sentimentData, tabId]);
 
   return (
     <div
