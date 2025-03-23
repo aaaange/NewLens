@@ -1,9 +1,8 @@
-package com.ssafy.searchserver.news.dto;
+package com.ssafy.searchserver.search.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 

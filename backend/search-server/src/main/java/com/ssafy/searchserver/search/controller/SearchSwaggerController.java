@@ -1,4 +1,4 @@
-package com.ssafy.searchserver.news.controller;
+package com.ssafy.searchserver.search.controller;
 
 import java.util.List;
 
@@ -8,14 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.searchserver.common.dto.CommonErrorResponse;
-import com.ssafy.searchserver.news.dto.MindMapResponse;
+import com.ssafy.searchserver.search.dto.MindMapResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;

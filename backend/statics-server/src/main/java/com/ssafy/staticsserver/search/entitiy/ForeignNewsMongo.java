@@ -1,4 +1,4 @@
-package com.ssafy.staticsserver.news.entitiy;
+package com.ssafy.staticsserver.search.entitiy;
 
 import java.time.LocalDateTime;
 import java.util.List;
