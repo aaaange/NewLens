@@ -9,6 +9,7 @@ interface MentionChartProps {
   height: number;
   keyword: string;
   country_name: string;
+  country_code: string;
 }
 
 const MentionChart = ({
@@ -17,6 +18,7 @@ const MentionChart = ({
   height,
   keyword,
   country_name,
+  country_code,
 }: MentionChartProps) => {
   // x축과 y축 데이터를 변환
   const categories = data.map((item) => item.period);
@@ -71,7 +73,7 @@ const MentionChart = ({
     },
   };
 
-  const series = [
+  const series: { name: string; data: number[] }[] = [
     {
       name: '언급량',
       data: seriesData,
@@ -81,7 +83,7 @@ const MentionChart = ({
   return (
     <div className="chart-container">
       <p className="flex">
-        <Flag code="US" width="24" height="12" /> &nbsp;
+        <Flag code={country_code} width={24} height={12} /> &nbsp;
         {country_name}에서 본&nbsp;
         <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
         <span className="text-system-warning">언급량 변화</span>
