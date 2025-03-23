@@ -9,6 +9,8 @@ import VideoList from '../components/worldDetail/VideoList';
 
 const country_name: string = '미국';
 
+const country_code: string = 'US';
+
 const keyword: string = '속초 도련님';
 
 export type WordType = {
@@ -61,14 +63,14 @@ const data: MentionData[] = [
   { period: '2025-03-06', count: 115 },
 ];
 
-type NewsItem = {
+export type NewsItemType = {
   title: string;
   url: string;
   published_date: string;
   image_url: string;
 };
 
-const newsData: NewsItem[] = [
+const newsData: NewsItemType[] = [
   {
     title: 'AI 기술의 발전과 미래',
     url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
@@ -111,14 +113,14 @@ const description: string =
 
 const analysis: string = '한줄 비교 요약본 from gpt';
 
-type VideoItem = {
+export type VideoItemType = {
   title: string;
   url: string;
   published_date: string;
   thumbnail_url: string;
 };
 
-const videos: VideoItem[] = [
+const videos: VideoItemType[] = [
   {
     title: 'G-DRAGON - POWER (Official Video)',
     url: 'https://youtu.be/NMjhjrBIrG8?si=qiVz-RwxTNtVomuY',
@@ -154,6 +156,7 @@ const WorldDetail = () => {
         height={200}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <NewsSummary
         data={description}
@@ -161,6 +164,7 @@ const WorldDetail = () => {
         height={150}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <StackedColumns
         data={sentimentData}
@@ -168,6 +172,7 @@ const WorldDetail = () => {
         height={200}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <MentionChart
         data={data}
@@ -175,19 +180,22 @@ const WorldDetail = () => {
         height={200}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <NewsList
         news={newsData}
         width={400}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
       <VideoList
-        videos={videos || []}
+        videos={videos}
         width={410}
         height={265}
         keyword={keyword}
         country_name={country_name}
+        country_code={country_code}
       />
     </div>
   );

@@ -6,16 +6,24 @@ interface NewsSummaryProps {
   height: number;
   keyword: string;
   country_name: string;
+  country_code: string;
 }
 
-const NewsSummary = ({ data, width, height, keyword, country_name }: NewsSummaryProps) => {
+const NewsSummary = ({
+  data,
+  width,
+  height,
+  keyword,
+  country_name,
+  country_code,
+}: NewsSummaryProps) => {
   return (
     <div>
       <div className="flex justify-between ">
         <p className="flex items-center">
           <span className="text-amount-300 text-lg ">{keyword}</span>에
           대한&nbsp;
-          <Flag code="US" width="24" height="12" /> &nbsp;
+          <Flag code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg text-amount-300 text-lg">
             {' '}
             {country_name}
