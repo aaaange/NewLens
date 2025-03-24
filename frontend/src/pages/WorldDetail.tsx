@@ -8,6 +8,8 @@ import SearchInput from '../components/common/SearchInput';
 import MindMap from '../components/common/MindMap';
 import KeywordRanking from '../components/common/KeywordRanking';
 import Category from '../components/common/Category';
+import { useParams } from 'react-router-dom';
+import { getCountryName } from '../utils/countryUtils'
 
 const description: string =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
@@ -15,10 +17,15 @@ const description: string =
 const analysis: string = '한줄 비교 요약본 from gpt';
 
 const WorldDetail = () => {
-  const [firstCountryCode, setFirstCountryCode] = useState('KR');
-  const [firstCountryName, setFirstCountryName] = useState('대한민국');
+  // const { shortName, category, period, keyword } = useParams();
+  // const { shortName } = useParams();
+  const shortName: string = 'kr'
+  console.log(shortName)
 
-  const [secondCountryCode, setSecondCountryCode] = useState('US');
+  const [firstCountry, setFirstCountry] = useState(shortName);
+  const [firstCountryName, setFirstCountryName] = useState(getCountryName(firstCountry));
+
+  const [secondCountry, setSecondCountry] = useState('US');
   const [secondCountryName, setSecondCountryName] = useState('미국');
 
   return (
@@ -34,18 +41,18 @@ const WorldDetail = () => {
           <CountryDropdown
             width="410px"
             height="60px"
-            value={firstCountryCode}
+            value={firstCountry}
             onChange={(code, name) => {
-              setFirstCountryCode(code);
+              setFirstCountry(code);
               setFirstCountryName(name);
             }}
           />
           <CountryDropdown
             width="410px"
             height="60px"
-            value={secondCountryCode}
+            value={secondCountry}
             onChange={(code, name) => {
-              setSecondCountryCode(code);
+              setSecondCountry(code);
               setSecondCountryName(name);
             }}
           />
@@ -54,7 +61,7 @@ const WorldDetail = () => {
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
           <div className="p-5">
             <FirstCountryBoard
-              country={firstCountryCode}
+              country={firstCountry}
               country_name={firstCountryName}
               keyword={mockKeyword}
               category="general"
@@ -64,7 +71,7 @@ const WorldDetail = () => {
           <div className="p-5">
             <SecondCountryBoard
               country_name={secondCountryName}
-              country={secondCountryCode}
+              country={secondCountry}
               keyword={mockKeyword}
               category="general"
               period="week"
