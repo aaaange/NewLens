@@ -1,17 +1,17 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from 'axios';
 
 export const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 const setupInterceptors = (instance: AxiosInstance) => {
   instance.interceptors.request.use(
     (request) => {
-      console.log("api: ", request.url, "호출됨.");
+      console.log('api: ', request.url, '호출됨.');
 
       // const accessToken = getAccessToken();
-      const accessToken = "1";
+      const accessToken = '';
 
       if (accessToken) {
         request.headers.Authorization = accessToken;
@@ -55,7 +55,7 @@ const createInstance = (headers = {}): AxiosInstance => {
 export const createAxiosInstance = (): AxiosInstance => createInstance();
 
 export const createMultipartAxiosInstance = (): AxiosInstance =>
-  createInstance({ "Content-Type": "multipart/form-data" });
+  createInstance({ 'Content-Type': 'multipart/form-data' });
 
 export const api = createAxiosInstance();
 export const multipartApi = createMultipartAxiosInstance();
