@@ -202,4 +202,4 @@ gradle-app.setting
 *.hprof
 
 .env
-.env.*
+.env.development
