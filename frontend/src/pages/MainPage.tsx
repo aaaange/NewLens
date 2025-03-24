@@ -40,11 +40,11 @@ const MainPage = () => {
         <Category />
         {/* 토글 버튼에 따른 세계 지도 렌더링 */}
 
-        <div className="w-[150px] h-[40px] flex justify-between rounded-[20px] overflow-hidden border border-primary-400 p-1.5">
+        <div className="w-[150px] h-[40px] flex justify-between rounded-[20px] overflow-hidden bg-primary-300 p-1">
           {tabs.map((tab) => (
             <div
               key={tab.id}
-              className={`flex flex-1 justify-center items-center cursor-pointer text-black ${activeTab === tab.id ? 'flex justify-center items-center w-[70px] rounded-4xl bg-amount-300' : ' text-gray-200'}`}
+              className={`flex flex-1 justify-center items-center cursor-pointer caption-medium text-black ${activeTab === tab.id ? 'flex justify-center items-center w-[70px] rounded-4xl bg-gray-0' : ' text-gray-0'}`}
               onClick={() => clickTab(tab.id)}
             >
               {tab.label}
