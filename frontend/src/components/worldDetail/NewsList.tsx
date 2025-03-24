@@ -23,19 +23,21 @@ const NewsList = ({
   country_code,
 }: NewsListProps) => {
   return (
-    <div className="gap-2" style={{ width: `${width}px` }}>
+    <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
       {/* 뉴스 리스트 헤더 */}
-      <div className="flex justify-between ">
-        <p className="flex items-center">
+      <div className="flex flex-wrap justify-between ">
+        <p className="flex items-center flex-wrap">
           <Flag code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
           <span className="text-amount-300 text-lg ">{keyword}</span>의
           관련&nbsp;
           <span className="text-amount-300 text-lg "> 뉴스</span>
         </p>
-        <a href="" className="p-2">
-          + 더보기
-        </a>
+        <div className="ml-auto">
+          <a href="" className="p-2">
+            + 더보기
+          </a>
+        </div>
       </div>
 
       {/* 뉴스 리스트 영역 */}

@@ -51,8 +51,8 @@ const WordCloud = ({
   };
 
   return (
-    <>
-      <p className="flex items-center">
+    <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
+      <p className="flex items-center flex-wrap">
         <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
         <Flag code={country_code} width="24" height="12" /> &nbsp;
         <span className="text-amount-300 text-lg"> {country_name}</span>의 관련
@@ -75,7 +75,7 @@ const WordCloud = ({
           )}
         </Wordcloud>
       </svg>
-    </>
+    </div>
   );
 };
 

@@ -87,8 +87,8 @@ const StackedColumns = ({
   ];
 
   return (
-    <>
-      <p className="flex items-center">
+    <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
+      <p className="flex items-center flex-wrap">
         <Flag code={country_code} width="24" height="12" /> &nbsp;
         {country_name}에서 본&nbsp;
         <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
@@ -101,7 +101,7 @@ const StackedColumns = ({
         width={width}
         height={height}
       />
-    </>
+    </div>
   );
 };
 
