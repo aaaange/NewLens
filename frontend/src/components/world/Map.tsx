@@ -155,8 +155,8 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
     polygonSeries.mapPolygons.template.setAll({
       toggleKey: 'active',
       // interactive: true,
-      fill: am5.color('#E0E0E0'),
-      strokeWidth: 0.2,
+      fill: am5.color('#D5DCE8'),
+      strokeWidth: 0.01,
       stroke: am5.color('#011728'),
     });
 
@@ -189,7 +189,7 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
             );
           }
           setTimeout(() => {
-            // navigate(`/worldDetail/${shortName}`);
+            // navigate(`/worldDetail/${shortName}/${category}/${period}/${keyword}`);
             window.scrollTo(0, 0); //
             navigate(`/worldDetail/`);
           }, 1000);
@@ -216,17 +216,36 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
     // 지도 렌더링 시, 애니메이션 효과
     chart.appear(1000, 100);
 
+    // 툴팁 설정
+    const tooltip = am5.Tooltip.new(root, {
+      getFillFromSprite: false,
+      autoTextColor: false,
+    });
+
+    tooltip.get('background')?.setAll({
+      fill: am5.color(0x00000),
+      fillOpacity: 0.8,
+      stroke: am5.color(0x00000),
+      strokeOpacity: 0.8,
+    });
+
+    tooltip.label.setAll({
+      fill: am5.color(0xffffff),
+    });
+
+    polygonSeries.set('tooltip', tooltip);
+
     //===========================================================================
     // 언급량, 긍부정에 따른 설정
     //===========================================================================
 
     // 언급량에 따른 색상 설정 함수
     const getColorByMention = (count: number): string => {
-      if (count <= 90) return '#FFEEC6'; // 매우 낮음(100)
-      if (count <= 110) return '#FFD677'; // 낮음(200)
-      if (count <= 120) return '#FFAA20'; // 보통(400)
-      if (count <= 130) return '#F98607'; // 높음(500)
-      if (count > 130) return '#DD6102'; // 매우 높음(600)
+      if (count <= 90) return '#FFF9EB'; // 매우 낮음(50)
+      if (count <= 110) return '#FFEEC6'; // 낮음(100)
+      if (count <= 120) return '#FFC34A'; // 보통(300)
+      if (count <= 130) return '#FFAA20'; // 높음(400)
+      if (count > 130) return '#F98607'; // 매우 높음(500)
       return '#E0E0E0'; // 기본 설정(그레이)
     };
 
@@ -289,6 +308,28 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
               ? `${fullName}\n(언급량: {mentionCount})`
               : `${fullName}`
           );
+          // legend.data.setAll([
+          //   {
+          //     name: '매우 낮음',
+          //     color: am5.color('#FFEEC6'),
+          //   },
+          //   {
+          //     name: '낮음',
+          //     color: am5.color('#FFD677'),
+          //   },
+          //   {
+          //     name: '보통',
+          //     color: am5.color('#FFAA20'),
+          //   },
+          //   {
+          //     name: '높음',
+          //     color: am5.color('#F98607'),
+          //   },
+          //   {
+          //     name: '매우 높음',
+          //     color: am5.color('#DD6102'),
+          //   },
+          // ]);
         } else {
           polygon.set('fill', am5.color(getColorBySentiment(primarySentiment)));
           polygon.set(
@@ -297,6 +338,21 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
               ? `${fullName}\n긍정: ${positive}\n중립: ${neutral}\n부정: ${negative}`
               : `${fullName}`
           );
+          // // 범례에 표시할 데이터 설정
+          // legend.data.setAll([
+          //   {
+          //     name: '긍정',
+          //     color: am5.color('#5279BD'),
+          //   },
+          //   {
+          //     name: '중립',
+          //     color: am5.color('#BBFF00'),
+          //   },
+          //   {
+          //     name: '부정',
+          //     color: am5.color('#E2695C'),
+          //   },
+          // ]);
         }
       });
     });
@@ -314,7 +370,7 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
   }, [mentionData, sentimentData, tabId]);
 
   return (
-    <div ref={chartContainerRef} className="w-[1000px] h-[600px] mx-auto" />
+    <div ref={chartContainerRef} className="w-[930px] h-[800px] mx-auto" />
   );
 };
 
