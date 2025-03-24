@@ -67,7 +67,7 @@ const WorldDetail = () => {
               country_name={firstCountryName}
               keyword={keyword ?? ''} // undefined 방지
               category={category ?? ''}
-              period={period}
+              period={category ?? ''}
             />
           </div>
           <div className="p-5">
