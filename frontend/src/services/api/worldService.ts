@@ -41,7 +41,7 @@ export interface worldSentimentType {
 //==============================================
 // API 정의
 //==============================================
-export const getWorldMapData = async (
+export const getWorldMapDataApi = async (
   category: string,
   period: number,
   keyword: string
