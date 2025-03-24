@@ -1,5 +1,6 @@
 package com.ssafy.searchserver.search.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -7,9 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.ssafy.searchserver.common.CommonResponse;
 import com.ssafy.searchserver.search.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.search.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.search.dto.MindMapResponse;
+import com.ssafy.searchserver.search.dto.RelatedKeywordsResponse;
 import com.ssafy.searchserver.search.entity.ForeignNewsElastic;
 import com.ssafy.searchserver.search.entity.ForeignNewsMongo;
 import com.ssafy.searchserver.search.service.SearchServiceImpl;
@@ -76,22 +79,21 @@ public class SearchController {
 			examples = @ExampleObject(name = "SERVER_ERROR", summary = "서버 오류 발생", value = "{\"code\": \"SERVER_ERROR\", \"success\": false, \"message\": \"서버 내부 오류가 발생했습니다\", \"data\": null}")
 		))
 	})
-	@GetMapping("/extract-related-words")
-	public MindMapResponse extractRelatedWords(
-		@RequestHeader(name = "Authorization", required = false) String authorization,
-		@Parameter(description = "카테고리", example = "sports") @RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7") @RequestParam int period,
-		@Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword
-	) {
-		// 예시 더미 데이터
-		List<String> relatedWords = List.of("관세", "도널드", "대선");
 
-		return MindMapResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(Map.of("keywords", relatedWords))
-			.build();
+
+	@GetMapping("/extract-related_words")
+	public CommonResponse<RelatedKeywordsResponse> getRelatedKeywords(
+		@Parameter(description = "연관어를 추출할 기준 키워드", example = "트럼프")
+		@RequestParam String keyword,
+
+		@Parameter(description = "필터링할 카테고리", example = "business")
+		@RequestParam String category,
+
+		@Parameter(description = "조회 기간 ex)1, 7, 30", example = "7")
+		@RequestParam(defaultValue = "7") int period
+	) {
+		RelatedKeywordsResponse data = service.getRelatedKeywords(keyword, category, period);
+		return CommonResponse.success(data);
 	}
 
 
