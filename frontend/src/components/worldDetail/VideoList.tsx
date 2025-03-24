@@ -21,7 +21,6 @@ interface VideoListProps {
 const VideoList = ({
   videos,
   width,
-  height,
   keyword,
   country_name,
   country_code,
@@ -29,14 +28,13 @@ const VideoList = ({
   return (
     <>
       <div
-        className="gap-2"
+        className="flex flex-col gap-2"
         style={{
           width: `${width}px`,
-          height: `${height}px`,
           // overflow: 'hidden',
         }}
       >
-        <p className="flex items-center">
+        <p className="flex items-center flex-wrap">
           <Flag code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
           <span className="text-amount-300 text-lg ">{keyword}</span>의
