@@ -96,21 +96,30 @@ const NewsItem = ({
 };
 
 // 페이지네이션도 공통으로 빼야할지 고민해보기
-interface paginationPropsType {
-  currentPage: number;
+interface PaginationPropsType {
+  page: number;
+  size: number;
+  totalElements: number;
   totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
   onPageChange: (page: number) => void;
 }
+
 const Pagination = ({
-  currentPage,
+  page,
+  size,
+  totalElements,
   totalPages,
+  hasNext,
+  hasPrevious,
   onPageChange,
-}: paginationPropsType) => {
+}: PaginationPropsType) => {
   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxPagesToShow = 5;
 
-    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
     if (endPage - startPage + 1 < maxPagesToShow) {
@@ -129,40 +138,40 @@ const Pagination = ({
       <button
         className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
         onClick={() => onPageChange(1)}
-        disabled={currentPage === 1}
+        disabled={!hasPrevious}
         aria-label="첫 페이지"
       >
         <ChevronFirst color="black" size={16} />
       </button>
       <button
         className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        onClick={() => onPageChange(page - 1)}
+        disabled={!hasPrevious}
         aria-label="이전 페이지"
       >
         <ChevronLeft color="black" size={16} />
       </button>
 
-      {getPageNumbers().map((page) => (
+      {getPageNumbers().map((pageNum) => (
         <button
-          key={page}
+          key={pageNum}
           className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg ${
-            page === currentPage
+            pageNum === page
               ? 'bg-slate-300 text-white'
               : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-gray-100'
           }`}
-          onClick={() => onPageChange(page)}
-          aria-label={`${page} 페이지`}
-          aria-current={page === currentPage ? 'page' : undefined}
+          onClick={() => onPageChange(pageNum)}
+          aria-label={`${pageNum} 페이지`}
+          aria-current={pageNum === page ? 'page' : undefined}
         >
-          {page}
+          {pageNum}
         </button>
       ))}
 
       <button
         className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(page + 1)}
+        disabled={!hasNext}
         aria-label="다음 페이지"
       >
         <ChevronRight color="black" size={16} />
@@ -170,7 +179,7 @@ const Pagination = ({
       <button
         className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
         onClick={() => onPageChange(totalPages)}
-        disabled={currentPage === totalPages}
+        disabled={!hasNext}
         aria-label="마지막 페이지"
       >
         <ChevronLast color="black" size={16} />
