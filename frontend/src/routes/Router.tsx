@@ -4,8 +4,8 @@ import Layout from '../layouts/Layout';
 import LoginPage from '../pages/LoginPage';
 import AuthLayout from '../layouts/AuthLayout';
 import Landing from '../pages/LandingPage';
-import KoreaAnalysis from '../components/korea/KoreaAnalysis';
 import WorldDetail from '../pages/WorldDetail';
+import KoreaAnalysisPage from '../pages/KoreaAnalysisPage';
 
 const Router = () => {
   return (
@@ -17,7 +17,7 @@ const Router = () => {
       <Route element={<Layout />}>
         <Route path="/" element={<Landing />} />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/koreaAnalysis" element={<KoreaAnalysis />} />
+        <Route path="/koreaAnalysis" element={<KoreaAnalysisPage />} />
         <Route path="/worldDetail" element={<WorldDetail />} />
       </Route>
     </Routes>
