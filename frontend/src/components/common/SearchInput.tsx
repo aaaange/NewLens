@@ -1,9 +1,10 @@
 interface propsType {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearch: () => void;
+  value: string;
 }
 
-const SearchInput = ({ onChange, onSearch }: propsType) => {
+const SearchInput = ({ onChange, onSearch, value }: propsType) => {
   return (
     <div>
       <div
@@ -13,6 +14,7 @@ const SearchInput = ({ onChange, onSearch }: propsType) => {
           className={`w-full h-full pl-5 pr-10 border text-primary-950 border-gray-500 outline-none rounded-[20px] placeholder-primary-900 body-medium bg-gray-0`}
           placeholder="궁금한 키워드를 검색하세요!"
           type="text"
+          value={value}
           onChange={onChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
