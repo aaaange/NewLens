@@ -121,3 +121,7 @@ $RECYCLE.BIN/
 
 # npm 관련 파일 차단
 package-lock.json
+
+.vite/
+
+.env
