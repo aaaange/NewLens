@@ -190,8 +190,9 @@ const Map = ({ tabId, category, period, keyword }: WorldMapProps) => {
           }
           setTimeout(() => {
             // navigate(`/worldDetail/${shortName}/${category}/${period}/${keyword}`);
+            navigate(`/worldDetail/${shortName}/${category}/${period}/${keyword || 'default'}`);
             window.scrollTo(0, 0); //
-            navigate(`/worldDetail/`);
+            // navigate(`/worldDetail/`);
           }, 1000);
         }
       } else {

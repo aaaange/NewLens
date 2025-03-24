@@ -37,6 +37,7 @@ interface CountryDropdownProps {
   height?: string;
   value?: string; // 선택된 국가 코드
   onChange?: (code: string, name: string) => void; // 선택 변경시 호출되는 콜백
+  placeholder?: string;
 }
 
 const CountryDropdown = ({
@@ -44,10 +45,11 @@ const CountryDropdown = ({
   height,
   value,
   onChange,
+  placeholder,
 }: CountryDropdownProps) => {
-  const [selectedCountry, setSelectedCountry] = useState(g20Countries[0].code);
+  const [selectedCountry, setSelectedCountry] = useState('');
 
-  // value가 외부에서 변경되면 내부 상태도 동기화 (1회성)
+  // 외부에서 전달된 value와 동기화
   useEffect(() => {
     if (value !== undefined && value !== selectedCountry) {
       setSelectedCountry(value);
@@ -58,7 +60,7 @@ const CountryDropdown = ({
     const newCode = e.target.value;
     const selectedCountry = g20Countries.find((c) => c.code === newCode);
     if (onChange && selectedCountry) {
-      onChange(newCode, selectedCountry.name); 
+      onChange(newCode, selectedCountry.name);
     }
   };
 
@@ -67,6 +69,7 @@ const CountryDropdown = ({
       value={selectedCountry}
       // onChange={(e) => setSelectedCountry(e.target.value)}
       onChange={handleChange}
+      displayEmpty
       className="bg-transparent text-white border-0 border-b border-white !rounded-none"
       sx={{
         width,
@@ -80,6 +83,14 @@ const CountryDropdown = ({
         <ExpandMore {...props} className="text-white" />
       )} // 흰색 아이콘 적용
       renderValue={(selected) => {
+        if (!selected) {
+          return (
+            <span className="text-white text-2xl opacity-50">
+              {placeholder || '비교할 나라를 선택하세요'}
+            </span>
+          );
+        }
+
         const country = g20Countries.find((c) => c.code === selected);
         return (
           <div className="flex items-center gap-2">
@@ -93,6 +104,9 @@ const CountryDropdown = ({
         );
       }}
     >
+      <MenuItem disabled value="">
+        {placeholder || '국가를 선택하세요'}
+      </MenuItem>
       {g20Countries.map((country) => (
         <MenuItem
           key={country.code}
