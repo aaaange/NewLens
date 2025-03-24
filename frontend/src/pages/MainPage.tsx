@@ -48,6 +48,13 @@ const MainPage = () => {
     console.log(e.target.value);
   };
 
+  const handleMindMapKeywordChange = (newKeyword: string) => {
+    setKeyword(`${keyword.split(' ')[0]} ${newKeyword}`);
+  };
+  const handleRankingKeywordChange = (newKeyword: string) => {
+    setKeyword(newKeyword);
+  };
+
   // const fetchWorldData = async () => {
   //   try {
   //     const response = await getWorldMapDataApi(category, period, keyword);
@@ -71,17 +78,28 @@ const MainPage = () => {
 
   useEffect(() => {
     fetchWorldData();
-  }, [mapData]);
+  }, [mapData, keyword]);
 
   return (
     <div className="flex px-[100px] py-[40px] justify-center">
       <div className="flex flex-col gap-[20px] mr-[150px]">
         <SearchInput
+          value={keyword}
           onChange={keywordInputChangeHandler}
           onSearch={fetchWorldData}
         />
-        <MindMap />
-        <KeywordRanking />
+        <MindMap
+          onKeywordChange={handleMindMapKeywordChange}
+          category={category}
+          period={period}
+          mainKeyword={keyword}
+        />
+        <KeywordRanking
+          category={category}
+          period={period}
+          is_korea={false}
+          onKeywordChange={handleRankingKeywordChange}
+        />
       </div>
       <div className="flex flex-col items-end">
         <Category
@@ -112,6 +130,7 @@ const MainPage = () => {
             mapData={json}
           />
         </div>
+        <NewsModal />
       </div>
 
       {/* <div>
