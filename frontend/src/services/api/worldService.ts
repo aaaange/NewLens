@@ -4,12 +4,6 @@ import { api, multipartApi } from './Api';
 //==============================================
 // 인터페이스 정의
 //==============================================
-export interface WorldMapProps {
-  tabId: string;
-  category: string;
-  period: number;
-  keyword: string;
-}
 
 export interface worldMentionType {
   [key: string]: number;

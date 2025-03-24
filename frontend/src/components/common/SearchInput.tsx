@@ -1,5 +1,9 @@
-const SearchInput = () => {
-  const handleSearch = () => {};
+interface propsType {
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch: () => void;
+}
+
+const SearchInput = ({ onChange, onSearch }: propsType) => {
   return (
     <div>
       <div
@@ -9,13 +13,14 @@ const SearchInput = () => {
           className={`w-full h-full pl-5 pr-10 border text-primary-950 border-gray-500 outline-none rounded-[20px] placeholder-primary-900 body-medium bg-gray-0`}
           placeholder="궁금한 키워드를 검색하세요!"
           type="text"
+          onChange={onChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              handleSearch();
+              onSearch();
             }
           }}
         />
-        <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
+        <button className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer">
           <svg
             fill="#011728"
             viewBox="0 0 30 30"
