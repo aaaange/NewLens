@@ -85,12 +85,12 @@ const MentionChart = ({
   ];
 
   return (
-    <div className="chart-container">
-      <p className="flex">
+    <div className="flex flex-col gap-2 chart-container" style={{ width: `${width}px` }}>
+      <p className="flex items-center flex-wrap">
         <Flag code={country_code} width={24} height={12} /> &nbsp;
         {country_name}에서 본&nbsp;
-        <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
-        <span className="text-system-warning">언급량 변화</span>
+        <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
+        <span className="text-amount-300 text-lg ">언급량 변화</span>
       </p>
       <Chart
         options={options}

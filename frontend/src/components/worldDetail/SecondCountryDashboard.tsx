@@ -62,7 +62,7 @@ const SecondCountryBoard = ({
   };
 
   return (
-    <div>
+    <div className='flex flex-col gap-5'>
       <WordCloud
         keywords={safeData.keywords}
         width={410}

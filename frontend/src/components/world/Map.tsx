@@ -42,8 +42,8 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
   const fetchWorldData = async () => {
     try {
       const response = await fetch('/worldData.json');
+      // const jsonData = await getWorldMapDataApi();
       const jsonData = await response.json();
-      // const jsonData = await getWorldMapData();
       // console.log('jsonData', jsonData);
 
       const { mention, sentiment } = jsonData.data;
@@ -244,6 +244,40 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
 
     polygonSeries.set('tooltip', tooltip);
 
+    // 범례 생성
+    const legend = chart.children.push(
+      am5.Legend.new(root, {
+        nameField: 'name',
+        fillField: 'color',
+        layout: root.horizontalLayout,
+      })
+    );
+
+    legend.setAll({
+      x: am5.percent(50), // 수평 중앙 위치
+      centerX: am5.percent(50), // 기준점도 중앙
+      y: am5.percent(100), // 아래쪽 끝
+      centerY: am5.percent(100), // 기준점도 아래쪽
+    });
+
+    legend.itemContainers.template.setAll({
+      layout: root.verticalLayout,
+    });
+
+    legend.markers.template.setAll({
+      width: 20,
+      height: 20,
+      centerX: am5.percent(50),
+      centerY: am5.percent(50),
+      marginBottom: 2,
+    });
+
+    legend.labels.template.setAll({
+      fontSize: 13,
+      fill: am5.color('#FFFFFF'),
+      textAlign: 'center',
+    });
+
     //===========================================================================
     // 언급량, 긍부정에 따른 설정
     //===========================================================================
@@ -317,28 +351,28 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
               ? `${fullName}\n(언급량: {mentionCount})`
               : `${fullName}`
           );
-          // legend.data.setAll([
-          //   {
-          //     name: '매우 낮음',
-          //     color: am5.color('#FFEEC6'),
-          //   },
-          //   {
-          //     name: '낮음',
-          //     color: am5.color('#FFD677'),
-          //   },
-          //   {
-          //     name: '보통',
-          //     color: am5.color('#FFAA20'),
-          //   },
-          //   {
-          //     name: '높음',
-          //     color: am5.color('#F98607'),
-          //   },
-          //   {
-          //     name: '매우 높음',
-          //     color: am5.color('#DD6102'),
-          //   },
-          // ]);
+          legend.data.setAll([
+            {
+              name: '매우 낮음',
+              color: am5.color('#FFF9EB'),
+            },
+            {
+              name: '낮음',
+              color: am5.color('#FFEEC6'),
+            },
+            {
+              name: '보통',
+              color: am5.color('#FFC34A'),
+            },
+            {
+              name: '높음',
+              color: am5.color('#FFAA20'),
+            },
+            {
+              name: '매우 높음',
+              color: am5.color('#F98607'),
+            },
+          ]);
         } else {
           polygon.set('fill', am5.color(getColorBySentiment(primarySentiment)));
           polygon.set(
@@ -347,21 +381,21 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
               ? `${fullName}\n긍정: ${positive}\n중립: ${neutral}\n부정: ${negative}`
               : `${fullName}`
           );
-          // // 범례에 표시할 데이터 설정
-          // legend.data.setAll([
-          //   {
-          //     name: '긍정',
-          //     color: am5.color('#5279BD'),
-          //   },
-          //   {
-          //     name: '중립',
-          //     color: am5.color('#BBFF00'),
-          //   },
-          //   {
-          //     name: '부정',
-          //     color: am5.color('#E2695C'),
-          //   },
-          // ]);
+          // 범례에 표시할 데이터 설정
+          legend.data.setAll([
+            {
+              name: '긍정',
+              color: am5.color('#5279BD'),
+            },
+            {
+              name: '중립',
+              color: am5.color('#BBFF00'),
+            },
+            {
+              name: '부정',
+              color: am5.color('#E2695C'),
+            },
+          ]);
         }
       });
     });
