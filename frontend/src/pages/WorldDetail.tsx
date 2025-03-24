@@ -9,6 +9,7 @@ import KeywordRanking from '../components/common/KeywordRanking';
 import Category from '../components/common/Category';
 import { useParams } from 'react-router-dom';
 import { getCountryName } from '../utils/countryUtils';
+import useCompareInfo from '../hooks/useCompareInfo';
 
 const description: string =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
@@ -27,6 +28,20 @@ const WorldDetail = () => {
 
   const [secondCountry, setSecondCountry] = useState('');
   const [secondCountryName, setSecondCountryName] = useState('');
+
+  const shouldCallCompare =
+    secondCountry !== '' && category && period && keyword;
+
+  const { data, isLoading, error } = useCompareInfo(
+    shouldCallCompare
+      ? {
+          category,
+          period,
+          keyword: [keyword],
+          country: [firstCountry, secondCountry],
+        }
+      : null // 조건 만족 안 하면 null
+  );
 
   return (
     <div className="mt-5 flex gap-10 justify-center">
@@ -58,7 +73,11 @@ const WorldDetail = () => {
             }}
           />
         </div>
-        <GptSummary description={description} width={880} height={125} />
+        <GptSummary
+          description={data?.analysis ?? 'GPT 요약 정보가 없습니다.'}
+          width={880}
+          height={125}
+        />
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
           <div className="p-5">
             <FirstCountryBoard
@@ -80,9 +99,7 @@ const WorldDetail = () => {
               />
             ) : (
               // 비교할 나라를 아직 선택하지 않았을 때 비어있는 자리 유지용
-              <div className="flex items-center justify-center w-full h-full text-gray-400 ">
-                
-              </div>
+              <div className="flex items-center justify-center w-full h-full text-gray-400 "></div>
             )}
           </div>
         </div>
