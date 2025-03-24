@@ -1,6 +1,14 @@
 import { useState } from 'react';
 
-const Category = () => {
+interface PropsType {
+  categoryChangeHandler: (category: string) => void;
+  periodChangeHandler: (period: number) => void;
+}
+
+const Category = ({
+  categoryChangeHandler,
+  periodChangeHandler,
+}: PropsType) => {
   const categories = [
     { id: 'all', label: '전체' },
     { id: 'general', label: '일반' },
@@ -16,20 +24,22 @@ const Category = () => {
   ];
 
   const periods = [
-    { id: 'day', label: '하루전' },
-    { id: 'week', label: '1주 전' },
-    { id: 'month', label: '1달 전' },
+    { id: 1, label: '하루전' },
+    { id: 7, label: '1주 전' },
+    { id: 30, label: '1달 전' },
   ];
 
-  const [selectedCategory, setSelectedCategory] = useState('science');
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
+    categoryChangeHandler(categoryId);
   };
 
-  const handlePeriodClick = (periodId: any) => {
+  const handlePeriodClick = (periodId: number) => {
     setSelectedPeriod(periodId);
+    periodChangeHandler(periodId);
   };
 
   return (
@@ -57,7 +67,7 @@ const Category = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center py-2">
-          <div className="text-whitecaption-large mr-4 mb-2 sm:mb-0">기간</div>
+          <div className="text-white caption-large mr-4 mb-2 sm:mb-0">기간</div>
           <div className="ml-8 flex flex-wrap gap-6">
             {periods.map((period) => (
               <button

@@ -15,12 +15,19 @@ import {
   getWorldMapData,
 } from '../../services/api/worldService';
 
-const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
-  // console.log('tabId', tabId);
-  // console.log('category', category);
-  // console.log('period', period);
-  // console.log('keyword', keyword);
+export interface WorldMapProps {
+  tabId: string;
+  category: string;
+  period: number;
+  keyword: string;
+  mapData: any[];
+}
 
+const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
+  console.log('tabId1', tabId);
+  console.log('category1', category);
+  console.log('period1', period);
+  console.log('keyword1', keyword);
   const chartContainerRef = useRef<HTMLDivElement>(null); // 차트 컨테이너 ref
   const chartRef = useRef<am5.Root | null>(null);
   const [mentionData, setMentionData] = useState<worldMentionType | null>(null);
@@ -189,9 +196,11 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
             );
           }
           setTimeout(() => {
-            // navigate(`/worldDetail/${shortName}/${category}/${period}/${keyword}`);
+            navigate(
+              `/worldDetail/${shortName}/${category}/${period}/${keyword}`
+            );
             window.scrollTo(0, 0); //
-            navigate(`/worldDetail/`);
+            // navigate(`/worldDetail/`);
           }, 1000);
         }
       } else {
@@ -367,11 +376,11 @@ const WorldMap = ({ tabId, category, period, keyword }: WorldMapProps) => {
         chartRef.current = null;
       }
     };
-  }, [mentionData, sentimentData, tabId]);
+  }, [mentionData, sentimentData, tabId, keyword]);
 
   return (
     <div ref={chartContainerRef} className="w-[930px] h-[800px] mx-auto" />
   );
 };
 
-export default WorldMap;
+export default Map;
