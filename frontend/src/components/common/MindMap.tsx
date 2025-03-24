@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactFlow, {
   Controls,
   useEdgesState,
@@ -12,6 +12,7 @@ import ReactFlow, {
   Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { getMindMapApi } from '../../services/api/worldService';
 
 const getRandomColor = () => {
   const colors = [
@@ -52,6 +53,7 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
         width: data.width || 70,
         height: data.height || 40,
         position: 'relative',
+        cursor: 'pointer',
       }}
     >
       {data.label}
@@ -79,75 +81,25 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
   );
 };
 
-// 🔹 노드 타입 설정
-const nodeTypes = { custom: CustomNode };
+interface MindMapProps {
+  onKeywordChange: (keyword: string) => void;
+  category: string;
+  period: number;
+  mainKeyword: string;
+}
 
-// 📌 초기 데이터
-const keyword = 'it';
-const centerX = 150;
-const centerY = 140;
-const radius = 100; // 원형 배치 반지름
-
-// 🎯 원형 배치 함수
-const getCirclePosition = (index: number, total: number) => {
-  const angle = (index / total) * (2 * Math.PI);
-  return {
-    x: centerX + radius * Math.cos(angle) - 35,
-    y: centerY + radius * Math.sin(angle) - 20,
-  };
-};
-
-// 🔹 노드 데이터 설정 (중앙 + 원형 배치)
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'custom',
-    position: { x: centerX - 30, y: centerY - 20 },
-    data: {
-      label: keyword,
-      backgroundColor: '#000',
-      textColor: '#fff',
-      width: 70,
-      height: 50,
-    },
-  },
-  ...Array.from({ length: 10 }, (_, i) => ({
-    id: `${i + 2}`,
-    type: 'custom',
-    position: getCirclePosition(i, 10),
-    data: {
-      label: [
-        '산업',
-        '전략',
-        '교육',
-        '시장',
-        '글로벌',
-        '한국',
-        '기업',
-        '투자',
-        '운영',
-        '전문가',
-      ][i],
-      backgroundColor: getRandomColor(),
-      textColor: '#fff',
-    },
-  })),
-];
-
-const initialEdges: Edge[] = initialNodes.slice(1).map((node) => ({
-  id: `e1-${node.id}`,
-  source: '1',
-  target: node.id,
-  sourceHandle: `source-1`,
-  targetHandle: `target-${node.id}`,
-  type: 'straight',
-  style: { stroke: '#e1e6ed', strokeWidth: 1 },
-}));
-
-const MindMap = () => {
-  const [nodes, setNodes] = useNodesState(initialNodes);
-  const [edges, setEdges] = useEdgesState(initialEdges);
-
+const MindMap = ({
+  onKeywordChange,
+  category,
+  period,
+  mainKeyword,
+}: MindMapProps) => {
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
+  const [keyword, setKeyword] = useState('');
+  const [selectedNodeId, setSelectedNodeId] = useState('');
+  console.log(keyword);
+  const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
   const onConnect = useCallback(
     (params: Connection) =>
       setEdges((eds) =>
@@ -155,6 +107,136 @@ const MindMap = () => {
       ),
     [setEdges]
   );
+
+  const onNodeClick = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      setKeyword(node.data.label);
+      setSelectedNodeId(node.id);
+      onKeywordChange(node.data.label);
+    },
+    [onKeywordChange]
+  );
+
+  useEffect(() => {
+    const fetchMindMapData = async () => {
+      try {
+        const response = await getMindMapApi(category, period, mainKeyword);
+        const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
+
+        const newNodes: Node[] = [
+          {
+            id: '1',
+            type: 'custom',
+            position: { x: 150 - 30, y: 140 - 20 },
+            data: {
+              label: mainKeywordLabel,
+              backgroundColor: '#000',
+              textColor: '#fff',
+              width: 70,
+              height: 50,
+            },
+          },
+          ...relatedKeywords.map((label: string, index: number) => ({
+            id: `${index + 2}`,
+            type: 'custom',
+            position: getCirclePosition(index, relatedKeywords.length),
+            data: {
+              label,
+              backgroundColor: getRandomColor(),
+              textColor: '#fff',
+            },
+          })),
+        ];
+
+        const newEdges = newNodes.slice(1).map((node) => ({
+          id: `e1-${node.id}`,
+          source: '1',
+          target: node.id,
+          sourceHandle: `source-1`,
+          targetHandle: `target-${node.id}`,
+          type: 'straight',
+          style: { stroke: '#e1e6ed', strokeWidth: 1 },
+        }));
+
+        setNodes(newNodes);
+        setEdges(newEdges);
+      } catch (error) {
+        console.error('마인드맵 데이터 가져오기 실패:', error);
+
+        // API 응답이 없을 때 기본 데이터로 초기화
+        const defaultNodes: Node[] = [
+          {
+            id: '1',
+            type: 'custom',
+            position: { x: 150 - 30, y: 140 - 20 },
+            data: {
+              label: 'it',
+              backgroundColor: '#000',
+              textColor: '#fff',
+              width: 70,
+              height: 50,
+            },
+          },
+          ...Array.from({ length: 10 }, (_, i) => ({
+            id: `${i + 2}`,
+            type: 'custom',
+            position: getCirclePosition(i, 10),
+            data: {
+              label: [
+                '산업',
+                '전략',
+                '교육',
+                '시장',
+                '글로벌',
+                '한국',
+                '기업',
+                '투자',
+                '운영',
+                '전문가',
+              ][i],
+              backgroundColor: getRandomColor(),
+              textColor: '#fff',
+            },
+          })),
+        ];
+
+        const defaultEdges = defaultNodes.slice(1).map((node) => ({
+          id: `e1-${node.id}`,
+          source: '1',
+          target: node.id,
+          sourceHandle: `source-1`,
+          targetHandle: `target-${node.id}`,
+          type: 'straight',
+          style: { stroke: '#e1e6ed', strokeWidth: 1 },
+        }));
+
+        setNodes(defaultNodes);
+        setEdges(defaultEdges);
+      }
+    };
+
+    fetchMindMapData();
+  }, [category, period, mainKeyword]);
+
+  const centerX = 150;
+  const centerY = 140;
+  const radius = 100; // 원형 배치 반지름
+
+  const getCirclePosition = (index: number, total: number) => {
+    const angle = (index / total) * (2 * Math.PI);
+    return {
+      x: centerX + radius * Math.cos(angle) - 35,
+      y: centerY + radius * Math.sin(angle) - 20,
+    };
+  };
+
+  const updatedNodes = nodes.map((node) => ({
+    ...node,
+    data: {
+      ...node.data,
+      isSelected: node.id === selectedNodeId,
+    },
+  }));
 
   return (
     <div
@@ -184,9 +266,10 @@ const MindMap = () => {
         }}
       >
         <ReactFlow
-          nodes={nodes}
+          nodes={updatedNodes}
           edges={edges}
           onConnect={onConnect}
+          onNodeClick={onNodeClick}
           fitView
           fitViewOptions={{ padding: 0.1 }}
           panOnDrag={false}
@@ -196,12 +279,13 @@ const MindMap = () => {
           nodesDraggable={false}
           nodeTypes={nodeTypes}
           proOptions={{ hideAttribution: true }}
+          style={{ cursor: 'default' }}
         >
-          <Controls
+          {/* <Controls
             showZoom={false}
             showFitView={false}
             showInteractive={false}
-          />
+          /> */}
         </ReactFlow>
       </div>
     </div>
