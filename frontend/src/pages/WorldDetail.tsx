@@ -27,8 +27,8 @@ const WorldDetail = () => {
   );
   // const [firstCountryName, setFirstCountryName] = useState('대한민국');
 
-  const [secondCountry, setSecondCountry] = useState('US');
-  const [secondCountryName, setSecondCountryName] = useState('미국');
+  const [secondCountry, setSecondCountry] = useState('');
+  const [secondCountryName, setSecondCountryName] = useState('');
 
   return (
     <div className="mt-5 flex gap-10 justify-center">
@@ -44,6 +44,7 @@ const WorldDetail = () => {
             width="410px"
             height="60px"
             value={firstCountry}
+            placeholder="비교할 나라를 선택하세요"
             onChange={(code, name) => {
               setFirstCountry(code);
               setFirstCountryName(name);
