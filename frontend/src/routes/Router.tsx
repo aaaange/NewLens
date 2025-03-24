@@ -18,7 +18,10 @@ const Router = () => {
         <Route path="/" element={<Landing />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/koreaAnalysis" element={<KoreaAnalysisPage />} />
-        <Route path="/worldDetail" element={<WorldDetail />} />
+        <Route
+          path="/worldDetail/:country/:category/:period/:keyword"
+          element={<WorldDetail />}
+        />
       </Route>
     </Routes>
   );
