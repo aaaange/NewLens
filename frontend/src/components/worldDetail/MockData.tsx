@@ -2,7 +2,7 @@ export const country_name: string = '미국';
 
 export const country_code: string = 'US';
 
-export const keyword: string = '속초 도련님';
+export const keyword: string = '속초 도련님인척하는 인천 도련님';
 
 export type WordType = {
   text: string;
