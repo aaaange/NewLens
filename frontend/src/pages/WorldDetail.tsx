@@ -3,7 +3,6 @@ import CountryDropdown from '../components/worldDetail/CountryDropdown';
 import GptSummary from '../components/worldDetail/GptSummary';
 import FirstCountryBoard from '../components/worldDetail/FirstCountryDashboard';
 import SecondCountryBoard from '../components/worldDetail/SecondCountryDashboard';
-import { keyword as mockKeyword } from '../components/worldDetail/MockData';
 import SearchInput from '../components/common/SearchInput';
 import MindMap from '../components/common/MindMap';
 import KeywordRanking from '../components/common/KeywordRanking';
@@ -25,7 +24,6 @@ const WorldDetail = () => {
   const [firstCountryName, setFirstCountryName] = useState(
     getCountryName(firstCountry)
   );
-  // const [firstCountryName, setFirstCountryName] = useState('대한민국');
 
   const [secondCountry, setSecondCountry] = useState('');
   const [secondCountryName, setSecondCountryName] = useState('');
@@ -71,14 +69,21 @@ const WorldDetail = () => {
               period={category ?? ''}
             />
           </div>
-          <div className="p-5">
-            <SecondCountryBoard
-              country_name={secondCountryName}
-              country={secondCountry}
-              keyword={keyword ?? ''} // undefined 방지
-              category={category ?? ''}
-              period={category ?? ''}
-            />
+          <div className="p-5 w-[410px] min-h-[800px]">
+            {secondCountry ? (
+              <SecondCountryBoard
+                country_name={secondCountryName}
+                country={secondCountry}
+                keyword={keyword ?? ''}
+                category={category ?? ''}
+                period={category ?? ''}
+              />
+            ) : (
+              // 비교할 나라를 아직 선택하지 않았을 때 비어있는 자리 유지용
+              <div className="flex items-center justify-center w-full h-full text-gray-400 ">
+                
+              </div>
+            )}
           </div>
         </div>
       </div>
