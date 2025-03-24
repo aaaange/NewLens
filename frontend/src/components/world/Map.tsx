@@ -410,7 +410,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
         chartRef.current = null;
       }
     };
-  }, [mentionData, sentimentData, tabId, keyword]);
+  }, [mentionData, sentimentData, tabId, keyword, category, period]);
 
   return (
     <div ref={chartContainerRef} className="w-[930px] h-[800px] mx-auto" />
