@@ -29,7 +29,7 @@ const MainPage = () => {
   //==============================================
   const [category, setCategory] = useState('all');
   const [period, setPeriod] = useState(1);
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState('it');
   const [mapData, setMapData] = useState(null);
 
   const categoryChangeHandler = (category: string) => {

@@ -30,7 +30,7 @@ const Category = ({
   ];
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<number | null>(1);
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
