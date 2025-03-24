@@ -136,7 +136,7 @@ public class CountrySwaggerController {
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "week")
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프, 관세")
 		@RequestParam String keyword,
@@ -222,7 +222,7 @@ public class CountrySwaggerController {
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "week")
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프, 관세")
 		@RequestParam String keyword,
@@ -247,7 +247,7 @@ public class CountrySwaggerController {
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "week")
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프")
 		@RequestParam String keyword,
