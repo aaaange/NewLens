@@ -29,9 +29,9 @@ const NewsList = ({
         <p className="flex items-center">
           <Flag code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
-          <span className="text-system-warning text-lg ">{keyword}</span>의
+          <span className="text-amount-300 text-lg ">{keyword}</span>의
           관련&nbsp;
-          <span className="text-system-warning text-lg "> 뉴스</span>
+          <span className="text-amount-300 text-lg "> 뉴스</span>
         </p>
         <a href="" className="p-2">
           + 더보기

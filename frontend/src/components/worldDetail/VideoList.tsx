@@ -39,9 +39,9 @@ const VideoList = ({
         <p className="flex items-center">
           <Flag code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
-          <span className="text-system-warning text-lg ">{keyword}</span>의
+          <span className="text-amount-300 text-lg ">{keyword}</span>의
           관련&nbsp;
-          <span className="text-system-warning text-lg "> 유튜브</span>
+          <span className="text-amount-300 text-lg "> 유튜브</span>
         </p>
         <div className="space-y-2 border-2 border-gray-500 rounded-lg">
           <Carousel
