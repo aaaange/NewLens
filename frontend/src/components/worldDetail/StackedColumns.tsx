@@ -88,11 +88,11 @@ const StackedColumns = ({
 
   return (
     <>
-      <p className="flex">
+      <p className="flex items-center">
         <Flag code={country_code} width="24" height="12" /> &nbsp;
         {country_name}에서 본&nbsp;
-        <span className="text-system-warning">{keyword}</span>에 대한&nbsp;
-        <span className="text-system-warning">감정 분석</span>
+        <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
+        <span className="text-amount-300 text-lg ">감정 분석</span>
       </p>
       <Chart
         options={options}
