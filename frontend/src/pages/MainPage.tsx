@@ -3,6 +3,7 @@ import KeywordRanking from '../components/common/KeywordRanking';
 import MindMap from '../components/common/MindMap';
 import NewsModal from '../components/common/NewsModal';
 import SearchInput from '../components/common/SearchInput';
+import MapSwitchTab from '../components/world/MapSwitchTab';
 
 import Map from '../components/world/Map';
 
@@ -69,7 +70,7 @@ const MainPage = () => {
     try {
       const response = await fetch('/worldData.json');
       const jsonData = await response.json();
-      setJson(jsonData);
+      setJson(jsonData.data);
       console.log(jsonData);
     } catch (error) {
       console.error('검색 실패:', error);
@@ -131,6 +132,7 @@ const MainPage = () => {
           />
         </div>
         <NewsModal />
+        <MapSwitchTab />
       </div>
 
       {/* <div>
