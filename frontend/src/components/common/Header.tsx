@@ -13,6 +13,9 @@ const Header = () => {
                 <img src="/assets/images/logo-newLens.png" alt="로고" />
               </Link>
             </div>
+            <div>
+              <Link to="/">about</Link>
+            </div>
             <div className="w-[120px]">
               <Link to="/worldDetail">이아영페이지</Link>
             </div>
