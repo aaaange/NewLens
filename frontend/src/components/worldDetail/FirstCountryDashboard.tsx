@@ -46,7 +46,7 @@ const FirstCountryBoard = ({
   const { data, isLoading, error } = useCountryData(memoizedParams);
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error! {error.message}</div>;
+  // if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
   // if (!data) return <div>No Data</div>;
 
   // const country_name: string = '미국';
