@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../services/api/Api';
+import { isAxiosError } from 'axios';
 
 export interface KeywordData {
   name: string;
@@ -58,12 +59,12 @@ const useCountryData = (params: Params) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get('/api/search/country/dashboard', {
+        const response = await api.get('/api/search/country/dashboard', {
           params,
         });
         setData(response.data.data);
       } catch (err) {
-        if (axios.isAxiosError(err)) {
+        if (isAxiosError(err)) {
           setError(new Error(err.response?.data?.message || err.message));
         } else {
           setError(err as Error);
