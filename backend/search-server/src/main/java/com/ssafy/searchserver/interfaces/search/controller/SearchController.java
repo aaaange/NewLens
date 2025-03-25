@@ -93,24 +93,24 @@ public class SearchController {
 
 	@Operation(summary = "키워드 랭킹 조회", description = "카테고리, 기간, 국내/해외 뉴스에 따른 키워드 랭킹을 조회합니다.")
 	@GetMapping("/keyword-ranking")
-	public ResponseEntity<ForeignNewsListResponse> getKeywordRanking(
+	public CommonResponse<ForeignNewsListResponse> getKeywordRanking(
 		@Parameter(description = "카테고리", example = "politics") @RequestParam String category,
 		@Parameter(description = "기간 (ex: 7)", example = "7") @RequestParam int period,
 		@Parameter(description = "한국 필터링 여부", example = "true") @RequestParam boolean is_korea
 	) {
 		ForeignNewsListResponse response = service.getKeywordRanking(category, period, is_korea);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+		return CommonResponse.success(response);
 	}
 
 
 	@Operation(summary = "세계 지도 정보 출력", description = "세계 지도에서 나라별 감성 분석 결과와 언급량 결과를 출력합니다.")
 	@GetMapping("/worldwide")
-	public ResponseEntity<ForeignNewsListResponse> getWorldwide(
+	public CommonResponse<ForeignNewsListResponse> getWorldwide(
 		@Parameter(description = "키워드", example = "바이든") @RequestParam String keyword,
 		@Parameter(description = "카테고리", example = "politics") @RequestParam String category,
 		@Parameter(description = "기간", example = "30") @RequestParam int period
 	) {
 		ForeignNewsListResponse response = service.getWorldwide(keyword, category, period);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+		return CommonResponse.success(response);
 	}
 }
