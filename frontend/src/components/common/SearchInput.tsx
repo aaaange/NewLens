@@ -1,3 +1,5 @@
+import { notify } from './Toast';
+
 interface propsType {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearch: () => void;
@@ -5,6 +7,15 @@ interface propsType {
 }
 
 const SearchInput = ({ onChange, onSearch, value }: propsType) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (inputValue.includes(' ')) {
+      e.target.value = inputValue.replace(' ', '');
+      return notify({ type: 'warning', text: '단어 하나만 입력해 주세요.' });
+    } else {
+      onChange(e);
+    }
+  };
   return (
     <div>
       <div
@@ -15,7 +26,7 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
           placeholder="궁금한 키워드를 검색하세요!"
           type="text"
           value={value}
-          onChange={onChange}
+          onChange={handleChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               onSearch();
