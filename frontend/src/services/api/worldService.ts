@@ -6,6 +6,10 @@ import { api, multipartApi } from './Api';
 //==============================================
 // 인터페이스 정의
 //==============================================
+export interface WorldMapData {
+  mention: mentionResType;
+  sentiment: sentimentResType;
+}
 
 export type mentionResType = { name: string; count: number }[];
 
@@ -24,13 +28,6 @@ export type sentimentResType = {
   negative: number;
 }[];
 
-// export interface worldSentimentDataType {
-//   name: string;
-//   positive: number;
-//   neutral: number;
-//   negative: number;
-// }
-
 export type SentimentName = 'positive' | 'neutral' | 'negative';
 
 // 특정 국가의 감정 타입
@@ -40,10 +37,6 @@ export interface sentimentType {
   negative: number;
   primarySentiment: SentimentName;
 }
-
-// export interface sentimentResType extends sentimentType {
-//   name: string;
-// }
 
 // 모든 국가의 감정 타입
 export interface sentimentObjType {
