@@ -133,4 +133,32 @@ export const videos: VideoItemType[] = [
     thumbnail_url:
       'https://i.ytimg.com/vi/I8I51kSq448/hqdefault.jpg?sqp=-oaymwEnCPYBEIoBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDlkVggOMAhjX3Q7NCYizt895AOmg',
   },
+  {
+    title: 'BIGBANG(GD&T.O.P) - 쩔어(ZUTTER) M/V',
+    url: 'https://youtu.be/D8t8A8E_Tqc?si=t6GXHKWNsVSR10aa',
+    published_date: '2025-03-10',
+    thumbnail_url:
+      'https://i.ytimg.com/vi/D8t8A8E_Tqc/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLD8OswOHjC5EjNxZlg6UdI1qmlsOQ',
+  },
+  {
+    title: 'BIGBANG - 우리 사랑하지 말아요(LETs NOT FALL IN LOVE) M/V',
+    url: 'https://youtu.be/9jTo6hTZmiQ?si=qcni5e4OYw8jXwx6',
+    published_date: '2025-03-10',
+    thumbnail_url:
+      'https://i.ytimg.com/vi/9jTo6hTZmiQ/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDK_El2ASRQbYFp0khWwV2Rd9CfMg',
+  },
+  {
+    title: 'BIGBANG - 맨정신(SOBER) M/V',
+    url: 'https://youtu.be/MBNQgq56egk?si=IoxCzEBgO9aT8TNT',
+    published_date: '2025-03-10',
+    thumbnail_url:
+      'https://i.ytimg.com/vi/MBNQgq56egk/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDaX2YmHAuANIzq0fpkUEhIzxRoUg',
+  },
+  {
+    title: 'BIGBANG - WE LIKE 2 PARTY M/V',
+    url: 'https://youtu.be/oFmfi1vM7co?si=IWpai0hAcWfILycZ',
+    published_date: '2025-03-10',
+    thumbnail_url:
+      'https://i.ytimg.com/vi/oFmfi1vM7co/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDUNMNwba9ArctW1DHb9BwN9IVclw',
+  },
 ];
