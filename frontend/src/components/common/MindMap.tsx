@@ -54,6 +54,9 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
         height: data.height || 40,
         position: 'relative',
         cursor: 'pointer',
+        // isSelected 상태에 따라 스타일 변경
+        border: data.isSelected ? '2px solid #007bff' : 'none',
+        boxShadow: data.isSelected ? '0 0 10px rgba(0, 0, 0, 0.2)' : 'none',
       }}
     >
       {data.label}

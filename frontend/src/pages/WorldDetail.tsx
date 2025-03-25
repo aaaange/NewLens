@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import CountryDropdown from '../components/worldDetail/CountryDropdown';
 import GptSummary from '../components/worldDetail/GptSummary';
 import FirstCountryBoard from '../components/worldDetail/FirstCountryDashboard';
@@ -11,15 +11,19 @@ import { useParams } from 'react-router-dom';
 import { getCountryName } from '../utils/countryUtils';
 import useCompareInfo from '../hooks/useCompareInfo';
 
-const description: string =
+const description =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
 
-const analysis: string = '한줄 비교 요약본 from gpt';
+const analysis = '한줄 비교 요약본 from gpt';
 
 const WorldDetail = () => {
-  const { country, category, period, keyword } = useParams();
+  const {
+    country,
+    category: initialCategory,
+    period: initialPeriod,
+    keyword: initialKeyword,
+  } = useParams();
   const upperCaseCountry = (country ?? '').toUpperCase();
-  // console.log(upperCaseCountry, category, period, keyword);
 
   const [firstCountry, setFirstCountry] = useState(upperCaseCountry);
   const [firstCountryName, setFirstCountryName] = useState(
@@ -28,6 +32,12 @@ const WorldDetail = () => {
 
   const [secondCountry, setSecondCountry] = useState('');
   const [secondCountryName, setSecondCountryName] = useState('');
+
+  const [category, setCategory] = useState(initialCategory ?? 'all');
+  const [period, setPeriod] = useState(
+    initialPeriod ? parseInt(initialPeriod) : 1
+  );
+  const [keyword, setKeyword] = useState(initialKeyword ?? '');
 
   const shouldCallCompare =
     secondCountry !== '' && category && period && keyword;
@@ -40,18 +50,47 @@ const WorldDetail = () => {
           keyword: [keyword],
           country: [firstCountry, secondCountry],
         }
-      : null // 조건 만족 안 하면 null
+      : null
   );
+
+  const handleCategoryChange = (newCategory: string) => {
+    setCategory(newCategory);
+  };
+
+  const handlePeriodChange = (newPeriod: number) => {
+    setPeriod(newPeriod);
+  };
+
+  const handleKeywordChange = (newKeyword: string) => {
+    setKeyword(newKeyword);
+  };
 
   return (
     <div className="mt-5 flex gap-10 justify-center">
       <div className="flex flex-col gap-5">
-        <SearchInput />
-        <MindMap />
-        <KeywordRanking />
+        <SearchInput
+          value={keyword}
+          onChange={(e) => handleKeywordChange(e.target.value)}
+          onSearch={() => console.log('Search triggered')}
+        />
+        <MindMap
+          onKeywordChange={handleKeywordChange}
+          category={category}
+          period={period}
+          mainKeyword={keyword}
+        />
+        <KeywordRanking
+          category={category}
+          period={period}
+          is_korea={firstCountry === 'KR'}
+          onKeywordChange={handleKeywordChange}
+        />
       </div>
       <div className="flex flex-col items-center gap-3">
-        <Category />
+        <Category
+          categoryChangeHandler={handleCategoryChange}
+          periodChangeHandler={handlePeriodChange}
+        />
         <div className="flex gap-10">
           <CountryDropdown
             width="410px"
@@ -83,9 +122,9 @@ const WorldDetail = () => {
             <FirstCountryBoard
               country={firstCountry}
               country_name={firstCountryName}
-              keyword={keyword ?? ''} // undefined 방지
-              category={category ?? ''}
-              period={category ?? ''}
+              keyword={keyword}
+              category={category}
+              period={period}
             />
           </div>
           <div className="p-5 w-[410px] min-h-[800px]">
@@ -93,12 +132,11 @@ const WorldDetail = () => {
               <SecondCountryBoard
                 country_name={secondCountryName}
                 country={secondCountry}
-                keyword={keyword ?? ''}
-                category={category ?? ''}
-                period={category ?? ''}
+                keyword={keyword}
+                category={category}
+                period={period}
               />
             ) : (
-              // 비교할 나라를 아직 선택하지 않았을 때 비어있는 자리 유지용
               <div className="flex items-center justify-center w-full h-full text-gray-400 "></div>
             )}
           </div>
