@@ -1,12 +1,17 @@
 package com.ssafy.staticsserver.search.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.staticsserver.search.dto.KeywordRankingDto;
 import com.ssafy.staticsserver.search.entitiy.ForeignNewsMongo;
 import com.ssafy.staticsserver.search.repository.ForeignNewsMongoDBRepository;
 
@@ -18,6 +23,7 @@ public class SearchServiceImpl implements SearchNewsService {
 
 	private final ObjectMapper objectMapper;
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
+	private final RedisTemplate<String, Object> redisTemplate;
 
 	@KafkaListener(topics = "related-keywords")
 	public void listenRelatedKeywords(String message) {
@@ -44,6 +50,10 @@ public class SearchServiceImpl implements SearchNewsService {
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
 			}
+
+			System.out.println();
+			processKeywordRanking(newsList);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -71,7 +81,73 @@ public class SearchServiceImpl implements SearchNewsService {
 
 	// 키워드 랭킹 집계 로직
 	@Override
-	public void processKeywordRanking(List<ForeignNewsMongo> newsList) {
+	public Map<String, Object> processKeywordRanking(List<ForeignNewsMongo> newsList) {
+		// 각 키워드의 등장 횟수를 저장할 맵 생성
+		Map<String, Integer> keywordCounts = new HashMap<>();
+
+		// 뉴스 리스트를 순회하면서 각 뉴스의 keywords를 추출
+		for (ForeignNewsMongo news : newsList) {
+			List<String> keywords = news.getKeywords();
+			if (keywords != null) {  // null 체크
+				for (String keyword : keywords) {
+					keywordCounts.put(keyword, keywordCounts.getOrDefault(keyword, 0) + 1);
+				}
+			}
+		}
+
+		// Map의 엔트리들을 값(빈도) 기준으로 내림차순 정렬
+		List<Map.Entry<String, Integer>> sortedKeywordCounts = keywordCounts.entrySet()
+			.stream()
+			.sorted(Map.Entry.<String, Integer>comparingByValue().reversed()
+				.thenComparing(Map.Entry.comparingByKey()))
+			.toList();
+
+		// 5. Redis에서 기존(이전) 키워드 랭킹 정보 조회
+		// Redis에 저장된 랭킹은 "keyword_ranking"이라는 해시(Hash) 자료형에 저장되어 있다고 가정
+		Map<Object, Object> previousRankingMap = redisTemplate.opsForHash().entries("keyword_ranking");
+
+		// 6. 키워드별 state 결정 및 결과 DTO 리스트 생성 (최대 10개)
+		List<KeywordRankingDto> resultList = new ArrayList<>();
+		int limit = Math.min(10, sortedKeywordCounts.size());
+		for (int i = 0; i < limit; i++) {
+			Map.Entry<String, Integer> entry = sortedKeywordCounts.get(i);
+			String keyword = entry.getKey();
+			int newCount = entry.getValue();
+			String state = "";
+
+			if (!previousRankingMap.containsKey(keyword)) {
+				// Redis에 기존 정보가 없다면 신규 키워드로 "new"
+				state = "new";
+			} else {
+				// 기존 빈도수와 비교하여 증가폭에 따라 "hot" 판단
+				int oldCount = Integer.parseInt(previousRankingMap.get(keyword).toString());
+				// 예시 조건: 이전 빈도가 있고, 새 빈도가 이전의 1.5배 이상 증가했다면 "hot"
+				if (oldCount > 0 && newCount >= 1.5 * oldCount) {
+					state = "hot";
+				}
+			}
+
+			resultList.add(new KeywordRankingDto(keyword, state));
+		}
+
+		// 7. Redis에 새로운 키워드 랭킹 업데이트 (전체 랭킹 갱신)
+		// Redis의 "keyword_ranking" 해시에 새 키워드와 빈도 저장
+		// redisTemplate.opsForHash().putAll("keyword_ranking", keywordCounts);
+
+		// 결과 출력: 키워드 랭킹
+		System.out.println("키워드 랭킹 결과:");
+		for (int i = 0; i < limit; i++) {
+			Map.Entry<String, Integer> entry = sortedKeywordCounts.get(i);
+			KeywordRankingDto dto = resultList.get(i);
+			System.out.println(entry.getKey() + " : " + entry.getValue()
+				+ " (state=" + dto.getState() + ")");
+		}
+
+		// 8. 최종 결과를 JSON 구조로 구성하여 반환
+		// 예: {"keywords": [ { "name": "도널드", "state": "new" }, ... ] }
+		Map<String, Object> response = new HashMap<>();
+		response.put("keywords", resultList);
+		return response;
 	}
 
 	// 세계지도 집계 로직

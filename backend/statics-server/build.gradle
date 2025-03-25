@@ -35,6 +35,12 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Spring Boot Redis Starter
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// Commons Pool (커넥션 풀을 사용하기 위해 필요)
+	implementation 'org.apache.commons:commons-pool2'
 }
 
 tasks.named('test') {
