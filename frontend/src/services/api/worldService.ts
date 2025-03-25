@@ -88,11 +88,11 @@ export const getNewsListForModalApi = async (
 };
 
 export const getCountryDataApi = async (params: CountryParams) => {
-  const response = await api.get('/api/search/country/dashboard', { params });
+  const response = await api.get('country/country/dashboard', { params });
   return response.data; // { code, success, message, data }
 };
 
 export const getCompareInfoApi = async (params: CompareParams) => {
-  const response = await api.get('/compare-info', { params });
+  const response = await api.get('country/compare-info', { params });
   return response.data;
 };
