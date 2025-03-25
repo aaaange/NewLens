@@ -5,6 +5,7 @@ import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  WorldMapData,
   mentionResType,
   mentionObjType,
   countryNameType,
@@ -18,10 +19,7 @@ interface WorldMapProps {
   category: string;
   period: number;
   keyword: string;
-  mapData: {
-    mention: mentionResType;
-    sentiment: sentimentResType;
-  };
+  mapData?: WorldMapData;
 }
 
 const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
