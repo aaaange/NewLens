@@ -28,7 +28,7 @@ async def process_hdfs_news(source: str) -> list:
     articles = fetch_news_from_hdfs(source)
     processed_articles = []
     now = datetime.now()
-    threshold = now - timedelta(minutes=30)
+    threshold = now - timedelta(minutes=1000)
 
     for article in articles:
         try:
@@ -74,6 +74,7 @@ async def process_hdfs_news(source: str) -> list:
                 published_at=formatted_date_str,
                 origin_title=article.get("title", ""),
                 origin_content=article.get("description", ""),
+                categories=article.get("category", []),
             )
 
             # 제목이나 내용이 "?" 또는 공백만 있으면 건너뛰기
