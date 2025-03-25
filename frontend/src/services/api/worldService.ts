@@ -5,13 +5,29 @@ import { api, multipartApi } from './Api';
 // 인터페이스 정의
 //==============================================
 
-export interface worldMentionType {
+export type mentionResType = { name: string; count: number }[];
+
+export interface mentionObjType {
   [key: string]: number;
 }
 
 export interface countryNameType {
   [key: string]: string;
 }
+
+export type sentimentResType = {
+  name: string;
+  positive: number;
+  neutral: number;
+  negative: number;
+}[];
+
+// export interface worldSentimentDataType {
+//   name: string;
+//   positive: number;
+//   neutral: number;
+//   negative: number;
+// }
 
 export type SentimentName = 'positive' | 'neutral' | 'negative';
 
@@ -23,12 +39,12 @@ export interface sentimentType {
   primarySentiment: SentimentName;
 }
 
-export interface sentimentResType extends sentimentType {
-  name: string;
-}
+// export interface sentimentResType extends sentimentType {
+//   name: string;
+// }
 
 // 모든 국가의 감정 타입
-export interface worldSentimentType {
+export interface sentimentObjType {
   [countryCode: string]: sentimentType;
 }
 
