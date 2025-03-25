@@ -5,26 +5,26 @@ const LoginPage = () => {
         <img
           src="/assets/images/logo-newLens.png"
           alt="로고"
-          // className="w-1/3"
+          className="w-4/5"
         />
-        <div className="flex flex-col items-center text-2xl">
+        <div className="flex flex-col items-center text-xl">
           <span>실시간으로 변화하는 세계의 모든 이슈, </span>
           <span>한번에 분석하고 각 국의 반응을 비교하세요!</span>
         </div>
         <img
           src="/assets/images/kakao_login.png"
           alt="카카오 로그인"
-          className="w-2/3"
+          className="w-2/4"
         />
         <img
           src="/assets/images/google_login.png"
           alt="구글 로그인"
-          className="w-2/3"
+          className="w-2/4"
         />
         <img
           src="/assets/images/ssafy_login.png"
           alt="싸피 로그인"
-          className="w-2/3"
+          className="w-2/4"
         />
       </div>
       <div>
