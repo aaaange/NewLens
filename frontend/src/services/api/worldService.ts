@@ -1,4 +1,6 @@
 // world에 관련한 api를 작성하는 곳.
+import { CountryParams } from '../../hooks/useCountryData';
+import { CompareParams } from '../../hooks/useCompareInfo';
 import { api, multipartApi } from './Api';
 
 //==============================================
@@ -82,5 +84,15 @@ export const getNewsListForModalApi = async (
   const response = await api.get(`search/news`, {
     params: { category, period, keyword, country, page, size },
   });
+  return response.data;
+};
+
+export const getCountryDataApi = async (params: CountryParams) => {
+  const response = await api.get('/api/search/country/dashboard', { params });
+  return response.data; // { code, success, message, data }
+};
+
+export const getCompareInfoApi = async (params: CompareParams) => {
+  const response = await api.get('/compare-info', { params });
   return response.data;
 };

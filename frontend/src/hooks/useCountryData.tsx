@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api/Api';
 import { isAxiosError } from 'axios';
+import { getCountryDataApi } from '../services/api/worldService';
 
 export interface KeywordData {
   name: string;
@@ -42,7 +43,7 @@ export interface CountryApiData {
   videos: VideoData[];
 }
 
-export interface Params {
+export interface CountryParams {
   country: string;
   keyword: string | string[];
   category: string;
@@ -50,7 +51,7 @@ export interface Params {
   is_korea: boolean;
 }
 
-const useCountryData = (params: Params) => {
+const useCountryData = (params: CountryParams) => {
   const [data, setData] = useState<CountryApiData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -59,9 +60,7 @@ const useCountryData = (params: Params) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await api.get('/api/search/country/dashboard', {
-          params,
-        });
+        const response = await getCountryDataApi(params);
         setData(response.data.data);
       } catch (err) {
         if (isAxiosError(err)) {

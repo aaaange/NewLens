@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { api } from '../services/api/Api';
 import { isAxiosError } from 'axios';
+import { getCompareInfoApi } from '../services/api/worldService';
 
-interface CompareParams {
+export interface CompareParams {
   category: string;
   period: string;
   keyword: string[];
@@ -32,9 +32,7 @@ const useCompareInfo = (params: CompareParams | null) => {
 
       setIsLoading(true);
       try {
-        const response = await api.get('/compare-info', {
-          params,
-        });
+        const response = await getCompareInfoApi(params);
         setData(response.data.data);
       } catch (err) {
         if (isAxiosError(err)) {
