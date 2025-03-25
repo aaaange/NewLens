@@ -5,104 +5,96 @@ import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  WorldMapProps,
-  worldMentionType,
+  mentionResType,
+  mentionObjType,
   countryNameType,
-  SentimentName,
-  sentimentType,
   sentimentResType,
-  worldSentimentType,
-  getWorldMapData,
+  SentimentName,
+  sentimentObjType,
 } from '../../services/api/worldService';
 
-export interface WorldMapProps {
+interface WorldMapProps {
   tabId: string;
   category: string;
   period: number;
   keyword: string;
-  mapData: any[];
+  mapData: {
+    mention: mentionResType;
+    sentiment: sentimentResType;
+  };
 }
 
 const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
-  console.log('tabId1', tabId);
-  console.log('category1', category);
-  console.log('period1', period);
-  console.log('keyword1', keyword);
-  const chartContainerRef = useRef<HTMLDivElement>(null); // 차트 컨테이너 ref
+  const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<am5.Root | null>(null);
-  const [mentionData, setMentionData] = useState<worldMentionType | null>(null);
-  const [sentimentData, setSentimentData] = useState<worldSentimentType | null>(
+  const [mentionData, setMentionData] = useState<mentionObjType | null>(null);
+  const [sentimentData, setSentimentData] = useState<sentimentObjType | null>(
     null
   );
   const navigate = useNavigate();
 
-  //===========================================================================
-  // 데이터 가져오기
-  //===========================================================================
-  const fetchWorldData = async () => {
-    try {
-      const response = await fetch('/worldData.json');
-      // const jsonData = await getWorldMapDataApi();
-      const jsonData = await response.json();
-      // console.log('jsonData', jsonData);
-
-      const { mention, sentiment } = jsonData.data;
-
-      //===========================================================================
-      // 언급량 데이터 response 변환 => response형태를 배열에서 객체로 변환(검색 시, 속도 차이)
-      //===========================================================================
-
-      const mentionObj: worldMentionType = {};
-      mention.forEach((item: worldMentionType) => {
-        mentionObj[item.name] = item.count;
-      });
-      setMentionData(mentionObj);
-      // console.log('mentionData', mentionData);
-
-      //===========================================================================
-      // 긍부정 데이터 response 변환
-      //===========================================================================
-
-      // primarySentiment 찾는 함수
-      const getPrimarySentiment = (
-        positive: number,
-        neutral: number,
-        negative: number
-      ): SentimentName => {
-        if (positive >= neutral && positive > negative) return 'positive';
-        if (negative >= neutral && negative > positive) return 'negative';
-        return 'neutral';
-      };
-
-      const sentimentObj: worldSentimentType = {};
-
-      sentiment.forEach(
-        ({ name, positive, neutral, negative }: sentimentResType) => {
-          const primarySentiment = getPrimarySentiment(
-            positive,
-            neutral,
-            negative
-          );
-
-          sentimentObj[name] = {
-            positive,
-            neutral,
-            negative,
-            primarySentiment,
-          };
-        }
-      );
-
-      setSentimentData(sentimentObj);
-      // console.log('sentimentData', sentimentData);
-    } catch (error) {
-      console.error('API 데이터 가져오기 실패:', error);
-    }
-  };
-
   useEffect(() => {
-    fetchWorldData();
-  }, []);
+    // mapData가 아직 없다면 처리하지 않음
+    if (!mapData) return;
+
+    // 구조 분해 할당
+    const {
+      mention,
+      sentiment,
+    }: {
+      mention: mentionResType;
+      sentiment: sentimentResType;
+    } = mapData;
+
+    // 언급량 데이터 가공: 배열 -> 객체로 변환
+    const mentionObj: { [key: string]: number } = {};
+    mention.forEach((item: { name: string; count: number }) => {
+      mentionObj[item.name] = item.count;
+    });
+    setMentionData(mentionObj);
+
+    // 긍부정 데이터 가공
+    const sentimentObj: sentimentObjType = {};
+
+    // primarySentiment 판별 함수
+    const getPrimarySentiment = (
+      positive: number,
+      neutral: number,
+      negative: number
+    ): SentimentName => {
+      if (positive >= neutral && positive > negative) return 'positive';
+      if (negative >= neutral && negative > positive) return 'negative';
+      return 'neutral';
+    };
+
+    sentiment.forEach(
+      ({
+        name,
+        positive,
+        neutral,
+        negative,
+      }: {
+        name: string;
+        positive: number;
+        neutral: number;
+        negative: number;
+      }) => {
+        const primarySentiment = getPrimarySentiment(
+          positive,
+          neutral,
+          negative
+        );
+        sentimentObj[name] = {
+          positive,
+          neutral,
+          negative,
+          primarySentiment,
+        };
+      }
+    );
+
+    setSentimentData(sentimentObj);
+  }, [mapData]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return; // 데이터가 없으면 실행 X
@@ -132,14 +124,10 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
     //===========================================================================
     // 기본 설정
     //===========================================================================
-
-    // 핵심 amCharts 루트 요소 생성
     const root = am5.Root.new(chartContainerRef.current);
 
-    // amCharts 5 테마 설정(애니메이션 등)
     root.setThemes([am5themes_Animated.new(root)]);
 
-    // 지도 차트 생성해서 root의 컨테이너에 푸시
     const chart = root.container.children.push(
       am5map.MapChart.new(root, {
         panX: 'translateX',
@@ -148,7 +136,6 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
       })
     );
 
-    // 국가별 폴리곤(경계선) 시리즈 추가
     const polygonSeries = chart.series.push(
       am5map.MapPolygonSeries.new(root, {
         geoJSON: am5geodata_worldLow,
@@ -156,9 +143,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
       })
     );
 
-    // console.log('mentionData', mentionData);
-
-    // 폴리곤(국가) 기본 스타일 설정
+    // 기본 스타일 설정
     polygonSeries.mapPolygons.template.setAll({
       toggleKey: 'active',
       // interactive: true,
@@ -199,8 +184,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
             navigate(
               `/worldDetail/${shortName}/${category}/${period}/${keyword}`
             );
-            window.scrollTo(0, 0); //
-            // navigate(`/worldDetail/`);
+            window.scrollTo(0, 0);
           }, 1000);
         }
       } else {
@@ -381,7 +365,6 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
               ? `${fullName}\n긍정: ${positive}\n중립: ${neutral}\n부정: ${negative}`
               : `${fullName}`
           );
-          // 범례에 표시할 데이터 설정
           legend.data.setAll([
             {
               name: '긍정',
@@ -410,7 +393,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
         chartRef.current = null;
       }
     };
-  }, [mentionData, sentimentData, tabId, keyword, category, period]);
+  }, [mentionData, sentimentData, tabId]);
 
   return (
     <div ref={chartContainerRef} className="w-[930px] h-[800px] mx-auto" />
