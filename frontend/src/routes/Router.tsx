@@ -6,6 +6,7 @@ import AuthLayout from '../layouts/AuthLayout';
 import Landing from '../pages/LandingPage';
 import WorldDetail from '../pages/WorldDetail';
 import KoreaAnalysisPage from '../pages/KoreaAnalysisPage';
+import MyPage from '../pages/MyPage';
 
 const Router = () => {
   return (
@@ -17,6 +18,7 @@ const Router = () => {
       <Route element={<Layout />}>
         <Route path="/" element={<Landing />} />
         <Route path="/main" element={<MainPage />} />
+        <Route path="/mypage" element={<MyPage />} />
         <Route path="/koreaAnalysis" element={<KoreaAnalysisPage />} />
         <Route
           path="/worldDetail/:country/:category/:period/:keyword"
