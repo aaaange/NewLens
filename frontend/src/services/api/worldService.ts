@@ -1,7 +1,7 @@
 // world에 관련한 api를 작성하는 곳.
 import { CountryParams } from '../../hooks/useCountryData';
 import { CompareParams } from '../../hooks/useCompareInfo';
-import { api, multipartApi } from './Api';
+import { api } from './Api';
 
 //==============================================
 // 인터페이스 정의

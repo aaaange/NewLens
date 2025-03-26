@@ -3,11 +3,15 @@ import { useState } from 'react';
 interface PropsType {
   categoryChangeHandler: (category: string) => void;
   periodChangeHandler: (period: number) => void;
+  isCategory: string;
+  isPeriod: number;
 }
 
 const Category = ({
   categoryChangeHandler,
   periodChangeHandler,
+  isCategory,
+  isPeriod,
 }: PropsType) => {
   const categories = [
     { id: 'all', label: '전체' },

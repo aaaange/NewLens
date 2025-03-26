@@ -4,7 +4,7 @@ import { getCompareInfoApi } from '../services/api/worldService';
 
 export interface CompareParams {
   category: string;
-  period: string;
+  period: number;
   keyword: string[];
   country: string[]; // 꼭 2개
 }

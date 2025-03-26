@@ -3,7 +3,7 @@ import Flag from 'react-world-flags';
 import { ApexOptions } from 'apexcharts';
 
 interface MentionData {
-  period: string;
+  published_at: string;
   count: number;
 }
 
@@ -25,9 +25,9 @@ const MentionChart = ({
   country_code,
 }: MentionChartProps) => {
   // x축과 y축 데이터를 변환
-  const categories = data.map((item) => item.period);
+  const categories = data.map((item) => item.published_at);
   const seriesData = data.map((item) => item.count);
-
+  const FixedFlag = Flag as any;
   const options: ApexOptions = {
     chart: {
       type: 'area',
@@ -85,9 +85,12 @@ const MentionChart = ({
   ];
 
   return (
-    <div className="flex flex-col gap-2 chart-container" style={{ width: `${width}px` }}>
+    <div
+      className="flex flex-col gap-2 chart-container"
+      style={{ width: `${width}px` }}
+    >
       <p className="flex items-center flex-wrap">
-        <Flag code={country_code} width={24} height={12} /> &nbsp;
+        <FixedFlag code={country_code} width={24} height={12} /> &nbsp;
         {country_name}에서 본&nbsp;
         <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
         <span className="text-amount-300 text-lg ">언급량 변화</span>
