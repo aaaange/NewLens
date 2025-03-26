@@ -2,6 +2,7 @@ package com.ssafy.searchserver.application.search;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -10,10 +11,13 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsResponse;
+import com.ssafy.searchserver.interfaces.search.dto.KeywordRankingData;
+import com.ssafy.searchserver.interfaces.search.dto.KeywordResponse;
 import com.ssafy.searchserver.interfaces.search.dto.RelatedKeywordsResponse;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsMongo;
 import com.ssafy.searchserver.domain.search.repository.ForeignNewsMongoDBRepository;
+import com.ssafy.searchserver.interfaces.search.dto.SentimentMentionData;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,7 +78,7 @@ public class SearchService {
 					.index("foreign_news") // 인덱스명 지정 MySQL의 테이블 지정느낌
 					.id(news.getId()) // document의 id 지정
 					.document(news) // 저장할 document 객체
-					.refresh(co.elastic.clients.elasticsearch._types.Refresh.True) // 저장 후 바로 검색 가능
+					.refresh(Refresh.True) // 저장 후 바로 검색 가능
 				// 대량 저장 시에는 성능 떨어짐 추후 최적화 예정
 			);
 		} catch (IOException e) {
@@ -160,7 +165,7 @@ public class SearchService {
 		}
 	}
 
-	public ForeignNewsListResponse getKeywordRanking(String category, int period, boolean is_korea) {
+	public KeywordRankingData getKeywordRanking(String category, int period, boolean is_korea) {
 		// 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
 		try {
 			LocalDateTime now = LocalDateTime.now();
@@ -204,40 +209,19 @@ public class SearchService {
 			kafkaTemplate.send("keyword-ranking", json);
 			// kafkaTemplate.send("foreign_news", idList);
 
-			List<ForeignNewsResponse> newsList = mongoDBRepository.findByIdIn(idList).stream()
-				.map(news -> ForeignNewsResponse.builder()
-					.id(news.getId())
-					.publishedAt(news.getPublished_at())
-					.title(news.getTitle())
-					.description(news.getDescription())
-					.imageUrl(news.getImage_url())
-					.url(news.getUrl())
-					.categories(news.getCategories())
-					.country(news.getCountry())
-					.keywords(news.getKeywords())
-					.sentiment(news.getSentiment())
-					.rawDataRef(news.getRawDataRef())
-					.build())
-				.collect(Collectors.toList());
+			// 더미 반환값
+			List<KeywordResponse> data = List.of();
 
-			return ForeignNewsListResponse.builder()
-				.code("SUCCESS")
-				.success(true)
-				.message("검색 결과 MongoDB에서 반환")
-				.data(newsList)
+			return KeywordRankingData.builder()
+				.keywords(data)
 				.build();
 		} catch (Exception e) {
-			return ForeignNewsListResponse.builder()
-				.code("FAIL")
-				.success(false)
-				.message("Elasticsearch 검색 실패: " + e.getMessage())
-				.data(List.of())
-				.build();
+			throw new NoSuchElementException("키워드 랭킹을 불러오지 못했습니다.");
 		}
 
 	}
 
-	public ForeignNewsListResponse getWorldwide(String keyword, String category, int period) {
+	public SentimentMentionData getWorldwide(String keyword, String category, int period) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -281,53 +265,22 @@ public class SearchService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-			// 7) idList와 keyword를 함께 담을 수 있는 Map을 만듦
+			// idList와 keyword를 함께 담을 수 있는 Map을 만듦
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("keyword", keyword);
 			payload.put("ids", idList);
 
-			// 8) Map을 JSON 문자열로 변환
+			// Map을 JSON 문자열로 변환 & kafka로 전송
 			String json = objectMapper.writeValueAsString(payload);
-
-			// 9) "worldwide" 토픽에 전송
 			kafkaTemplate.send("worldwide", json);
 
-			// // kafka로 전송
-			// String json = objectMapper.writeValueAsString(idList);
-			// kafkaTemplate.send("worldwide", json);
-			// // kafkaTemplate.send("foreign_news", idList);
+			// 더미 반환값
+			SentimentMentionData data = SentimentMentionData.builder().build();
 
-			List<ForeignNewsResponse> newsList = mongoDBRepository.findByIdIn(idList).stream()
-				.map(news -> ForeignNewsResponse.builder()
-					.id(news.getId())
-					.publishedAt(news.getPublished_at())
-					.title(news.getTitle())
-					.description(news.getDescription())
-					.imageUrl(news.getImage_url())
-					.url(news.getUrl())
-					.categories(news.getCategories())
-					.country(news.getCountry())
-					.keywords(news.getKeywords())
-					.sentiment(news.getSentiment())
-					.rawDataRef(news.getRawDataRef())
-					.build())
-				.collect(Collectors.toList());
-
-			return ForeignNewsListResponse.builder()
-				.code("SUCCESS")
-				.success(true)
-				.message("검색 결과 MongoDB에서 반환")
-				.data(newsList)
-				.build();
+			return data;
 		} catch (Exception e) {
-			return ForeignNewsListResponse.builder()
-				.code("FAIL")
-				.success(false)
-				.message("Elasticsearch 검색 실패: " + e.getMessage())
-				.data(List.of())
-				.build();
+			throw new NoSuchElementException("언급량, 감정 수치를 불러올 수 없습니다.");
 		}
-
 	}
 
 }

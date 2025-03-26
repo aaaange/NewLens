@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingDto;
+import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.MentionResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.SentimentMentionResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.SentimentResponse;
@@ -94,7 +95,7 @@ public class SearchService {
 	}
 
 	// 키워드 랭킹 집계 로직
-	public Map<String, Object> processKeywordRanking(List<ForeignNewsMongo> newsList) {
+	public KeywordRankingResponse processKeywordRanking(List<ForeignNewsMongo> newsList) {
 		// 각 키워드의 등장 횟수를 저장할 맵 생성
 		Map<String, Integer> keywordCounts = new HashMap<>();
 
@@ -108,7 +109,7 @@ public class SearchService {
 			}
 		}
 
-		// Map의 엔트리들을 값(빈도) 기준으로 내림차순 정렬
+		// Map의 엔트리들을 값(빈도) 기준으로 내림차순 정렬 (동일 빈도이면 키 값으로 정렬)
 		List<Map.Entry<String, Integer>> sortedKeywordCounts = keywordCounts.entrySet()
 			.stream()
 			.sorted(Map.Entry.<String, Integer>comparingByValue().reversed()
@@ -140,11 +141,11 @@ public class SearchService {
 				}
 			}
 
+			// KeywordRankingDto의 name 필드에는 키워드를, state에는 결정된 상태 값을 넣음
 			resultList.add(new KeywordRankingDto(keyword, state));
 		}
 
 		// 7. Redis에 새로운 키워드 랭킹 업데이트 (전체 랭킹 갱신)
-		// Redis의 "keyword_ranking" 해시에 새 키워드와 빈도 저장
 		// redisTemplate.opsForHash().putAll("keyword_ranking", keywordCounts);
 
 		// 결과 출력: 키워드 랭킹
@@ -156,12 +157,12 @@ public class SearchService {
 				+ " (state=" + dto.getState() + ")");
 		}
 
-		// 8. 최종 결과를 JSON 구조로 구성하여 반환
-		// 예: {"keywords": [ { "name": "도널드", "state": "new" }, ... ] }
-		Map<String, Object> response = new HashMap<>();
-		response.put("keywords", resultList);
-		return response;
+		// 8. 최종 결과를 KeywordRankingResponse로 구성하여 반환
+		return KeywordRankingResponse.builder()
+			.keywords(resultList)
+			.build();
 	}
+
 
 	// 세계지도 집계 로직
 	public SentimentMentionResponse processWorldwide(String keyword, List<ForeignNewsMongo> newsList) {
