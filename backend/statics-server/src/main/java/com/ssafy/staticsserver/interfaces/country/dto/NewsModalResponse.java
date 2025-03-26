@@ -11,7 +11,7 @@ public class NewsModalResponse {
 	private List<NewsDto> news;
 	private int page;
 	private int size;
-	private long totalElements;
+	private int totalElements;
 	private int totalPages;
 	private boolean hasNext;
 	private boolean hasPrevious;
