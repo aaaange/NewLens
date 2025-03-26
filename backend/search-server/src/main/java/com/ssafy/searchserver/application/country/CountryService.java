@@ -16,6 +16,7 @@ import com.ssafy.searchserver.domain.search.model.ForeignNewsMongo;
 import com.ssafy.searchserver.domain.search.repository.ForeignNewsMongoDBRepository;
 import com.ssafy.searchserver.interfaces.country.dto.DashboardData;
 import com.ssafy.searchserver.interfaces.country.dto.DashboardResponse;
+import com.ssafy.searchserver.interfaces.country.dto.KeywordResponse;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.interfaces.search.dto.RelatedKeywordsResponse;
@@ -37,14 +38,13 @@ public class CountryService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 
-	public DashboardResponse getDashboard(String category, int period, List<String> keyword, String country,
+	public DashboardResponse getDashboard(String category, int period, String keyword,String keywordMind, String keywordCloud, String country,
 		boolean is_korea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
 
-			String keyword1 = keyword.get(0);
-			String keyword2 = keyword.size() > 1 ? keyword.get(1) : null;
+
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -52,13 +52,20 @@ public class CountryService {
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
 					.field("keywords")
-					.value(FieldValue.of(keyword1))
+					.value(FieldValue.of(keyword))
 				)));
 
-				if (keyword2 != null) {
+				if (!keywordMind.isEmpty()) {
 					mustQueries.add(Query.of(m -> m.term(t -> t
 						.field("keywords")
-						.value(FieldValue.of(keyword2))
+						.value(FieldValue.of(keywordMind))
+					)));
+				}
+
+				if (!keywordCloud.isEmpty()) {
+					mustQueries.add(Query.of(m -> m.term(t -> t
+						.field("keywords")
+						.value(FieldValue.of(keywordCloud))
 					)));
 				}
 
@@ -89,7 +96,7 @@ public class CountryService {
 				return b.must(mustQueries);
 			}));
 
-			// 연관어 추출 Aggregation (그대로 유지)
+			// 연관어 추출 Aggregation
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
 					.field("keywords")
@@ -124,19 +131,21 @@ public class CountryService {
 				.get("word_cloud")
 				.sterms();
 
-			List<String> wordCloud = aggregation.buckets().array().stream()
-				.map(bucket -> bucket.key().stringValue())
-				.filter(rel -> !rel.equals(keyword1)) // keyword1과 중복 제거
-				.filter(rel -> !rel.equals(keyword2)) // keyword1과 중복 제거
+			List<KeywordResponse> wordCloud = aggregation.buckets().array().stream()
+				.filter(rel -> !rel.equals(keyword)) // keyword1과 중복 제거
+				.filter(rel -> !rel.equals(keywordMind))
+				.filter(rel -> !rel.equals(keywordCloud))
+				.map(bucket -> KeywordResponse.builder()
+					.name(bucket.key().stringValue())
+					.count(bucket.docCount())
+					.build())
 				.collect(Collectors.toList());
 
-			RelatedKeywordsResponse wordCloudResponse = RelatedKeywordsResponse.builder()
-				.keyword(keyword1)
-				.relatedKeywords(wordCloud)
-				.build();
-			System.out.println("워드 클라우드");
-			System.out.println(wordCloudResponse);
 
+			System.out.println("워드 클라우드");
+			for (KeywordResponse keywordResponse : wordCloud) {
+				System.out.println(keywordResponse.toString());
+			}
 			return DashboardResponse.builder()
 
 				.build();

@@ -12,5 +12,13 @@ public class KeywordResponse {
 	private String name;
 
 	@Schema(description = "카운트 수", example = "121")
-	private int count;
+	private long count;
+
+	@Override
+	public String toString() {
+		return "KeywordResponse{" +
+			"name='" + name + '\'' +
+			", count=" + count +
+			'}';
+	}
 }
