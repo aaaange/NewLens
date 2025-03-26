@@ -4,7 +4,7 @@ import NewsItem from './NewsItem';
 interface NewsItemType {
   title: string;
   url: string;
-  published_date: string;
+  published_at: string;
   image_url: string;
 }
 
@@ -48,7 +48,7 @@ const NewsList = ({
             key={index}
             title={item.title} // 뉴스 제목
             url={item.url} // 뉴스 URL
-            publishedDate={item.published_date} // 뉴스 발행 날짜
+            publishedDate={item.published_at} // 뉴스 발행 날짜
             imageUrl={item.image_url} // 뉴스 이미지 URL
           />
         ))}

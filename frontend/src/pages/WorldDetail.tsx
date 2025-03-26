@@ -52,16 +52,26 @@ const WorldDetail = () => {
         }
       : null
   );
-
-  const handleCategoryChange = (newCategory: string) => {
-    setCategory(newCategory);
+  const categoryChangeHandler = (category: string) => {
+    setCategory(category);
+    console.log(category);
+  };
+  const periodChangeHandler = (period: number) => {
+    setPeriod(period);
+    console.log(period);
   };
 
-  const handlePeriodChange = (newPeriod: number) => {
-    setPeriod(newPeriod);
+  const keywordInputChangeHandler = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setKeyword(e.target.value);
+    console.log(e.target.value);
   };
 
-  const handleKeywordChange = (newKeyword: string) => {
+  const handleMindMapKeywordChange = (newKeyword: string) => {
+    setKeyword(`${keyword.split(' ')[0]} ${newKeyword}`);
+  };
+  const handleRankingKeywordChange = (newKeyword: string) => {
     setKeyword(newKeyword);
   };
 
@@ -70,11 +80,11 @@ const WorldDetail = () => {
       <div className="flex flex-col gap-5">
         <SearchInput
           value={keyword}
-          onChange={(e) => handleKeywordChange(e.target.value)}
+          onChange={keywordInputChangeHandler}
           onSearch={() => console.log('Search triggered')}
         />
         <MindMap
-          onKeywordChange={handleKeywordChange}
+          onKeywordChange={handleMindMapKeywordChange}
           category={category}
           period={period}
           mainKeyword={keyword}
@@ -83,13 +93,15 @@ const WorldDetail = () => {
           category={category}
           period={period}
           is_korea={firstCountry === 'KR'}
-          onKeywordChange={handleKeywordChange}
+          onKeywordChange={handleRankingKeywordChange}
         />
       </div>
       <div className="flex flex-col items-center gap-3">
         <Category
-          categoryChangeHandler={handleCategoryChange}
-          periodChangeHandler={handlePeriodChange}
+          isCategory={category}
+          isPeriod={period}
+          categoryChangeHandler={categoryChangeHandler}
+          periodChangeHandler={periodChangeHandler}
         />
         <div className="flex gap-10">
           <CountryDropdown
@@ -118,7 +130,7 @@ const WorldDetail = () => {
           height={125}
         />
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
-          <div className="p-5">
+          <div className="p-5 min-w-[430px]">
             <FirstCountryBoard
               country={firstCountry}
               country_name={firstCountryName}
