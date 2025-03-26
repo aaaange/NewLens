@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.searchserver.application.country.CountryService;
 import com.ssafy.searchserver.interfaces.country.dto.AnalysisData;
 import com.ssafy.searchserver.interfaces.country.dto.ArticleResponse;
 import com.ssafy.searchserver.interfaces.country.dto.CompareInfoResponse;
@@ -35,6 +36,8 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Country API", description = "국가 대시보드 추출 API")
 @RequiredArgsConstructor
 public class CountryController {
+
+	private final CountryService countryService;
 
 	@Operation(
 		summary = "국가 대시보드 추출",
@@ -139,12 +142,13 @@ public class CountryController {
 		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프, 관세")
-		@RequestParam String keyword,
+		@RequestParam List<String> keyword,
 		@Parameter(description = "국가", example = "ko")
 		@RequestParam String country,
 		@Parameter(description = "한국 여부", example = "false")
-		@RequestParam String isKorea
+		@RequestParam boolean is_korea
 	) {
+		countryService.getDashboard(category, period, keyword, country, is_korea);
 		// 예시 더미 데이터
 		// 1) keywords
 		List<KeywordResponse> keywords = List.of(

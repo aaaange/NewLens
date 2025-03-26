@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsMongo;
 import com.ssafy.searchserver.domain.search.repository.ForeignNewsMongoDBRepository;
+import com.ssafy.searchserver.interfaces.country.dto.DashboardData;
 import com.ssafy.searchserver.interfaces.country.dto.DashboardResponse;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsResponse;
@@ -36,7 +37,8 @@ public class CountryService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 
-	public DashboardResponse getDashboard(String category, int period, List<String> keyword, String country, boolean is_korea) {
+	public DashboardResponse getDashboard(String category, int period, List<String> keyword, String country,
+		boolean is_korea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -94,14 +96,6 @@ public class CountryService {
 					.size(20)
 				)
 			);
-			// // 워드 클라우드 추출용 searchRequset
-			// SearchRequest searchWordCloud = SearchRequest.of(s -> s
-			// 	.index("foreign_news")
-			// 	.query(boolQuery)
-			// 	.size(0) // doc 자체는 필요 없으므로 size 0
-			// 	.aggregations("related_keywords", agg)
-			// );
-
 
 			// ID 조회용 searchRequest
 			var searchRequest = SearchRequest.of(s -> s
@@ -116,9 +110,6 @@ public class CountryService {
 			// ES에서 조회
 			var response = esClient.search(searchRequest, ForeignNewsElastic.class);
 
-
-
-
 			// ES에서 필터링 거친 뉴스 id 리스트 리턴
 			List<String> idList = response.hits().hits().stream()
 				.map(hit -> hit.source().getId())
@@ -127,7 +118,6 @@ public class CountryService {
 			// kafka로 전송
 			String json = objectMapper.writeValueAsString(idList);
 			kafkaTemplate.send("dashboard", json);
-
 
 			// 4. Aggregation 처리
 			StringTermsAggregate aggregation = response.aggregations()
@@ -144,12 +134,9 @@ public class CountryService {
 				.keyword(keyword1)
 				.relatedKeywords(wordCloud)
 				.build();
-
+			System.out.println("워드 클라우드");
 			System.out.println(wordCloudResponse);
 
-
-
-			// 5. 최종 Dashboard 응답
 			return DashboardResponse.builder()
 
 				.build();
@@ -158,83 +145,5 @@ public class CountryService {
 			throw new RuntimeException("Dashboard 데이터 검색 실패", e);
 		}
 	}
-
-
-	public ForeignNewsListResponse getKeywordRanking2(String category, int period, boolean is_korea) {
-		// 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
-		try {
-			LocalDateTime now = LocalDateTime.now();
-			LocalDateTime from = now.minusDays(period);
-
-			Query boolQuery = Query.of(q -> q.bool(b -> b
-				.must(List.of(
-					// 카테고리 배열 안에 category가 존재하는 뉴스
-					Query.of(m -> m.terms(t -> t
-						.field("categories")
-						.terms(ts -> ts.value(List.of(FieldValue.of(category))))
-					)),
-					// 뉴스 생성 시간이 기간 내에 포함되는 뉴스
-					Query.of(m -> m.range(r -> r
-						.date(d -> d
-							.field("published_at")
-							.gte(from.toString())
-							.lte(now.toString())
-						)
-					))
-
-				))
-			));
-
-			var searchRequest = SearchRequest.of(s -> s
-					.index("foreign_news")
-					.query(boolQuery)
-					.source(src -> src.filter(f -> f.includes("id")))
-				// 우리는 id만 필요하니까 id만 반환
-			);
-
-			// ES에서 조회
-			var response = esClient.search(searchRequest, ForeignNewsMongo.class);
-			// ES에서 필터링 거친 뉴스 id 리스트 리턴
-			List<String> idList = response.hits().hits().stream()
-				.map(hit -> hit.source().getId())
-				.collect(Collectors.toList());
-
-			// kafka로 전송
-			String json = objectMapper.writeValueAsString(idList);
-			kafkaTemplate.send("keyword-ranking", json);
-
-			List<ForeignNewsResponse> newsList = mongoDBRepository.findByIdIn(idList).stream()
-				.map(news -> ForeignNewsResponse.builder()
-					.id(news.getId())
-					.publishedAt(news.getPublished_at())
-					.title(news.getTitle())
-					.description(news.getDescription())
-					.imageUrl(news.getImage_url())
-					.url(news.getUrl())
-					.categories(news.getCategories())
-					.country(news.getCountry())
-					.keywords(news.getKeywords())
-					.sentiment(news.getSentiment())
-					.rawDataRef(news.getRawDataRef())
-					.build())
-				.collect(Collectors.toList());
-
-			return ForeignNewsListResponse.builder()
-				.code("SUCCESS")
-				.success(true)
-				.message("검색 결과 MongoDB에서 반환")
-				.data(newsList)
-				.build();
-		} catch (Exception e) {
-			return ForeignNewsListResponse.builder()
-				.code("FAIL")
-				.success(false)
-				.message("Elasticsearch 검색 실패: " + e.getMessage())
-				.data(List.of())
-				.build();
-		}
-
-	}
-
 
 }
