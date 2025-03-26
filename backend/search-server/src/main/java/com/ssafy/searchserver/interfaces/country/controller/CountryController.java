@@ -230,22 +230,27 @@ public class CountryController {
 		@RequestParam String category,
 		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
 		@RequestParam int period,
-		@Parameter(description = "검색 키워드", example = "트럼프, 관세")
+		@Parameter(description = "검색 키워드", example = "트럼프")
 		@RequestParam String keyword,
-		@Parameter(description = "국가", example = "ko, us")
-		@RequestParam String country
+		@Parameter(description = "마인드맵 키워드", example = "관세")
+		@RequestParam(name = "keyword-mind") String keywordMind,
+		@Parameter(description = "국가1", example = "ko")
+		@RequestParam String country1,
+		@Parameter(description = "국가2", example = "us")
+		@RequestParam String country2
 	) {
 		// 예시 더미 데이터
-		AnalysisData data = AnalysisData.builder()
-			.analysis("한줄 비교 요약본 from gpt")
-			.build();
-
-		return CompareInfoResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(data)
-			.build();
+		return countryService.getGPTDescription(category, period, keyword, keywordMind, country1, country2);
+//		AnalysisData data = AnalysisData.builder()
+//			.analysis("한줄 비교 요약본 from gpt")
+//			.build();
+//
+//		return CompareInfoResponse.builder()
+//			.code("SUCCESS")
+//			.success(true)
+//			.message("요청 성공")
+//			.data(data)
+//			.build();
 	}
 
 	@GetMapping("/news")
