@@ -142,7 +142,7 @@ public class SearchService {
 			);
 
 			// 검색 실행
-			var response = esClient.search(searchRequest, ForeignNewsMongo.class);
+			var response = esClient.search(searchRequest, ForeignNewsElastic.class);
 
 			// aggression 결과 파싱
 			StringTermsAggregate aggregation = response.aggregations()
@@ -151,8 +151,8 @@ public class SearchService {
 
 			// 연관 키워드 리스트 반환
 			List<String> relatedKeywords = aggregation.buckets().array().stream()
-				.map(bucket -> bucket.key().stringValue())
 				.filter(rel -> !rel.equals(keyword)) // 자기 자신 제외
+				.map(bucket -> bucket.key().stringValue())
 				.collect(Collectors.toList());
 
 			return RelatedKeywordsResponse.builder()
@@ -198,7 +198,7 @@ public class SearchService {
 			);
 
 			// ES에서 조회
-			var response = esClient.search(searchRequest, ForeignNewsMongo.class);
+			var response = esClient.search(searchRequest, ForeignNewsElastic.class);
 			// ES에서 필터링 거친 뉴스 id 리스트 리턴
 			List<String> idList = response.hits().hits().stream()
 				.map(hit -> hit.source().getId())
@@ -259,7 +259,7 @@ public class SearchService {
 			);
 
 			// ES에서 조회
-			var response = esClient.search(searchRequest, ForeignNewsMongo.class);
+			var response = esClient.search(searchRequest, ForeignNewsElastic.class);
 			// ES에서 필터링 거친 뉴스 id 리스트 리턴
 			List<String> idList = response.hits().hits().stream()
 				.map(hit -> hit.source().getId())

@@ -249,7 +249,7 @@ public class CountryController {
 	}
 
 	@GetMapping("/news")
-	public SearchNewsResponse searchNews(
+	public SearchNewsResponse getNewsModal(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
@@ -257,13 +257,21 @@ public class CountryController {
 		@RequestParam int period,
 		@Parameter(description = "검색 키워드", example = "트럼프")
 		@RequestParam String keyword,
+		@Parameter(description = "마인드맵 키워드", example = "관세")
+		@RequestParam(name = "keyword-mind") String keywordMind,
+		@Parameter(description = "클라우드 키워드", example = "정책")
+		@RequestParam(name = "keyword-cloud") String keywordCloud,
 		@Parameter(description = "국가", example = "ko")
 		@RequestParam String country,
 		@Parameter(description = "페이지", example = "1")
-		@RequestParam String page,
+		@RequestParam int page,
 		@Parameter(description = "페이지 당 보여줄 개수", example = "5")
-		@RequestParam String size
+		@RequestParam int size,
+		@Parameter(description = "한국 특화 여부", example = "false")
+		@RequestParam(name = "is_korea") boolean isKorea
+
 	) {
+		countryService.getNewsNodal(category, period, keyword, keywordMind, keywordCloud, country, page, size, isKorea);
 		// 예시 더미 데이터
 		// 뉴스 항목 더미 데이터
 		List<NewsResponse> newsList = List.of(
