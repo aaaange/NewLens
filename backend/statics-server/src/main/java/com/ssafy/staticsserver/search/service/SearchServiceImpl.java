@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.search.dto.KeywordRankingDto;
+import com.ssafy.staticsserver.search.dto.MentionResponse;
+import com.ssafy.staticsserver.search.dto.SentimentMentionResponse;
+import com.ssafy.staticsserver.search.dto.SentimentResponse;
 import com.ssafy.staticsserver.search.entitiy.ForeignNewsMongo;
 import com.ssafy.staticsserver.search.repository.ForeignNewsMongoDBRepository;
 
@@ -66,9 +69,11 @@ public class SearchServiceImpl implements SearchNewsService {
 			});
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			System.out.println("세계 지도 처리를 위한 뉴스 리스트");
+			System.out.println(newsIds);
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
 			}
+			processWorldwide(newsList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -152,6 +157,72 @@ public class SearchServiceImpl implements SearchNewsService {
 
 	// 세계지도 집계 로직
 	@Override
-	public void processWorldwide(List<ForeignNewsMongo> newsList) {
+	public SentimentMentionResponse processWorldwide(List<ForeignNewsMongo> newsList) {
+		// 국가별로 뉴스 그룹핑
+		Map<String, List<ForeignNewsMongo>> countryNewsMap = new HashMap<>();
+		for (ForeignNewsMongo news : newsList) {
+			String country = news.getCountry();
+			countryNewsMap.computeIfAbsent(country, k -> new ArrayList<>()).add(news);
+		}
+
+		List<SentimentResponse> sentimentResponses = new ArrayList<>();
+		List<MentionResponse> mentionResponses = new ArrayList<>();
+
+		// 각 국가별로 sentiment 및 mention 통계 계산
+		for (Map.Entry<String, List<ForeignNewsMongo>> entry : countryNewsMap.entrySet()) {
+			String country = entry.getKey();
+			List<ForeignNewsMongo> countryNews = entry.getValue();
+			int totalCount = countryNews.size();
+			int positiveCount = 0;
+			int neutralCount = 0;
+			int negativeCount = 0;
+
+			for (ForeignNewsMongo news : countryNews) {
+				int sentimentScore = news.getSentiment();
+				// sentiment 값이 33 이하면 negative, 66 이하면 neutral, 그 이상이면 positive
+				if (sentimentScore <= 33) {
+					negativeCount++;
+				} else if (sentimentScore <= 66) {
+					neutralCount++;
+				} else {
+					positiveCount++;
+				}
+			}
+
+			double positiveRatio = totalCount > 0 ? (double) positiveCount / totalCount : 0.0;
+			double neutralRatio = totalCount > 0 ? (double) neutralCount / totalCount : 0.0;
+			double negativeRatio = totalCount > 0 ? (double) negativeCount / totalCount : 0.0;
+
+			positiveRatio = Math.round(positiveRatio * 100.0) / 100.0;
+			neutralRatio = Math.round(neutralRatio * 100.0) / 100.0;
+			negativeRatio = Math.round(negativeRatio * 100.0) / 100.0;
+
+			// SentimentResponse 생성 (keyword 필드는 "all"로 채움)
+			SentimentResponse sentimentResponse = SentimentResponse.builder()
+				.keyword("all")
+				.country(country)
+				.positive(positiveRatio)
+				.neutral(neutralRatio)
+				.negative(negativeRatio)
+				.build();
+			sentimentResponses.add(sentimentResponse);
+
+			// MentionResponse 생성 (뉴스 개수를 count로 사용, keyword는 "all")
+			MentionResponse mentionResponse = MentionResponse.builder()
+				.keyword("all")
+				.country(country)
+				.count(totalCount)
+				.build();
+			mentionResponses.add(mentionResponse);
+		}
+
+		SentimentMentionResponse response = SentimentMentionResponse.builder()
+			.sentiment(sentimentResponses)
+			.mention(mentionResponses)
+			.build();
+
+		// System.out.println("세계지도 집계 결과:");
+		// System.out.println(response);
+		return response;
 	}
 }
