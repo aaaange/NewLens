@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class SentimentResponse {
-	private String keyword;
 	private String country;
 	private double positive;
 	private double neutral;
@@ -15,7 +14,6 @@ public class SentimentResponse {
 	@Override
 	public String toString() {
 		return "SentimentResponse{" +
-			"keyword='" + keyword + '\'' +
 			", country='" + country + '\'' +
 			", positive=" + positive +
 			", neutral=" + neutral +
