@@ -65,15 +65,25 @@ public class SearchService {
 	@KafkaListener(topics = "worldwide")
 	public void listenWorldwide(String message) {
 		try {
-			List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
-			});
+			// 메시지를 Map으로 변환
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<Map<String, Object>>() {});
+
+			// keyword와 ids 추출 (ids는 List<String>으로 캐스팅)
+			String keyword = (String) payload.get("keyword");
+			List<String> newsIds = (List<String>) payload.get("ids");
+
+			// MongoDB에서 해당 id에 해당하는 뉴스 조회
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
+
+			// List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
+			// });
+
 			System.out.println("세계 지도 처리를 위한 뉴스 리스트");
 			System.out.println(newsIds);
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
 			}
-			processWorldwide(newsList);
+			processWorldwide(keyword, newsList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -154,7 +164,7 @@ public class SearchService {
 	}
 
 	// 세계지도 집계 로직
-	public SentimentMentionResponse processWorldwide(List<ForeignNewsMongo> newsList) {
+	public SentimentMentionResponse processWorldwide(String keyword, List<ForeignNewsMongo> newsList) {
 		// 국가별로 뉴스 그룹핑
 		Map<String, List<ForeignNewsMongo>> countryNewsMap = new HashMap<>();
 		for (ForeignNewsMongo news : newsList) {
@@ -212,12 +222,13 @@ public class SearchService {
 		}
 
 		SentimentMentionResponse response = SentimentMentionResponse.builder()
+			.keyword(keyword)
 			.sentiment(sentimentResponses)
 			.mention(mentionResponses)
 			.build();
 
-		// System.out.println("세계지도 집계 결과:");
-		// System.out.println(response);
+		System.out.println("세계지도 집계 결과:");
+		System.out.println(response);
 		return response;
 	}
 }

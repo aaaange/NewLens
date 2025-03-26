@@ -23,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -279,10 +281,21 @@ public class SearchService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-			// kafka로 전송
-			String json = objectMapper.writeValueAsString(idList);
+			// 7) idList와 keyword를 함께 담을 수 있는 Map을 만듦
+			Map<String, Object> payload = new HashMap<>();
+			payload.put("keyword", keyword);
+			payload.put("ids", idList);
+
+			// 8) Map을 JSON 문자열로 변환
+			String json = objectMapper.writeValueAsString(payload);
+
+			// 9) "worldwide" 토픽에 전송
 			kafkaTemplate.send("worldwide", json);
-			// kafkaTemplate.send("foreign_news", idList);
+
+			// // kafka로 전송
+			// String json = objectMapper.writeValueAsString(idList);
+			// kafkaTemplate.send("worldwide", json);
+			// // kafkaTemplate.send("foreign_news", idList);
 
 			List<ForeignNewsResponse> newsList = mongoDBRepository.findByIdIn(idList).stream()
 				.map(news -> ForeignNewsResponse.builder()
