@@ -1,5 +1,9 @@
 package com.ssafy.staticsserver.application.country;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +55,8 @@ public class CountryService {
             String keywordMind = msg.getKeywordMind();
             String country1 = msg.getCountry1();
             String country2 = msg.getCountry2();
+            String requestId = msg.getRequestId();
+            String callbackUrl = msg.getCallbackUrl();
             List<ForeignNewsMongo> newsList1 = mongoDBRepository.findByIdIn(msg.getCountry1NewsIds());
             List<ForeignNewsMongo> newsList2 = mongoDBRepository.findByIdIn(msg.getCountry2NewsIds());
             newsList1.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
@@ -65,6 +71,17 @@ public class CountryService {
             String comparisonSummary = gptClient.ask(prompt);
             System.out.println(comparisonSummary);
 //            String result = "결과";
+
+            // 콜백 요청 전송
+
+            HttpClient httpClient = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(callbackUrl + "?requestId=" + requestId))
+                    .POST(HttpRequest.BodyPublishers.ofString(comparisonSummary))
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 
 

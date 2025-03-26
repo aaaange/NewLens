@@ -1,9 +1,10 @@
 package com.ssafy.searchserver.application.country;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import co.elastic.clients.elasticsearch._types.SortOrder;
@@ -31,6 +32,9 @@ public class CountryService {
     private final ElasticsearchClient esClient;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final Map<String, CompletableFuture<String>> pendingCompareResults = new ConcurrentHashMap<>();
+
+
 
     public DashboardResponse getDashboard(String category, int period, String keyword, String keywordMind,
                                           String keywordCloud, String country,
@@ -141,6 +145,7 @@ public class CountryService {
         try {
             List<String> country1NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country1);
             List<String> country2NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country2);
+            String requestId = UUID.randomUUID().toString();
 
             CountryNewsMessage message = CountryNewsMessage.builder()
                     .keyword(keyword)
@@ -149,16 +154,31 @@ public class CountryService {
                     .country2(country2)
                     .country1NewsIds(country1NewsIds)
                     .country2NewsIds(country2NewsIds)
+                    .requestId(requestId)
+                    .callbackUrl("http://localhost:8080/api/search/country/compare-callback")
                     .build();
+
+
+            // CompletableFuture 등록 (5초 대기)
+            CompletableFuture<String> future = new CompletableFuture<>();
+            pendingCompareResults.put(requestId, future);
+
 
             String json = objectMapper.writeValueAsString(message);
             kafkaTemplate.send("compare-info", json);
 
+            // 5초 대기
+            String gptResult = future.get(500, TimeUnit.SECONDS);
+
+            AnalysisData data = AnalysisData.builder().analysis(gptResult).build();
+
             return CompareInfoResponse.builder()
                     .code("SUCCESS")
                     .success(true)
-                    .message("요청 성공")
+                    .message("요약 성공")
+                    .data(data)
                     .build();
+
 
         } catch (Exception e) {
             throw new RuntimeException("GPT 요약 요청 실패", e);
