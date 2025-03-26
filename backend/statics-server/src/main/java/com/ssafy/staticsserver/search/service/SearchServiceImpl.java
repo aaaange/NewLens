@@ -199,7 +199,6 @@ public class SearchServiceImpl implements SearchNewsService {
 
 			// SentimentResponse 생성 (keyword 필드는 "all"로 채움)
 			SentimentResponse sentimentResponse = SentimentResponse.builder()
-				.keyword("all")
 				.country(country)
 				.positive(positiveRatio)
 				.neutral(neutralRatio)
@@ -209,7 +208,6 @@ public class SearchServiceImpl implements SearchNewsService {
 
 			// MentionResponse 생성 (뉴스 개수를 count로 사용, keyword는 "all")
 			MentionResponse mentionResponse = MentionResponse.builder()
-				.keyword("all")
 				.country(country)
 				.count(totalCount)
 				.build();
