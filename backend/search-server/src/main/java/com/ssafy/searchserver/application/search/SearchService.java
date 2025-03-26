@@ -267,6 +267,7 @@ public class SearchService {
 			var searchRequest = SearchRequest.of(s -> s
 					.index("foreign_news")
 					.query(boolQuery)
+					.size(1000)
 					.source(src -> src.filter(f -> f.includes("id")))
 				// 우리는 id만 필요하니까 id만 반환
 			);
