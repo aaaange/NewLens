@@ -1,4 +1,4 @@
-package com.ssafy.staticsserver.search.dto;
+package com.ssafy.staticsserver.interfaces.search.dto;
 
 import lombok.Builder;
 import lombok.Getter;
