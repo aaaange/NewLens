@@ -240,7 +240,7 @@ public class CountryController {
 		@RequestParam String country2
 	) {
 		// 예시 더미 데이터
-		return countryService.getGPTDescription(category, period, keyword, keywordMind, country1, country2);
+		return countryService.getCompareInfo(category, period, keyword, keywordMind, country1, country2);
 //		AnalysisData data = AnalysisData.builder()
 //			.analysis("한줄 비교 요약본 from gpt")
 //			.build();

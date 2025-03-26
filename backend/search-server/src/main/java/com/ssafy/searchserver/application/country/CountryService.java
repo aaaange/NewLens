@@ -1,26 +1,19 @@
 package com.ssafy.searchserver.application.country;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.ssafy.searchserver.interfaces.country.dto.CompareInfoResponse;
-import org.apache.kafka.common.protocol.types.Field;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import com.ssafy.searchserver.interfaces.country.dto.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
-import com.ssafy.searchserver.domain.search.model.ForeignNewsMongo;
 import com.ssafy.searchserver.domain.search.repository.ForeignNewsMongoDBRepository;
-import com.ssafy.searchserver.interfaces.country.dto.DashboardData;
-import com.ssafy.searchserver.interfaces.country.dto.DashboardResponse;
-import com.ssafy.searchserver.interfaces.country.dto.KeywordResponse;
-import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsListResponse;
-import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsResponse;
-import com.ssafy.searchserver.interfaces.search.dto.RelatedKeywordsResponse;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
@@ -73,7 +66,6 @@ public class CountryService {
                         .field("categories")
                         .value(FieldValue.of(category))
                 )));
-
 
 
                 mustQueries.add(Query.of(m -> m.range(r -> r
@@ -144,92 +136,82 @@ public class CountryService {
         }
     }
 
-    public CompareInfoResponse getGPTDescription(String category, int period, String keyword, String keywordMind,
-                                                 String country1, String country2) {
+    public CompareInfoResponse getCompareInfo(String category, int period, String keyword, String keywordMind,
+                                              String country1, String country2) {
         try {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime from = now.minusDays(period);
+            List<String> country1NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country1);
+            List<String> country2NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country2);
 
-            // 필터링 Query
-            Query boolQuery = Query.of(q -> q.bool(b -> {
-                List<Query> mustQueries = new ArrayList<>();
+            CountryNewsMessage message = CountryNewsMessage.builder()
+                    .keyword(keyword)
+                    .keywordMind(keywordMind)
+                    .country1(country1)
+                    .country2(country2)
+                    .country1NewsIds(country1NewsIds)
+                    .country2NewsIds(country2NewsIds)
+                    .build();
 
-                mustQueries.add(Query.of(m -> m.term(t -> t
-                        .field("keywords")
-                        .value(FieldValue.of(keyword))
-                )));
-
-                if (!keywordMind.isEmpty()) {
-                    mustQueries.add(Query.of(m -> m.term(t -> t
-                            .field("keywords")
-                            .value(FieldValue.of(keywordMind))
-                    )));
-                }
-
-                // 두 국가 중 하나라도 포함한다면
-                mustQueries.add(Query.of(m -> m.bool(bq -> bq
-                        .should(List.of(
-                                Query.of(q1 -> q1.term(t1 -> t1.field("country").value(FieldValue.of(country1)))),
-                                Query.of(q2 -> q2.term(t2 -> t2.field("country").value(FieldValue.of(country2))))
-                        ))
-                        .minimumShouldMatch(String.valueOf(1))
-                )));
-
-
-
-                mustQueries.add(Query.of(m -> m.term(t -> t
-                        .field("categories")
-                        .value(FieldValue.of(category))
-                )));
-
-
-                mustQueries.add(Query.of(m -> m.range(r -> r
-                        .date(d -> d
-                                .field("published_at")
-                                .gte(from.toString())
-                                .lte(now.toString())
-                        )
-                )));
-                return b.must(mustQueries);
-            }));
-
-            // ID 조회용 searchRequest
-            var searchRequest = SearchRequest.of(s -> s
-                            .index("foreign_news")
-                            .query(boolQuery)
-                            .size(10000)
-                            .source(src -> src.filter(f -> f.includes("id")))
-                    // 우리는 id만 필요하니까 id만 반환
-            );
-
-            // ES에서 조회
-            var response = esClient.search(searchRequest, ForeignNewsElastic.class);
-
-            // ES에서 필터링 거친 뉴스 id 리스트 리턴
-            List<String> idList = response.hits().hits().stream()
-                    .map(hit -> hit.source().getId())
-                    .collect(Collectors.toList());
-
-            // kafka로 전송
-            String json = objectMapper.writeValueAsString(idList);
+            String json = objectMapper.writeValueAsString(message);
             kafkaTemplate.send("compare-info", json);
 
             return CompareInfoResponse.builder()
                     .code("SUCCESS")
                     .success(true)
                     .message("요청 성공")
-//                    .data(data)
                     .build();
 
         } catch (Exception e) {
-            throw new RuntimeException("compare-info 실패", e);
+            throw new RuntimeException("GPT 요약 요청 실패", e);
+        }
+    }
+
+
+    public List<String> getNewsByCountry(String category, int period, String keyword, String keywordMind,
+                                         String country) {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime from = now.minusDays(period);
+
+            Query boolQuery = Query.of(q -> q.bool(b -> {
+                List<Query> mustQueries = new ArrayList<>();
+
+                mustQueries.add(Query.of(m -> m.term(t -> t.field("keywords").value(FieldValue.of(keyword)))));
+                if (!keywordMind.isEmpty()) {
+                    mustQueries.add(Query.of(m -> m.term(t -> t.field("keywords").value(FieldValue.of(keywordMind)))));
+                }
+
+                mustQueries.add(Query.of(m -> m.term(t -> t.field("country").value(FieldValue.of(country)))));
+                mustQueries.add(Query.of(m -> m.term(t -> t.field("categories").value(FieldValue.of(category)))));
+                mustQueries.add(Query.of(m -> m.range(r -> r.date(d -> d
+                        .field("published_at").gte(from.toString()).lte(now.toString())
+                ))));
+
+                return b.must(mustQueries);
+            }));
+
+            var searchRequest = SearchRequest.of(s -> s
+                    .index("foreign_news")
+                    .query(boolQuery)
+                    .size(5)
+                    .source(src -> src.filter(f -> f.includes("id")))
+            );
+
+            var response = esClient.search(searchRequest, ForeignNewsElastic.class);
+
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source().getId())
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
     }
 
 
     public DashboardResponse getNewsNodal(String category, int period, String keyword, String keywordMind,
                                           String keywordCloud, String country, int page, int size,
-                                          boolean is_korea) {
+                                          boolean isKorea) {
         try {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime from = now.minusDays(period);
@@ -262,17 +244,6 @@ public class CountryService {
                         .value(FieldValue.of(category))
                 )));
 
-                //                if (is_korea) {
-                //                    mustQueries.add(Query.of(m -> m.term(t -> t
-                //                            .field("country")
-                //                            .value(FieldValue.of("KR"))
-                //                    )));
-                //                } else if (country != null && !country.isBlank()) {
-                //                    mustQueries.add(Query.of(m -> m.term(t -> t
-                //                            .field("country")
-                //                            .value(FieldValue.of(country))
-                //                    )));
-                //                }
 
                 mustQueries.add(Query.of(m -> m.range(r -> r
                         .date(d -> d
