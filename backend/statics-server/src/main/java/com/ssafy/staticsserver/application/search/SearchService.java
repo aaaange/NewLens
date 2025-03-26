@@ -1,4 +1,4 @@
-package com.ssafy.staticsserver.search.service;
+package com.ssafy.staticsserver.application.search;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,18 +11,18 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.staticsserver.search.dto.KeywordRankingDto;
-import com.ssafy.staticsserver.search.dto.MentionResponse;
-import com.ssafy.staticsserver.search.dto.SentimentMentionResponse;
-import com.ssafy.staticsserver.search.dto.SentimentResponse;
-import com.ssafy.staticsserver.search.entitiy.ForeignNewsMongo;
-import com.ssafy.staticsserver.search.repository.ForeignNewsMongoDBRepository;
+import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingDto;
+import com.ssafy.staticsserver.interfaces.search.dto.MentionResponse;
+import com.ssafy.staticsserver.interfaces.search.dto.SentimentMentionResponse;
+import com.ssafy.staticsserver.interfaces.search.dto.SentimentResponse;
+import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
+import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SearchServiceImpl implements SearchNewsService {
+public class SearchService {
 
 	private final ObjectMapper objectMapper;
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
@@ -80,12 +80,10 @@ public class SearchServiceImpl implements SearchNewsService {
 	}
 
 	// 관련 키워드 집계 로직
-	@Override
 	public void processRelatedKeywords(List<ForeignNewsMongo> newsList) {
 	}
 
 	// 키워드 랭킹 집계 로직
-	@Override
 	public Map<String, Object> processKeywordRanking(List<ForeignNewsMongo> newsList) {
 		// 각 키워드의 등장 횟수를 저장할 맵 생성
 		Map<String, Integer> keywordCounts = new HashMap<>();
@@ -156,7 +154,6 @@ public class SearchServiceImpl implements SearchNewsService {
 	}
 
 	// 세계지도 집계 로직
-	@Override
 	public SentimentMentionResponse processWorldwide(List<ForeignNewsMongo> newsList) {
 		// 국가별로 뉴스 그룹핑
 		Map<String, List<ForeignNewsMongo>> countryNewsMap = new HashMap<>();
