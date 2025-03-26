@@ -38,13 +38,12 @@ public class CountryService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 
-	public DashboardResponse getDashboard(String category, int period, String keyword,String keywordMind, String keywordCloud, String country,
+	public DashboardResponse getDashboard(String category, int period, String keyword, String keywordMind,
+		String keywordCloud, String country,
 		boolean is_korea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
-
-
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -141,7 +140,6 @@ public class CountryService {
 					.build())
 				.collect(Collectors.toList());
 
-
 			System.out.println("워드 클라우드");
 			for (KeywordResponse keywordResponse : wordCloud) {
 				System.out.println(keywordResponse.toString());
@@ -152,6 +150,93 @@ public class CountryService {
 
 		} catch (Exception e) {
 			throw new RuntimeException("Dashboard 데이터 검색 실패", e);
+		}
+	}
+
+	public DashboardResponse getNewsNodal(String category, int period, String keyword, String keywordMind,
+		String keywordCloud, String country, int page, int size,
+		boolean is_korea) {
+		try {
+			LocalDateTime now = LocalDateTime.now();
+			LocalDateTime from = now.minusDays(period);
+
+			// 필터링 Query
+			Query boolQuery = Query.of(q -> q.bool(b -> {
+				List<Query> mustQueries = new ArrayList<>();
+
+				mustQueries.add(Query.of(m -> m.term(t -> t
+					.field("keywords")
+					.value(FieldValue.of(keyword))
+				)));
+
+				if (!keywordMind.isEmpty()) {
+					mustQueries.add(Query.of(m -> m.term(t -> t
+						.field("keywords")
+						.value(FieldValue.of(keywordMind))
+					)));
+				}
+
+				if (!keywordCloud.isEmpty()) {
+					mustQueries.add(Query.of(m -> m.term(t -> t
+						.field("keywords")
+						.value(FieldValue.of(keywordCloud))
+					)));
+				}
+
+				mustQueries.add(Query.of(m -> m.term(t -> t
+					.field("categories")
+					.value(FieldValue.of(category))
+				)));
+
+				//                if (is_korea) {
+				//                    mustQueries.add(Query.of(m -> m.term(t -> t
+				//                            .field("country")
+				//                            .value(FieldValue.of("KR"))
+				//                    )));
+				//                } else if (country != null && !country.isBlank()) {
+				//                    mustQueries.add(Query.of(m -> m.term(t -> t
+				//                            .field("country")
+				//                            .value(FieldValue.of(country))
+				//                    )));
+				//                }
+
+				mustQueries.add(Query.of(m -> m.range(r -> r
+					.date(d -> d
+						.field("published_at")
+						.gte(from.toString())
+						.lte(now.toString())
+					)
+				)));
+				return b.must(mustQueries);
+			}));
+
+			// ID 조회용 searchRequest
+			var searchRequest = SearchRequest.of(s -> s
+					.index("foreign_news")
+					.query(boolQuery)
+					.size(10000)
+					.source(src -> src.filter(f -> f.includes("id")))
+				// 우리는 id만 필요하니까 id만 반환
+			);
+
+			// ES에서 조회
+			var response = esClient.search(searchRequest, ForeignNewsElastic.class);
+
+			// ES에서 필터링 거친 뉴스 id 리스트 리턴
+			List<String> idList = response.hits().hits().stream()
+				.map(hit -> hit.source().getId())
+				.collect(Collectors.toList());
+
+			// kafka로 전송
+			String json = objectMapper.writeValueAsString(idList);
+			kafkaTemplate.send("news-modal", json);
+
+			return DashboardResponse.builder()
+
+				.build();
+
+		} catch (Exception e) {
+			throw new RuntimeException("뉴스 모달창 데이터 검색 실패", e);
 		}
 	}
 
