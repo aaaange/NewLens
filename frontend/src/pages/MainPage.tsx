@@ -82,8 +82,8 @@ const MainPage = () => {
   }, [mapData, keyword]);
 
   return (
-    <div className="flex px-[100px] py-[40px] justify-center">
-      <div className="flex flex-col gap-[20px] mr-[150px]">
+    <div className="mt-5 flex gap-20 justify-center">
+      <div className="flex flex-col gap-5">
         <SearchInput
           value={keyword}
           onChange={keywordInputChangeHandler}
@@ -104,12 +104,14 @@ const MainPage = () => {
       </div>
       <div className="flex flex-col items-end">
         <Category
+          isCategory={category}
+          isPeriod={period}
           categoryChangeHandler={categoryChangeHandler}
           periodChangeHandler={periodChangeHandler}
         />
         {/* 토글 버튼에 따른 세계 지도 렌더링 */}
 
-        <div className="w-[150px] h-[40px] flex justify-between rounded-[20px] overflow-hidden bg-primary-300 p-1 mt-[40px] mb-[10px]">
+        <div className="w-[150px] h-[40px] flex justify-between rounded-[20px] overflow-hidden bg-primary-300 p-1 mt-[40px] mb-[10px] ">
           {tabs.map((tab) => (
             <div
               key={tab.id}
