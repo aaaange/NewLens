@@ -24,9 +24,9 @@ public class ForeignNewsMongo {
     private String description;
     private String url;
     @Field(name = "published_at")
-    private LocalDateTime published_at;
+    private LocalDateTime publishedAt;
     @Field(name = "image_url")
-    private String image_url;
+    private String imageUrl;
     private List<String> categories;
     private String country;
     private List<String> keywords;
@@ -40,8 +40,8 @@ public class ForeignNewsMongo {
             ", title='" + title + '\'' +
             ", description='" + description + '\'' +
             ", url='" + url + '\'' +
-            ", published_at=" + published_at +
-            ", image_url='" + image_url + '\'' +
+            ", published_at=" + publishedAt +
+            ", image_url='" + imageUrl + '\'' +
             ", categories=" + categories +
             ", country='" + country + '\'' +
             ", keywords=" + keywords +
