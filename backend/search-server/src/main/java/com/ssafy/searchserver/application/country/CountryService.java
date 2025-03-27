@@ -39,7 +39,7 @@ public class CountryService {
 	private final ElasticsearchClient esClient;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
-	private final Map<String, CompletableFuture<String>> pendingCompareResults = new ConcurrentHashMap<>();
+	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
 
 	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind,
 		String keywordCloud, String country, boolean isKorea) {
@@ -193,7 +193,7 @@ public class CountryService {
 		}
 	}
 
-	public CompletableFuture<String> removeFuture(String requestId) {
+	public CompletableFuture<?> removeFuture(String requestId) {
 		return pendingCompareResults.remove(requestId);
 	}
 
@@ -245,6 +245,7 @@ public class CountryService {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+			String requestId = UUID.randomUUID().toString();
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -311,12 +312,20 @@ public class CountryService {
             payload.put("newsIds", idList);
             payload.put("page", page);
             payload.put("size", size);
+			payload.put("requestId", requestId);
+			payload.put("callbackUrl", "http://localhost:8080/api/search/country/news-modal-callback");
+
+			CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
 
             // Map을 JSON 문자열로 변환 & kafka로 전송
             String json = objectMapper.writeValueAsString(payload);
             kafkaTemplate.send("news-modal", json);
 
-            return NewsModalResponse.builder().build();
+			// 5초 대기
+			NewsModalResponse data = future.get(5, TimeUnit.SECONDS);
+
+            return data;
 
 		} catch (Exception e) {
 			throw new RuntimeException("뉴스 모달창 데이터 검색 실패", e);
