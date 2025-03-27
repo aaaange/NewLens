@@ -43,7 +43,7 @@ public class CountryService {
 
 	public DashboardResponse getDashboard(String category, int period, String keyword, String keywordMind,
 		String keywordCloud, String country,
-		boolean is_korea) {
+		boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -70,6 +70,11 @@ public class CountryService {
 						.value(FieldValue.of(keywordCloud))
 					)));
 				}
+
+				mustQueries.add(Query.of(m -> m.term(t -> t
+					.field("country")
+					.value(FieldValue.of(country))
+				)));
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
 					.field("categories")
@@ -265,6 +270,11 @@ public class CountryService {
 				mustQueries.add(Query.of(m -> m.term(t -> t
 					.field("categories")
 					.value(FieldValue.of(category))
+				)));
+
+				mustQueries.add(Query.of(m -> m.term(t -> t
+					.field("country")
+					.value(FieldValue.of(country))
 				)));
 
 				mustQueries.add(Query.of(m -> m.range(r -> r
