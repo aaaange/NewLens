@@ -3,7 +3,7 @@ import Flag from 'react-world-flags';
 import { ApexOptions } from 'apexcharts';
 
 interface SentimentData {
-  period: string;
+  published_at: string;
   positive: number;
   neutral: number;
   negative: number;
@@ -46,7 +46,7 @@ const StackedColumns = ({
           fontWeight: 500,
         },
       },
-      categories: data.map((item) => item.period),
+      categories: data.map((item) => item.published_at),
     },
     yaxis: {
       labels: {

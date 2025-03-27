@@ -19,9 +19,9 @@ import {
 interface SecondCountryBoardProps {
   country: string;
   country_name: string;
-  keyword: string | string[];
+  keyword: string;
   category: string;
-  period: string;
+  period: number;
 }
 
 const SecondCountryBoard = ({
@@ -49,7 +49,7 @@ const SecondCountryBoard = ({
   // if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
   // if (!data) return <div>No Data</div>;
 
-//   const country_name: string = '미국';
+  //   const country_name: string = '미국';
 
   // 서버 응답 없을 경우 목데이터로 대체
   const safeData = data ?? {
@@ -62,7 +62,7 @@ const SecondCountryBoard = ({
   };
 
   return (
-    <div className='flex flex-col gap-5'>
+    <div className="flex flex-col gap-5">
       <WordCloud
         keywords={safeData.keywords}
         width={410}
@@ -105,7 +105,6 @@ const SecondCountryBoard = ({
       <VideoList
         videos={safeData.videos}
         width={410}
-        height={265}
         keyword={keyword}
         country_name={country_name}
         country_code={country}

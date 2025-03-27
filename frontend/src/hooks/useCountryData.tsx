@@ -1,36 +1,35 @@
 import { useState, useEffect } from 'react';
-import { api } from '../services/api/Api';
 import { isAxiosError } from 'axios';
 import { getCountryDataApi } from '../services/api/worldService';
 
 export interface KeywordData {
-  name: string;
-  count: number;
+  text: string;
+  value: number;
 }
 
 export interface SentimentData {
-  period: string;
+  published_at: string;
   positive: number;
   neutral: number;
   negative: number;
 }
 
 export interface MentionData {
-  period: string;
+  published_at: string;
   count: number;
 }
 
 export interface ArticleData {
   title: string;
   url: string;
-  published_date: string;
+  published_at: string;
   image_url: string;
 }
 
 export interface VideoData {
   title: string;
   url: string;
-  published_date: string;
+  published_at: string;
   thumbnail_url: string;
 }
 
@@ -45,9 +44,9 @@ export interface CountryApiData {
 
 export interface CountryParams {
   country: string;
-  keyword: string | string[];
+  keyword: string;
   category: string;
-  period: string;
+  period: number;
   is_korea: boolean;
 }
 
