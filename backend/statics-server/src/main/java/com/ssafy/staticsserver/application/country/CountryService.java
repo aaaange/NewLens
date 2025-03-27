@@ -148,10 +148,13 @@ public class CountryService {
         try {
             Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
 
-            List<String> newsIds = (List<String>) payload.get("newsIds");
+			List<String> newsIds = (List<String>) payload.get("newsIds");
             int page = (Integer) payload.get("page");
             int size = (Integer) payload.get("size");
+			String callbackUrl = payload.get("callbackUrl").toString();
+			String requestId = payload.get("requestId").toString();
 
+			System.out.println("newsIds : " + newsIds.toString());
             List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
             System.out.println("뉴스 모달창을 위한 뉴스 리스트");
             for (ForeignNewsMongo foreignNewsMongo : newsList) {
@@ -159,7 +162,18 @@ public class CountryService {
             }
 
             NewsModalResponse response = processNews(newsList, page, size);
+			String responseJson = objectMapper.writeValueAsString(response);
             System.out.println(response);
+
+			// 콜백 요청 전송
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
+				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
+				.header("Content-Type", "application/json")
+				.build();
+
+			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             e.printStackTrace();
         }
