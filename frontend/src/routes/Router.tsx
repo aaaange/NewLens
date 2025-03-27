@@ -7,6 +7,7 @@ import Landing from '../pages/LandingPage';
 import WorldDetail from '../pages/WorldDetail';
 import KoreaAnalysisPage from '../pages/KoreaAnalysisPage';
 import MyPage from '../pages/MyPage';
+import PlayGround from '../components/common/PlayGround';
 
 const Router = () => {
   return (
@@ -17,6 +18,7 @@ const Router = () => {
       </Route>
       <Route element={<Layout />}>
         <Route path="/" element={<Landing />} />
+        <Route path="/playground" element={<PlayGround />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/koreaAnalysis" element={<KoreaAnalysisPage />} />

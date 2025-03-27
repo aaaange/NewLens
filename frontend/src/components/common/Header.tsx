@@ -17,7 +17,7 @@ const Header = () => {
               <Link to="/">about</Link>
             </div>
             <div className="w-[120px]">
-              <Link to="/worldDetail">이아영페이지</Link>
+              <Link to="/playground">양영조페이지</Link>
             </div>
             <div className="w-[120px]">
               <Link to="/main">이승주페이지</Link>
