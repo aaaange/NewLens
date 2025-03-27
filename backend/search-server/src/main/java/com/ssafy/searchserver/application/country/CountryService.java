@@ -46,6 +46,7 @@ public class CountryService {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
 			String requestId = UUID.randomUUID().toString();
+			int size = keywordMind.isEmpty() ? 21 : 22;
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -88,7 +89,7 @@ public class CountryService {
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
 					.field("keywords")
-					.size(20)
+					.size(size)
 				)
 			);
 

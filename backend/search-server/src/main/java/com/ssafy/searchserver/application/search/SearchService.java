@@ -130,7 +130,7 @@ public class SearchService {
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
 					.field("keywords")
-					.size(10) // 상위 10개만
+					.size(11) // 상위 11개만 나중에 자기자신 빼기 때문에
 				)
 			);
 
