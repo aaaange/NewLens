@@ -151,14 +151,12 @@ public class CountryController {
 		@RequestParam String keyword,
 		@Parameter(description = "마인드맵 키워드", example = "관세")
 		@RequestParam(name = "keyword-mind") String keywordMind,
-		@Parameter(description = "클라우드 키워드", example = "도널드")
-		@RequestParam(name = "keyword-cloud") String keywordCloud,
 		@Parameter(description = "국가", example = "ko")
 		@RequestParam String country,
 		@Parameter(description = "한국 여부", example = "false")
 		@RequestParam(name = "is_korea") boolean isKorea
 	) {
-		DashboardData data = countryService.getDashboard(category, period, keyword, keywordMind, keywordCloud, country, isKorea);
+		DashboardData data = countryService.getDashboard(category, period, keyword, keywordMind, country, isKorea);
 		// // 예시 더미 데이터
 		// // 1) keywords
 		// List<KeywordResponse> keywords = List.of(

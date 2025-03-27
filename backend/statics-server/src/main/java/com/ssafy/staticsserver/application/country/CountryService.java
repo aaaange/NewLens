@@ -51,6 +51,9 @@ public class CountryService {
 
 			List<String> newsIds = (List<String>) payload.get("newsIds");
 			int period = (Integer) payload.get("period");
+			String keyword = (String) payload.get("keyword");
+			String keywordMind = (String) payload.get("keyword-mind");
+			String country = (String) payload.get("country");
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트");
@@ -62,7 +65,8 @@ public class CountryService {
 			// search-server에서 완성
 
 			// description
-			String description = makeDescription(newsList);
+			String prompt = makeDescription(keyword, keywordMind, newsList, country);
+			String description = gptClient.ask(prompt);
 
 			// sentiment & mentions
 			List<SentimentResponse> sentiment;
@@ -170,8 +174,29 @@ public class CountryService {
 	}
 
 	// 언론 반응 요약
-	private String makeDescription(List<ForeignNewsMongo> newsList) {
-		return "";
+	private String makeDescription(String keyword, String keywordMind, List<ForeignNewsMongo> newsList, String country) {
+		StringBuilder prompt = new StringBuilder();
+
+		prompt.append("[국가 뉴스 여론 분석 요청]\n\n");
+		prompt.append("다음은 \"").append(keyword);
+		if (keywordMind != null && !keywordMind.isBlank()) {
+			prompt.append(" (").append(keywordMind).append(")");
+		}
+		prompt.append("\" 키워드와 관련된 ").append(country).append("의 뉴스입니다.\n\n");
+
+		prompt.append("[").append(country).append(" 뉴스]").append("\n");
+		for (int i = 0; i < newsList.size(); i++) {
+			ForeignNewsMongo news = newsList.get(i);
+			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
+			prompt.append("- ").append(news.getDescription()).append("\n\n");
+		}
+
+
+
+		prompt.append("위 뉴스를 참고하여, ").append(country)
+			.append("이 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+
+		return prompt.toString();
 	}
 
 	// 하루치 감정 분석 (4시간 단위)
