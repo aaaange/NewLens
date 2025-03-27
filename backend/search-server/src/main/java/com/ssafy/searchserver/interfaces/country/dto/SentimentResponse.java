@@ -1,5 +1,7 @@
 package com.ssafy.searchserver.interfaces.country.dto;
 
+import java.time.LocalDateTime;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import lombok.Getter;
 @Schema(description = "감정 데이터")
 public class SentimentResponse {
 	@Schema(description = "기간 (yyyy-MM-dd)", example = "2025-03-01")
-	private String period;
+	private LocalDateTime publishedAt;
 
 	@Schema(description = "긍정 비율", example = "0.7")
 	private double positive;
