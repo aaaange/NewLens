@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-
 import com.ssafy.searchserver.interfaces.country.dto.*;
 
 import org.springframework.kafka.core.KafkaTemplate;
@@ -41,8 +40,8 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<String>> pendingCompareResults = new ConcurrentHashMap<>();
 
-	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind,
-		String keywordCloud, String country, boolean isKorea) {
+	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
+		boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -63,12 +62,6 @@ public class CountryService {
 					)));
 				}
 
-				if (!keywordCloud.isEmpty()) {
-					mustQueries.add(Query.of(m -> m.term(t -> t
-						.field("keywords")
-						.value(FieldValue.of(keywordCloud))
-					)));
-				}
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
 					.field("country")
@@ -120,6 +113,9 @@ public class CountryService {
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("newsIds", idList);
 			payload.put("period", period);
+			payload.put("keyword", keyword);
+			payload.put("keyword-mind", keywordMind);
+			payload.put("country", country);
 
 			// Map을 JSON 문자열로 변환 & kafka로 전송
 			String json = objectMapper.writeValueAsString(payload);
@@ -133,7 +129,6 @@ public class CountryService {
 			List<KeywordResponse> wordCloud = aggregation.buckets().array().stream()
 				.filter(rel -> !rel.equals(keyword)) // keyword1과 중복 제거
 				.filter(rel -> !rel.equals(keywordMind))
-				.filter(rel -> !rel.equals(keywordCloud))
 				.map(bucket -> KeywordResponse.builder()
 					.name(bucket.key().stringValue())
 					.count(bucket.docCount())
@@ -306,17 +301,17 @@ public class CountryService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-            // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("newsIds", idList);
-            payload.put("page", page);
-            payload.put("size", size);
+			// kafka로 전달할 payload에 newsIds, page, size를 함께 포함
+			Map<String, Object> payload = new HashMap<>();
+			payload.put("newsIds", idList);
+			payload.put("page", page);
+			payload.put("size", size);
 
-            // Map을 JSON 문자열로 변환 & kafka로 전송
-            String json = objectMapper.writeValueAsString(payload);
-            kafkaTemplate.send("news-modal", json);
+			// Map을 JSON 문자열로 변환 & kafka로 전송
+			String json = objectMapper.writeValueAsString(payload);
+			kafkaTemplate.send("news-modal", json);
 
-            return NewsModalResponse.builder().build();
+			return NewsModalResponse.builder().build();
 
 		} catch (Exception e) {
 			throw new RuntimeException("뉴스 모달창 데이터 검색 실패", e);
