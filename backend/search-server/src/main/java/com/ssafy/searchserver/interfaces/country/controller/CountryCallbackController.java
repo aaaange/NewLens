@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.ssafy.searchserver.application.country.CountryService;
+import com.ssafy.searchserver.interfaces.country.dto.DashboardData;
 import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
 
 @RestController
@@ -21,6 +22,20 @@ import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
 @RequiredArgsConstructor
 public class CountryCallbackController {
 	private final CountryService countryService;
+
+	@PostMapping("/dashboard-callback")
+	public ResponseEntity<Void> receiveDashboard(
+		@RequestParam("requestId") String requestId,
+		@RequestBody DashboardData response
+	) {
+		CompletableFuture<?> future = countryService.removeFuture(requestId);
+		if (future != null) {
+			CompletableFuture<DashboardData> newFuture = (CompletableFuture<DashboardData>) future;
+			newFuture.complete(response);
+		}
+		System.out.println(response);
+		return ResponseEntity.ok().build();
+	}
 
 	@PostMapping("/compare-callback")
 	public ResponseEntity<Void> receiveGptCompareSummary(
