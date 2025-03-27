@@ -85,7 +85,7 @@ const CountryDropdown = ({
       renderValue={(selected) => {
         if (!selected) {
           return (
-            <span className="text-white text-2xl opacity-50">
+            <span className="text-white text-xl opacity-50">
               {placeholder || '비교할 나라를 선택하세요'}
             </span>
           );
