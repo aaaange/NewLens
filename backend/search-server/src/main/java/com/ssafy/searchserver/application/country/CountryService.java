@@ -1,6 +1,12 @@
 package com.ssafy.searchserver.application.country;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -226,7 +232,7 @@ public class CountryService {
 		}
 	}
 
-	public DashboardResponse getNewsNodal(String category, int period, String keyword, String keywordMind,
+	public NewsModalResponse getNewsNodal(String category, int period, String keyword, String keywordMind,
 		String keywordCloud, String country, int page, int size,
 		boolean isKorea) {
 		try {
@@ -288,13 +294,17 @@ public class CountryService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-			// kafka로 전송
-			String json = objectMapper.writeValueAsString(idList);
-			kafkaTemplate.send("news-modal", json);
+            // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("newsIds", idList);
+            payload.put("page", page);
+            payload.put("size", size);
 
-			return DashboardResponse.builder()
+            // Map을 JSON 문자열로 변환 & kafka로 전송
+            String json = objectMapper.writeValueAsString(payload);
+            kafkaTemplate.send("news-modal", json);
 
-				.build();
+            return NewsModalResponse.builder().build();
 
 		} catch (Exception e) {
 			throw new RuntimeException("뉴스 모달창 데이터 검색 실패", e);

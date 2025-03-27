@@ -1,4 +1,4 @@
-package com.ssafy.staticsserver.interfaces.country.dto;
+package com.ssafy.searchserver.interfaces.country.dto;
 
 import java.util.List;
 
