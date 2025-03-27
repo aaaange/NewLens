@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.searchserver.application.country.CountryService;
+import com.ssafy.searchserver.common.dto.CommonResponse;
 import com.ssafy.searchserver.interfaces.country.dto.AnalysisData;
 import com.ssafy.searchserver.interfaces.country.dto.ArticleResponse;
 import com.ssafy.searchserver.interfaces.country.dto.CompareInfoResponse;
@@ -20,6 +21,7 @@ import com.ssafy.searchserver.interfaces.country.dto.DashboardResponse;
 import com.ssafy.searchserver.interfaces.country.dto.KeywordResponse;
 import com.ssafy.searchserver.interfaces.country.dto.MentionResponse;
 import com.ssafy.searchserver.interfaces.country.dto.NewsData;
+import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
 import com.ssafy.searchserver.interfaces.country.dto.NewsResponse;
 import com.ssafy.searchserver.interfaces.country.dto.SearchNewsResponse;
 import com.ssafy.searchserver.interfaces.country.dto.SentimentResponse;
@@ -258,7 +260,7 @@ public class CountryController {
 	}
 
 	@GetMapping("/news")
-	public SearchNewsResponse getNewsModal(
+	public CommonResponse<NewsModalResponse> getNewsModal(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
@@ -280,41 +282,9 @@ public class CountryController {
 		@RequestParam(name = "is_korea") boolean isKorea
 
 	) {
-		countryService.getNewsNodal(category, period, keyword, keywordMind, keywordCloud, country, page, size, isKorea);
-		// 예시 더미 데이터
-		// 뉴스 항목 더미 데이터
-		List<NewsResponse> newsList = List.of(
-			NewsResponse.builder()
-				.title("AI 기술의 발전과 미래")
-				.url("https://example.com/article1")
-				.publishedDate("2025-03-11")
-				.imageUrl("https://example.com/images/article1.jpg")
-				.build(),
-			NewsResponse.builder()
-				.title("챗봇이 바꾸는 고객 서비스")
-				.url("https://example.com/article2")
-				.publishedDate("2025-03-10")
-				.imageUrl("https://example.com/images/article2.jpg")
-				.build()
-		);
+		NewsModalResponse data = countryService.getNewsNodal(category, period, keyword, keywordMind, keywordCloud, country, page, size, isKorea);
 
-		// 뉴스 데이터 구성
-		NewsData data = NewsData.builder()
-			.news(newsList)
-			.page(1)
-			.size(10)
-			.totalElements(1024)
-			.totalPages(103)
-			.hasNext(true)
-			.hasPrevious(false)
-			.build();
-
-		return SearchNewsResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(data)
-			.build();
+		return CommonResponse.success(data);
 	}
 
 }
