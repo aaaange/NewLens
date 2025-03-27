@@ -4,12 +4,20 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import com.ssafy.staticsserver.common.config.GptClient;
+import com.ssafy.staticsserver.interfaces.country.dto.ArticleResponse;
 import com.ssafy.staticsserver.interfaces.country.dto.CountryNewsMessage;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,8 +28,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
+import com.ssafy.staticsserver.interfaces.country.dto.DashboardData;
+import com.ssafy.staticsserver.interfaces.country.dto.MentionResponse;
 import com.ssafy.staticsserver.interfaces.country.dto.NewsDto;
 import com.ssafy.staticsserver.interfaces.country.dto.NewsModalResponse;
+import com.ssafy.staticsserver.interfaces.country.dto.SentimentResponse;
+import com.ssafy.staticsserver.interfaces.country.dto.VideoResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,13 +47,56 @@ public class CountryService {
 	@KafkaListener(topics = "dashboard")
 	public void listenDashboard(String message) {
 		try {
-			List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
-			});
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+
+			List<String> newsIds = (List<String>) payload.get("newsIds");
+			int period = (Integer) payload.get("period");
+
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트");
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
 			}
+
+			// keywords
+			// search-server에서 완성
+
+			// description
+			String description = makeDescription(newsList);
+
+			// sentiment & mentions
+			List<SentimentResponse> sentiment;
+			List<MentionResponse> mentions;
+
+			if (period == 1) {
+				sentiment = processDailySentiment(newsList);
+				mentions = processDailyMentions(newsList);
+			} else if (period == 7) {
+				sentiment = processWeeklySentiment(newsList);
+				mentions = processWeeklyMentions(newsList);
+			} else if (period == 30) {
+				sentiment = processMonthlySentiment(newsList);
+				mentions = processMonthlyMentions(newsList);
+			} else {
+				throw new NoSuchElementException("원하는 감정, 언급량 정보를 찾을 수 없습니다.");
+			}
+
+			// articles
+			List<ArticleResponse> articles = processArticles(newsList);
+
+			// videos
+			List<VideoResponse> videos = processVideos(newsList);
+
+			DashboardData response = DashboardData.builder()
+				.description(description)
+				.sentiment(sentiment)
+				.mentions(mentions)
+				.articles(articles)
+				.videos(videos)
+				.build();
+
+			System.out.println(response);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -112,6 +167,230 @@ public class CountryService {
 
 	// 국가별 대시보드 집계 로직
 	public void processDashboard(List<ForeignNewsMongo> newsList) {
+	}
+
+	// 언론 반응 요약
+	private String makeDescription(List<ForeignNewsMongo> newsList) {
+		return "";
+	}
+
+	// 하루치 감정 분석 (4시간 단위)
+	private List<SentimentResponse> processDailySentiment(List<ForeignNewsMongo> newsList) {
+		Map<LocalDateTime, List<ForeignNewsMongo>> groups = new HashMap<>();
+		for (ForeignNewsMongo news : newsList) {
+			LocalDateTime publishedAt = news.getPublishedAt();
+			// 3시간 기준 시작 시간 구하기 (ex. 0, 4, 8 ...)
+			int groupHour = (publishedAt.getHour() / 4) * 4;
+			// 각 기사를 시작 기준 시간으로 설정
+			LocalDateTime groupTime = publishedAt.withHour(groupHour)
+				.withMinute(0).withSecond(0).withNano(0);
+			groups.computeIfAbsent(groupTime, k -> new ArrayList<>()).add(news);
+		}
+
+		List<SentimentResponse> result = new ArrayList<>();
+		for (Map.Entry<LocalDateTime, List<ForeignNewsMongo>> entry : groups.entrySet()) {
+			LocalDateTime groupTime = entry.getKey();
+			List<ForeignNewsMongo> groupNews = entry.getValue();
+			int total = groupNews.size();
+			int positive = 0, neutral = 0, negative = 0;
+			for (ForeignNewsMongo news : groupNews) {
+				int score = news.getSentiment();
+				if (score <= 33) {
+					negative++;
+				} else if (score <= 66) {
+					neutral++;
+				} else {
+					positive++;
+				}
+			}
+
+			double posRatio = total > 0 ? (double) positive / total : 0.0;
+			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
+			double negRatio = total > 0 ? (double) negative / total : 0.0;
+
+			posRatio = Math.round(posRatio * 100.0) / 100.0;
+			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
+			negRatio = Math.round(negRatio * 100.0) / 100.0;
+
+			result.add(SentimentResponse.builder()
+				.publishedAt(groupTime)
+				.positive(posRatio)
+				.neutral(neuRatio)
+				.negative(negRatio)
+				.build());
+		}
+		result.sort(Comparator.comparing(SentimentResponse::getPublishedAt));
+		return result;
+	}
+
+	// 일주일치 감정 분석
+	private List<SentimentResponse> processWeeklySentiment(List<ForeignNewsMongo> newsList) {
+		Map<LocalDateTime, List<ForeignNewsMongo>> groups = new HashMap<>();
+		for (ForeignNewsMongo news : newsList) {
+			LocalDateTime publishedAt = news.getPublishedAt();
+			// 발행 시간을 해당 날짜 00:00:00으로 셋팅
+			LocalDateTime day = publishedAt.withHour(0).withMinute(0).withSecond(0).withNano(0);
+			groups.computeIfAbsent(day, k -> new ArrayList<>()).add(news);
+		}
+
+		List<SentimentResponse> result = new ArrayList<>();
+		for (Map.Entry<LocalDateTime, List<ForeignNewsMongo>> entry : groups.entrySet()) {
+			LocalDateTime day = entry.getKey();
+			List<ForeignNewsMongo> groupNews = entry.getValue();
+			int total = groupNews.size();
+			int positive = 0, neutral = 0, negative = 0;
+			for (ForeignNewsMongo news : groupNews) {
+				int score = news.getSentiment();
+				if (score <= 33) {
+					negative++;
+				} else if (score <= 66) {
+					neutral++;
+				} else {
+					positive++;
+				}
+			}
+
+			double posRatio = total > 0 ? (double) positive / total : 0.0;
+			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
+			double negRatio = total > 0 ? (double) negative / total : 0.0;
+
+			posRatio = Math.round(posRatio * 100.0) / 100.0;
+			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
+			negRatio = Math.round(negRatio * 100.0) / 100.0;
+
+			result.add(SentimentResponse.builder()
+				.publishedAt(day)
+				.positive(posRatio)
+				.neutral(neuRatio)
+				.negative(negRatio)
+				.build());
+		}
+		result.sort(Comparator.comparing(SentimentResponse::getPublishedAt));
+		return result;
+	}
+
+	// 한달치 감정 분석
+	private List<SentimentResponse> processMonthlySentiment(List<ForeignNewsMongo> newsList) {
+		Map<LocalDateTime, List<ForeignNewsMongo>> groups = new HashMap<>();
+		for (ForeignNewsMongo news : newsList) {
+			LocalDateTime publishedAt = news.getPublishedAt();
+			// 해당 날짜가 속한 주의 시작(월요일 00:00) 계산
+			LocalDateTime weekStart = publishedAt.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+				.withHour(0).withMinute(0).withSecond(0).withNano(0);
+			groups.computeIfAbsent(weekStart, k -> new ArrayList<>()).add(news);
+		}
+
+		List<SentimentResponse> result = new ArrayList<>();
+		for (Map.Entry<LocalDateTime, List<ForeignNewsMongo>> entry : groups.entrySet()) {
+			LocalDateTime weekStart = entry.getKey();
+			List<ForeignNewsMongo> groupNews = entry.getValue();
+			int total = groupNews.size();
+			int positive = 0, neutral = 0, negative = 0;
+			for (ForeignNewsMongo news : groupNews) {
+				int score = news.getSentiment();
+				if (score <= 33) {
+					negative++;
+				} else if (score <= 66) {
+					neutral++;
+				} else {
+					positive++;
+				}
+			}
+
+			double posRatio = total > 0 ? (double) positive / total : 0.0;
+			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
+			double negRatio = total > 0 ? (double) negative / total : 0.0;
+
+			posRatio = Math.round(posRatio * 100.0) / 100.0;
+			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
+			negRatio = Math.round(negRatio * 100.0) / 100.0;
+
+			result.add(SentimentResponse.builder()
+				.publishedAt(weekStart)
+				.positive(posRatio)
+				.neutral(neuRatio)
+				.negative(negRatio)
+				.build());
+		}
+		result.sort(Comparator.comparing(SentimentResponse::getPublishedAt));
+		return result;
+	}
+
+	// 하루치 언급량 분석
+	private List<MentionResponse> processDailyMentions(List<ForeignNewsMongo> newsList) {
+		Map<LocalDateTime, Integer> counts = new HashMap<>();
+		for (ForeignNewsMongo news : newsList) {
+			LocalDateTime publishedAt = news.getPublishedAt();
+			int groupHour = (publishedAt.getHour() / 4) * 4;
+			LocalDateTime groupTime = publishedAt.withHour(groupHour)
+				.withMinute(0).withSecond(0).withNano(0);
+			counts.put(groupTime, counts.getOrDefault(groupTime, 0) + 1);
+		}
+
+		return counts.entrySet().stream()
+			.map(entry -> MentionResponse.builder()
+				.publishedAt(entry.getKey())
+				.count(entry.getValue())
+				.build())
+			.sorted(Comparator.comparing(MentionResponse::getPublishedAt))
+			.collect(Collectors.toList());
+	}
+
+	// 일주일치 언급량 분석
+	private List<MentionResponse> processWeeklyMentions(List<ForeignNewsMongo> newsList) {
+		Map<LocalDateTime, Integer> counts = new HashMap<>();
+		for (ForeignNewsMongo news : newsList) {
+			LocalDateTime publishedAt = news.getPublishedAt();
+			LocalDateTime day = publishedAt.withHour(0).withMinute(0).withSecond(0).withNano(0);
+			counts.put(day, counts.getOrDefault(day, 0) + 1);
+		}
+
+		return counts.entrySet().stream()
+			.map(entry -> MentionResponse.builder()
+				.publishedAt(entry.getKey())
+				.count(entry.getValue())
+				.build())
+			.sorted(Comparator.comparing(MentionResponse::getPublishedAt))
+			.collect(Collectors.toList());
+	}
+
+	// 한달치 언급량 분석
+	private List<MentionResponse> processMonthlyMentions(List<ForeignNewsMongo> newsList) {
+		Map<LocalDateTime, Integer> counts = new HashMap<>();
+		for (ForeignNewsMongo news : newsList) {
+			LocalDateTime publishedAt = news.getPublishedAt();
+			LocalDateTime weekStart = publishedAt.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+				.withHour(0).withMinute(0).withSecond(0).withNano(0);
+			counts.put(weekStart, counts.getOrDefault(weekStart, 0) + 1);
+		}
+
+		return counts.entrySet().stream()
+			.map(entry -> MentionResponse.builder()
+				.publishedAt(entry.getKey())
+				.count(entry.getValue())
+				.build())
+			.sorted(Comparator.comparing(MentionResponse::getPublishedAt))
+			.collect(Collectors.toList());
+	}
+
+	// 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택
+	private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList) {
+		return newsList.stream()
+			.filter(news -> news.getTitle() != null && news.getUrl() != null)
+			.sorted(Comparator.comparing(ForeignNewsMongo::getPublishedAt).reversed())
+			.limit(5)
+			.map(news -> ArticleResponse.builder()
+				.title(news.getTitle())
+				.url(news.getUrl())
+				.publishedAt(news.getPublishedAt())
+				.imageUrl(news.getImageUrl())
+				.build())
+			.collect(Collectors.toList());
+	}
+
+	// 영상 목록
+	private List<VideoResponse> processVideos(List<ForeignNewsMongo> newsList) {
+		return new ArrayList<>();
 	}
 
 	//  GPT 한줄 요약
