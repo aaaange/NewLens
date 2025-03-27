@@ -128,8 +128,11 @@ public class CountryService {
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("newsIds", idList);
 			payload.put("period", period);
+			payload.put("keyword", keyword);
+			payload.put("keyword-mind", keywordMind);
 			payload.put("wordCloud", wordCloud);
 			payload.put("requestId", requestId);
+			payload.put("country", country);
 			payload.put("callbackUrl", "http://localhost:8080/api/search/country/dashboard-callback");
 
 			// System.out.println("워드 클라우드");
