@@ -15,4 +15,17 @@ public class NewsModalResponse {
 	private int totalPages;
 	private boolean hasNext;
 	private boolean hasPrevious;
+
+	@Override
+	public String toString() {
+		return "NewsModalResponse{" +
+			"news=" + news +
+			", page=" + page +
+			", size=" + size +
+			", totalElements=" + totalElements +
+			", totalPages=" + totalPages +
+			", hasNext=" + hasNext +
+			", hasPrevious=" + hasPrevious +
+			'}';
+	}
 }
