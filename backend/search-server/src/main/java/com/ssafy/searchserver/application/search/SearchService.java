@@ -95,7 +95,7 @@ public class SearchService {
 			.build();
 	}
 
-	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period) {
+	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
