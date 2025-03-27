@@ -41,9 +41,8 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<String>> pendingCompareResults = new ConcurrentHashMap<>();
 
-	public DashboardResponse getDashboard(String category, int period, String keyword, String keywordMind,
-		String keywordCloud, String country,
-		boolean isKorea) {
+	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind,
+		String keywordCloud, String country, boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -140,9 +139,7 @@ public class CountryService {
 			for (KeywordResponse keywordResponse : wordCloud) {
 				System.out.println(keywordResponse.toString());
 			}
-			return DashboardResponse.builder()
-
-				.build();
+			return DashboardData.builder().build();
 
 		} catch (Exception e) {
 			throw new RuntimeException("Dashboard 데이터 검색 실패", e);
