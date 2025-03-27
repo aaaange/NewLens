@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
 import com.ssafy.staticsserver.interfaces.country.dto.DashboardData;
+import com.ssafy.staticsserver.interfaces.country.dto.KeywordResponse;
 import com.ssafy.staticsserver.interfaces.country.dto.MentionResponse;
 import com.ssafy.staticsserver.interfaces.country.dto.NewsDto;
 import com.ssafy.staticsserver.interfaces.country.dto.NewsModalResponse;
@@ -51,15 +52,15 @@ public class CountryService {
 
 			List<String> newsIds = (List<String>) payload.get("newsIds");
 			int period = (Integer) payload.get("period");
+			List<KeywordResponse> wordCloud = (List<KeywordResponse>) payload.get("wordCloud");
+			String callbackUrl = payload.get("callbackUrl").toString();
+			String requestId = payload.get("requestId").toString();
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트");
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
 			}
-
-			// keywords
-			// search-server에서 완성
 
 			// description
 			String description = makeDescription(newsList);
@@ -88,6 +89,7 @@ public class CountryService {
 			List<VideoResponse> videos = processVideos(newsList);
 
 			DashboardData response = DashboardData.builder()
+				.keywords(wordCloud)
 				.description(description)
 				.sentiment(sentiment)
 				.mentions(mentions)
@@ -95,8 +97,18 @@ public class CountryService {
 				.videos(videos)
 				.build();
 
+			String responseJson = objectMapper.writeValueAsString(response);
 			System.out.println(response);
 
+			// 콜백 요청 전송
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
+				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
+				.header("Content-Type", "application/json")
+				.build();
+
+			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
