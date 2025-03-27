@@ -43,7 +43,7 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final GptClient gptClient;
-	private final int GptNewsSize = 5;
+	private final int GptNewsSize = 3;
 
 	@KafkaListener(topics = "dashboard")
 	public void listenDashboard(String message) {
@@ -52,6 +52,9 @@ public class CountryService {
 
 			List<String> newsIds = (List<String>) payload.get("newsIds");
 			int period = (Integer) payload.get("period");
+			String keyword = (String) payload.get("keyword");
+			String keywordMind = (String) payload.get("keyword-mind");
+			String country = (String) payload.get("country");
 			List<KeywordResponse> wordCloud = (List<KeywordResponse>) payload.get("wordCloud");
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();
