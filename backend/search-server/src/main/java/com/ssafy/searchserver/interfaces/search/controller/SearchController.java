@@ -108,11 +108,12 @@ public class SearchController {
 	@Operation(summary = "세계 지도 정보 출력", description = "세계 지도에서 나라별 감성 분석 결과와 언급량 결과를 출력합니다.")
 	@GetMapping("/worldwide")
 	public CommonResponse<SentimentMentionData> getWorldwide(
-		@Parameter(description = "키워드", example = "바이든") @RequestParam String keyword,
+		@Parameter(description = "키워드", example = "트럼프") @RequestParam String keyword,
+		@Parameter(description = "키워드", example = "관세") @RequestParam(name = "keyword-mind") String keywordMind,
 		@Parameter(description = "카테고리", example = "politics") @RequestParam String category,
 		@Parameter(description = "기간", example = "30") @RequestParam int period
 	) {
-		SentimentMentionData response = service.getWorldwide(keyword, category, period);
+		SentimentMentionData response = service.getWorldwide(keyword, keywordMind, category, period);
 		return CommonResponse.success(response);
 	}
 }
