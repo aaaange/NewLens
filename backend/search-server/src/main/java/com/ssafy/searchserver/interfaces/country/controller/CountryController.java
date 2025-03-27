@@ -1,5 +1,6 @@
 package com.ssafy.searchserver.interfaces.country.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -140,7 +141,7 @@ public class CountryController {
 	})
 
 	@GetMapping("/dashboard")
-	public DashboardResponse extractDashboard(
+	public CommonResponse<DashboardData> extractDashboard(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
 		@Parameter(description = "카테고리", example = "sports")
 		@RequestParam String category,
@@ -157,77 +158,72 @@ public class CountryController {
 		@Parameter(description = "한국 여부", example = "false")
 		@RequestParam(name = "is_korea") boolean isKorea
 	) {
-		countryService.getDashboard(category, period, keyword, keywordMind, keywordCloud, country, isKorea);
-		// 예시 더미 데이터
-		// 1) keywords
-		List<KeywordResponse> keywords = List.of(
-			KeywordResponse.builder().name("트럼프").count(121).build(),
-			KeywordResponse.builder().name("관세").count(121).build()
-		);
+		DashboardData data = countryService.getDashboard(category, period, keyword, keywordMind, keywordCloud, country, isKorea);
+		// // 예시 더미 데이터
+		// // 1) keywords
+		// List<KeywordResponse> keywords = List.of(
+		// 	KeywordResponse.builder().name("트럼프").count(121).build(),
+		// 	KeywordResponse.builder().name("관세").count(121).build()
+		// );
+		//
+		// // 2) description
+		// String description = "3줄 요약편\n2줄...\n1줄...";
+		//
+		// // 3) sentiment
+		// List<SentimentResponse> sentiment = List.of(
+		// 	SentimentResponse.builder().publishedAt(LocalDateTime.parse("2025-03-01T03:00:00")).positive(0.7).neutral(0.2).negative(0.1).build(),
+		// 	SentimentResponse.builder().publishedAt(LocalDateTime.parse("2025-03-02T03:00:00")).positive(0.7).neutral(0.2).negative(0.1).build()
+		// );
+		//
+		// // 4) mentions
+		// List<MentionResponse> mentions = List.of(
+		// 	MentionResponse.builder().publishedAt(LocalDateTime.parse("2025-03-01T03:00:00")).count(121).build(),
+		// 	MentionResponse.builder().publishedAt(LocalDateTime.parse("2025-03-02T03:00:00")).count(126).build()
+		// );
+		//
+		// // 5) articles
+		// List<ArticleResponse> articles = List.of(
+		// 	ArticleResponse.builder()
+		// 		.title("AI 기술의 발전과 미래")
+		// 		.url("https://example.com/article1")
+		// 		.publishedAt(LocalDateTime.parse("2025-03-11T03:00:00"))
+		// 		.imageUrl("https://example.com/images/article1.jpg")
+		// 		.build(),
+		// 	ArticleResponse.builder()
+		// 		.title("챗봇이 바꾸는 고객 서비스")
+		// 		.url("https://example.com/article2")
+		// 		.publishedAt(LocalDateTime.parse("2025-03-12T03:00:00"))
+		// 		.imageUrl("https://example.com/images/article2.jpg")
+		// 		.build()
+		// );
+		//
+		// // 6) videos
+		// List<VideoResponse> videos = List.of(
+		// 	VideoResponse.builder()
+		// 		.title("AI가 바꿀 미래, 우리는 어떻게 준비해야 할까?")
+		// 		.url("https://www.youtube.com/watch?v=abcd1234")
+		// 		.publishedAt(LocalDateTime.parse("2025-03-11T03:00:00"))
+		// 		.thumbnailUrl("https://img.youtube.com/vi/abcd1234/maxresdefault.jpg")
+		// 		.build(),
+		// 	VideoResponse.builder()
+		// 		.title("챗봇 기술의 발전과 전망")
+		// 		.url("https://www.youtube.com/watch?v=efgh5678")
+		// 		.publishedAt(LocalDateTime.parse("2025-03-12T03:00:00"))
+		// 		.thumbnailUrl("[https://img.youtube.com/vi/efgh5678/maxresdefault.jpg")
+		// 		.build()
+		// );
+		//
+		// // data DTO 구성
+		// DashboardData data = DashboardData.builder()
+		// 	.keywords(keywords)
+		// 	.description(description)
+		// 	.sentiment(sentiment)
+		// 	.mentions(mentions)
+		// 	.articles(articles)
+		// 	.videos(videos)
+		// 	.build();
 
-		// 2) description
-		String description = "3줄 요약편\n2줄...\n1줄...";
-
-		// 3) sentiment
-		List<SentimentResponse> sentiment = List.of(
-			SentimentResponse.builder().period("2025-03-01").positive(0.7).neutral(0.2).negative(0.1).build(),
-			SentimentResponse.builder().period("2025-03-02").positive(0.7).neutral(0.2).negative(0.1).build()
-		);
-
-		// 4) mentions
-		List<MentionResponse> mentions = List.of(
-			MentionResponse.builder().period("2025-03-01").count(121).build(),
-			MentionResponse.builder().period("2025-03-02").count(126).build()
-		);
-
-		// 5) articles
-		List<ArticleResponse> articles = List.of(
-			ArticleResponse.builder()
-				.title("AI 기술의 발전과 미래")
-				.url("https://example.com/article1")
-				.publishedDate("2025-03-11")
-				.imageUrl("https://example.com/images/article1.jpg")
-				.build(),
-			ArticleResponse.builder()
-				.title("챗봇이 바꾸는 고객 서비스")
-				.url("https://example.com/article2")
-				.publishedDate("2025-03-10")
-				.imageUrl("https://example.com/images/article2.jpg")
-				.build()
-		);
-
-		// 6) videos
-		List<VideoResponse> videos = List.of(
-			VideoResponse.builder()
-				.title("AI가 바꿀 미래, 우리는 어떻게 준비해야 할까?")
-				.url("https://www.youtube.com/watch?v=abcd1234")
-				.publishedDate("2025-03-11")
-				.thumbnailUrl("https://img.youtube.com/vi/abcd1234/maxresdefault.jpg")
-				.build(),
-			VideoResponse.builder()
-				.title("챗봇 기술의 발전과 전망")
-				.url("https://www.youtube.com/watch?v=efgh5678")
-				.publishedDate("2025-03-10")
-				.thumbnailUrl("[https://img.youtube.com/vi/efgh5678/maxresdefault.jpg")
-				.build()
-		);
-
-		// data DTO 구성
-		DashboardData data = DashboardData.builder()
-			.keywords(keywords)
-			.description(description)
-			.sentiment(sentiment)
-			.mentions(mentions)
-			.articles(articles)
-			.videos(videos)
-			.build();
-
-		return DashboardResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(data)
-			.build();
+		return CommonResponse.success(data);
 	}
 
 	@GetMapping("/compare-info")
