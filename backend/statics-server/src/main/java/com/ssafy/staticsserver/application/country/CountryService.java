@@ -20,7 +20,6 @@ import com.ssafy.staticsserver.common.config.GptClient;
 import com.ssafy.staticsserver.interfaces.country.dto.ArticleResponse;
 import com.ssafy.staticsserver.interfaces.country.dto.CountryNewsMessage;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +42,7 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final GptClient gptClient;
+	private final int GptNewsSize = 5;
 
 	@KafkaListener(topics = "dashboard")
 	public void listenDashboard(String message) {
@@ -51,8 +51,12 @@ public class CountryService {
 
 			List<String> newsIds = (List<String>) payload.get("newsIds");
 			int period = (Integer) payload.get("period");
+			String keyword = (String) payload.get("keyword");
+			String keywordMind = (String) payload.get("keyword-mind");
+			String country = (String) payload.get("country");
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
+			newsList.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
 			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트");
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
@@ -62,7 +66,8 @@ public class CountryService {
 			// search-server에서 완성
 
 			// description
-			String description = makeDescription(newsList);
+			String prompt = makeDescription(keyword, keywordMind, newsList, country);
+			String description = gptClient.ask(prompt);
 
 			// sentiment & mentions
 			List<SentimentResponse> sentiment;
@@ -170,8 +175,30 @@ public class CountryService {
 	}
 
 	// 언론 반응 요약
-	private String makeDescription(List<ForeignNewsMongo> newsList) {
-		return "";
+	private String makeDescription(String keyword, String keywordMind, List<ForeignNewsMongo> newsList, String country) {
+		StringBuilder prompt = new StringBuilder();
+
+
+		prompt.append("[국가 뉴스 여론 분석 요청]\n\n");
+		prompt.append("다음은 \"").append(keyword);
+		if (keywordMind != null && !keywordMind.isBlank()) {
+			prompt.append(" (").append(keywordMind).append(")");
+		}
+		prompt.append("\" 키워드와 관련된 ").append(country).append("의 뉴스입니다.\n\n");
+
+		prompt.append("[").append(country).append(" 뉴스]").append("\n");
+		for (int i = 0; i < GptNewsSize; i++) {
+			ForeignNewsMongo news = newsList.get(i);
+			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
+			prompt.append("- ").append(news.getDescription()).append("\n\n");
+		}
+
+
+
+		prompt.append("위 뉴스를 참고하여, ").append(country)
+			.append("이 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+
+		return prompt.toString();
 	}
 
 	// 하루치 감정 분석 (4시간 단위)
@@ -373,11 +400,10 @@ public class CountryService {
 			.collect(Collectors.toList());
 	}
 
-	// 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택
+	// 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택 위에서 이미 정렬
 	private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList) {
 		return newsList.stream()
 			.filter(news -> news.getTitle() != null && news.getUrl() != null)
-			.sorted(Comparator.comparing(ForeignNewsMongo::getPublishedAt).reversed())
 			.limit(5)
 			.map(news -> ArticleResponse.builder()
 				.title(news.getTitle())
@@ -409,14 +435,14 @@ public class CountryService {
 		prompt.append("\" 키워드와 관련된 ").append(country1).append("과 ").append(country2).append("의 뉴스입니다.\n\n");
 
 		prompt.append("[").append(country1).append(" 뉴스]").append("\n");
-		for (int i = 0; i < news1.size(); i++) {
+		for (int i = 0; i < GptNewsSize; i++) {
 			ForeignNewsMongo news = news1.get(i);
 			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
 			prompt.append("- ").append(news.getDescription()).append("\n\n");
 		}
 
 		prompt.append("[").append(country2).append(" 뉴스]").append("\n");
-		for (int i = 0; i < news2.size(); i++) {
+		for (int i = 0; i < GptNewsSize; i++) {
 			ForeignNewsMongo news = news2.get(i);
 			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
 			prompt.append("- ").append(news.getDescription()).append("\n\n");
