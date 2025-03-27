@@ -165,7 +165,7 @@ public class SearchService {
 		}
 	}
 
-	public KeywordRankingData getKeywordRanking(String category, int period, boolean is_korea) {
+	public KeywordRankingData getKeywordRanking(String category, int period, boolean isKorea) {
 		// 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
 		try {
 			LocalDateTime now = LocalDateTime.now();
@@ -253,7 +253,7 @@ public class SearchService {
 			var searchRequest = SearchRequest.of(s -> s
 					.index("foreign_news")
 					.query(boolQuery)
-					.size(1000)
+					.size(10000)
 					.source(src -> src.filter(f -> f.includes("id")))
 				// 우리는 id만 필요하니까 id만 반환
 			);
