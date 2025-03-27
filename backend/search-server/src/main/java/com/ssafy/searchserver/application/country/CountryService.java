@@ -41,9 +41,8 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<String>> pendingCompareResults = new ConcurrentHashMap<>();
 
-	public DashboardResponse getDashboard(String category, int period, String keyword, String keywordMind,
-		String keywordCloud, String country,
-		boolean isKorea) {
+	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind,
+		String keywordCloud, String country, boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -117,8 +116,13 @@ public class CountryService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-			// kafka로 전송
-			String json = objectMapper.writeValueAsString(idList);
+			// kafka로 전달할 payload에 newsIds, page, size를 함께 포함
+			Map<String, Object> payload = new HashMap<>();
+			payload.put("newsIds", idList);
+			payload.put("period", period);
+
+			// Map을 JSON 문자열로 변환 & kafka로 전송
+			String json = objectMapper.writeValueAsString(payload);
 			kafkaTemplate.send("dashboard", json);
 
 			// 4. Aggregation 처리
@@ -140,10 +144,8 @@ public class CountryService {
 			for (KeywordResponse keywordResponse : wordCloud) {
 				System.out.println(keywordResponse.toString());
 			}
-			return DashboardResponse.builder()
 
-				.build();
-
+			return DashboardData.builder().keywords(wordCloud).build();
 		} catch (Exception e) {
 			throw new RuntimeException("Dashboard 데이터 검색 실패", e);
 		}
