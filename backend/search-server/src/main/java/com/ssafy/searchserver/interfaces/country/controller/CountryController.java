@@ -1,6 +1,9 @@
 package com.ssafy.searchserver.interfaces.country.controller;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -150,7 +153,7 @@ public class CountryController {
 		@Parameter(description = "한국 여부", example = "false")
 		@RequestParam boolean is_korea
 	) {
-		countryService.getDashboard(category, period, keyword ,keywordMind, keywordCloud, country, is_korea);
+		countryService.getDashboard(category, period, keyword, keywordMind, keywordCloud, country, is_korea);
 		// 예시 더미 데이터
 		// 1) keywords
 		List<KeywordResponse> keywords = List.of(
@@ -239,18 +242,19 @@ public class CountryController {
 		@Parameter(description = "국가2", example = "us")
 		@RequestParam String country2
 	) {
-		// 예시 더미 데이터
 		return countryService.getCompareInfo(category, period, keyword, keywordMind, country1, country2);
-//		AnalysisData data = AnalysisData.builder()
-//			.analysis("한줄 비교 요약본 from gpt")
-//			.build();
-//
-//		return CompareInfoResponse.builder()
-//			.code("SUCCESS")
-//			.success(true)
-//			.message("요청 성공")
-//			.data(data)
-//			.build();
+		// 예시 더미 데이터
+
+		//		AnalysisData data = AnalysisData.builder()
+		//			.analysis("한줄 비교 요약본 from gpt")
+		//			.build();
+		//
+		//		return CompareInfoResponse.builder()
+		//			.code("SUCCESS")
+		//			.success(true)
+		//			.message("요청 성공")
+		//			.data(data)
+		//			.build();
 	}
 
 	@GetMapping("/news")
