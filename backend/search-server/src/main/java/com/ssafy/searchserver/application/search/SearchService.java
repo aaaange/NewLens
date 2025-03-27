@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +96,7 @@ public class SearchService {
 			.build();
 	}
 
-	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period) {
+	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -165,7 +166,7 @@ public class SearchService {
 		}
 	}
 
-	public KeywordRankingData getKeywordRanking(String category, int period, boolean is_korea) {
+	public KeywordRankingData getKeywordRanking(String category, int period, boolean isKorea) {
 		// 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
 		try {
 			LocalDateTime now = LocalDateTime.now();
@@ -221,39 +222,47 @@ public class SearchService {
 
 	}
 
-	public SentimentMentionData getWorldwide(String keyword, String category, int period) {
+	public SentimentMentionData getWorldwide(String keyword, String keywordMind,String category, int period) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
 
-			Query boolQuery = Query.of(q -> q.bool(b -> b
-				.must(List.of(
-					// 키워드 배열 안에 keyword가 존재하는 뉴스
-					Query.of(m -> m.terms(t -> t
-						.field("keywords")
-						.terms(ts -> ts.value(List.of(FieldValue.of(keyword))))
-					)),
-					// 카테고리 배열 안에 category가 존재하는 뉴스
-					Query.of(m -> m.terms(t -> t
-						.field("categories")
-						.terms(ts -> ts.value(List.of(FieldValue.of(category))))
-					)),
-					// 뉴스 생성 시간이 기간 내에 포함되는 뉴스
-					Query.of(m -> m.range(r -> r
-						.date(d -> d
-							.field("published_at")
-							.gte(from.toString())
-							.lte(now.toString())
-						)
-					))
+			// 필터링 Query
+			Query boolQuery = Query.of(q -> q.bool(b -> {
+				List<Query> mustQueries = new ArrayList<>();
 
-				))
-			));
+				mustQueries.add(Query.of(m -> m.term(t -> t
+					.field("keywords")
+					.value(FieldValue.of(keyword))
+				)));
+
+				if (!keywordMind.isEmpty()) {
+					mustQueries.add(Query.of(m -> m.term(t -> t
+						.field("keywords")
+						.value(FieldValue.of(keywordMind))
+					)));
+				}
+
+
+				mustQueries.add(Query.of(m -> m.term(t -> t
+					.field("categories")
+					.value(FieldValue.of(category))
+				)));
+
+				mustQueries.add(Query.of(m -> m.range(r -> r
+					.date(d -> d
+						.field("published_at")
+						.gte(from.toString())
+						.lte(now.toString())
+					)
+				)));
+				return b.must(mustQueries);
+			}));
 
 			var searchRequest = SearchRequest.of(s -> s
 					.index("foreign_news")
 					.query(boolQuery)
-					.size(1000)
+					.size(10000)
 					.source(src -> src.filter(f -> f.includes("id")))
 				// 우리는 id만 필요하니까 id만 반환
 			);
@@ -268,6 +277,7 @@ public class SearchService {
 			// idList와 keyword를 함께 담을 수 있는 Map을 만듦
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("keyword", keyword);
+			payload.put("keyword-mind", keywordMind);
 			payload.put("ids", idList);
 
 			// Map을 JSON 문자열로 변환 & kafka로 전송
