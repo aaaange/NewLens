@@ -14,4 +14,12 @@ import lombok.NoArgsConstructor;
 public class RelatedKeywordsResponse {
 	private String keyword;
 	private List<String> relatedKeywords;
+
+	@Override
+	public String toString() {
+		return "RelatedKeywordsResponse{" +
+			"keyword='" + keyword + '\'' +
+			", relatedKeywords=" + relatedKeywords +
+			'}';
+	}
 }

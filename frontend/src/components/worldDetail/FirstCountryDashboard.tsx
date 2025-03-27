@@ -19,9 +19,9 @@ import {
 interface FirstCountryBoardProps {
   country: string;
   country_name: string;
-  keyword: string | string[];
+  keyword: string;
   category: string;
-  period: string;
+  period: number;
 }
 
 const FirstCountryBoard = ({
@@ -53,7 +53,7 @@ const FirstCountryBoard = ({
 
   // 서버 응답 없을 경우 목데이터로 대체
   const safeData = data ?? {
-    keywords: words,
+    keywords: words.map((word) => ({ text: word.text, value: word.value })),
     description: description,
     sentimentData: sentimentData,
     mentions: mentionData,
@@ -62,12 +62,12 @@ const FirstCountryBoard = ({
   };
 
   return (
-    <div className='flex flex-col gap-5'>
+    <div className="flex flex-col gap-5">
       <WordCloud
+        keyword={keyword}
         keywords={safeData.keywords}
         width={410}
         height={200}
-        keyword={keyword}
         country_name={country_name}
         country_code={country}
       />

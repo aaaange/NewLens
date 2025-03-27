@@ -5,14 +5,14 @@ import Flag from 'react-world-flags';
 interface VideoItemType {
   title: string;
   url: string;
-  published_date: string;
+  published_at: string;
   thumbnail_url: string;
 }
 
 interface VideoListProps {
   videos: VideoItemType[];
   width: number;
-  height: number;
+  // height: number;
   keyword: string;
   country_name: string;
   country_code: string;

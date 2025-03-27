@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CountryDropdown from '../components/worldDetail/CountryDropdown';
 import GptSummary from '../components/worldDetail/GptSummary';
 import FirstCountryBoard from '../components/worldDetail/FirstCountryDashboard';
@@ -52,17 +52,51 @@ const WorldDetail = () => {
         }
       : null
   );
-
-  const handleCategoryChange = (newCategory: string) => {
-    setCategory(newCategory);
+  const categoryChangeHandler = (category: string) => {
+    setCategory(category);
+    console.log(category);
+  };
+  const periodChangeHandler = (period: number) => {
+    setPeriod(period);
+    console.log(period);
   };
 
-  const handlePeriodChange = (newPeriod: number) => {
-    setPeriod(newPeriod);
+  const keywordInputChangeHandler = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setKeyword(e.target.value);
+    console.log(e.target.value);
   };
 
-  const handleKeywordChange = (newKeyword: string) => {
+  const handleMindMapKeywordChange = (newKeyword: string) => {
+    setKeyword(`${keyword.split(' ')[0]} ${newKeyword}`);
+  };
+  const handleRankingKeywordChange = (newKeyword: string) => {
     setKeyword(newKeyword);
+  };
+
+  useEffect(() => {
+    const savedFirst = localStorage.getItem('firstCountry');
+    const savedSecond = localStorage.getItem('secondCountry');
+
+    if (savedFirst) {
+      setFirstCountry(savedFirst);
+      setFirstCountryName(getCountryName(savedFirst));
+    }
+    if (savedSecond) {
+      setSecondCountry(savedSecond);
+      setSecondCountryName(getCountryName(savedSecond));
+    }
+  }, []);
+
+  const handleFirstChange = (code: string) => {
+    setFirstCountry(code);
+    localStorage.setItem('firstCountry', code);
+  };
+
+  const handleSecondChange = (code: string) => {
+    setSecondCountry(code);
+    localStorage.setItem('secondCountry', code);
   };
 
   return (
@@ -70,11 +104,11 @@ const WorldDetail = () => {
       <div className="flex flex-col gap-5">
         <SearchInput
           value={keyword}
-          onChange={(e) => handleKeywordChange(e.target.value)}
+          onChange={keywordInputChangeHandler}
           onSearch={() => console.log('Search triggered')}
         />
         <MindMap
-          onKeywordChange={handleKeywordChange}
+          onKeywordChange={handleMindMapKeywordChange}
           category={category}
           period={period}
           mainKeyword={keyword}
@@ -83,13 +117,15 @@ const WorldDetail = () => {
           category={category}
           period={period}
           is_korea={firstCountry === 'KR'}
-          onKeywordChange={handleKeywordChange}
+          onKeywordChange={handleRankingKeywordChange}
         />
       </div>
       <div className="flex flex-col items-center gap-3">
         <Category
-          categoryChangeHandler={handleCategoryChange}
-          periodChangeHandler={handlePeriodChange}
+          isCategory={category}
+          isPeriod={period}
+          categoryChangeHandler={categoryChangeHandler}
+          periodChangeHandler={periodChangeHandler}
         />
         <div className="flex gap-10">
           <CountryDropdown
@@ -98,7 +134,7 @@ const WorldDetail = () => {
             value={firstCountry}
             placeholder="비교할 나라를 선택하세요"
             onChange={(code, name) => {
-              setFirstCountry(code);
+              handleFirstChange(code);
               setFirstCountryName(name);
             }}
           />
@@ -107,7 +143,7 @@ const WorldDetail = () => {
             height="60px"
             value={secondCountry}
             onChange={(code, name) => {
-              setSecondCountry(code);
+              handleSecondChange(code);
               setSecondCountryName(name);
             }}
           />
@@ -118,7 +154,7 @@ const WorldDetail = () => {
           height={125}
         />
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
-          <div className="p-5">
+          <div className="p-5 min-w-[430px]">
             <FirstCountryBoard
               country={firstCountry}
               country_name={firstCountryName}
