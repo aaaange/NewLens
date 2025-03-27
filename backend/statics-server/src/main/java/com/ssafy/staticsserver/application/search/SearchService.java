@@ -1,5 +1,9 @@
 package com.ssafy.staticsserver.application.search;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +15,13 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
+import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
 import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingDto;
 import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.MentionResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.SentimentMentionResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.SentimentResponse;
-import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
-import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,8 +51,11 @@ public class SearchService {
 	@KafkaListener(topics = "keyword-ranking")
 	public void listenKeywordRanking(String message) {
 		try {
-			List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
 			});
+			List<String> newsIds = (List<String>)payload.get("newsIds");
+			String callbackUrl = payload.get("callbackUrl").toString();
+			String requestId = payload.get("requestId").toString();
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			System.out.println("키워드 처리를 위한 뉴스 리스트");
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
@@ -56,7 +63,17 @@ public class SearchService {
 			}
 
 			System.out.println();
-			processKeywordRanking(newsList);
+			KeywordRankingResponse response = processKeywordRanking(newsList);
+			String responseJson = objectMapper.writeValueAsString(response);
+
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
+				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
+				.header("Content-Type", "application/json")
+				.build();
+
+			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -67,12 +84,15 @@ public class SearchService {
 	public void listenWorldwide(String message) {
 		try {
 			// 메시지를 Map으로 변환
-			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
+			});
 
 			// keyword와 ids 추출 (ids는 List<String>으로 캐스팅)
-			String keyword = (String) payload.get("keyword");
-			String keywordMind = (String) payload.get("keyword-mind");
-			List<String> newsIds = (List<String>) payload.get("ids");
+			String keyword = (String)payload.get("keyword");
+			String keywordMind = (String)payload.get("keyword-mind");
+			List<String> newsIds = (List<String>)payload.get("ids");
+			String callbackUrl = payload.get("callbackUrl").toString();
+			String requestId = payload.get("requestId").toString();
 
 			// MongoDB에서 해당 id에 해당하는 뉴스 조회
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
@@ -85,7 +105,18 @@ public class SearchService {
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
 			}
-			processWorldwide(keyword, keywordMind, newsList);
+			SentimentMentionResponse response = processWorldwide(keyword, keywordMind, newsList);
+			String responseJson = objectMapper.writeValueAsString(response);
+
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
+				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
+				.header("Content-Type", "application/json")
+				.build();
+
+			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -164,9 +195,9 @@ public class SearchService {
 			.build();
 	}
 
-
 	// 세계지도 집계 로직
-	public SentimentMentionResponse processWorldwide(String keyword, String keywordMind, List<ForeignNewsMongo> newsList) {
+	public SentimentMentionResponse processWorldwide(String keyword, String keywordMind,
+		List<ForeignNewsMongo> newsList) {
 		// 국가별로 뉴스 그룹핑
 		Map<String, List<ForeignNewsMongo>> countryNewsMap = new HashMap<>();
 		for (ForeignNewsMongo news : newsList) {
@@ -198,9 +229,9 @@ public class SearchService {
 				}
 			}
 
-			double positiveRatio = totalCount > 0 ? (double) positiveCount / totalCount : 0.0;
-			double neutralRatio = totalCount > 0 ? (double) neutralCount / totalCount : 0.0;
-			double negativeRatio = totalCount > 0 ? (double) negativeCount / totalCount : 0.0;
+			double positiveRatio = totalCount > 0 ? (double)positiveCount / totalCount : 0.0;
+			double neutralRatio = totalCount > 0 ? (double)neutralCount / totalCount : 0.0;
+			double negativeRatio = totalCount > 0 ? (double)negativeCount / totalCount : 0.0;
 
 			positiveRatio = Math.round(positiveRatio * 100.0) / 100.0;
 			neutralRatio = Math.round(neutralRatio * 100.0) / 100.0;
