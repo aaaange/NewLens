@@ -17,8 +17,8 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import com.ssafy.staticsserver.common.config.GptClient;
-import com.ssafy.staticsserver.interfaces.country.dto.ArticleResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.CountryNewsMessage;
+import com.ssafy.staticsserver.common.config.YouTubeClient;
+import com.ssafy.staticsserver.interfaces.country.dto.*;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -27,13 +27,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
-import com.ssafy.staticsserver.interfaces.country.dto.DashboardData;
-import com.ssafy.staticsserver.interfaces.country.dto.KeywordResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.MentionResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.NewsDto;
-import com.ssafy.staticsserver.interfaces.country.dto.NewsModalResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.SentimentResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.VideoResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,6 +36,7 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final GptClient gptClient;
+	private final YouTubeClient youTubeClient;
 	private final int GptNewsSize = 3;
 
 	@KafkaListener(topics = "dashboard")
@@ -91,7 +85,10 @@ public class CountryService {
 			List<ArticleResponse> articles = processArticles(newsList);
 
 			// videos
-			List<VideoResponse> videos = processVideos(newsList);
+			List<VideoResponse> videos = processVideos(keyword, keywordMind, country);
+//			for (YouTubeVideo video : videos) {
+//				System.out.println(video);
+//			}
 
 			DashboardData response = DashboardData.builder()
 				.keywords(wordCloud)
@@ -441,8 +438,10 @@ public class CountryService {
 	}
 
 	// 영상 목록
-	private List<VideoResponse> processVideos(List<ForeignNewsMongo> newsList) {
-		return new ArrayList<>();
+	private List<VideoResponse> processVideos(String keyword, String keywordMind, String country) {
+
+
+		return youTubeClient.searchVideos(keyword, keywordMind, country);
 	}
 
 	//  GPT 한줄 요약
