@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-
 import com.ssafy.searchserver.interfaces.country.dto.*;
 
 import org.springframework.kafka.core.KafkaTemplate;
@@ -41,8 +40,8 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
 
-	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind,
-		String keywordCloud, String country, boolean isKorea) {
+	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
+		boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -64,12 +63,6 @@ public class CountryService {
 					)));
 				}
 
-				if (!keywordCloud.isEmpty()) {
-					mustQueries.add(Query.of(m -> m.term(t -> t
-						.field("keywords")
-						.value(FieldValue.of(keywordCloud))
-					)));
-				}
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
 					.field("country")
@@ -125,7 +118,6 @@ public class CountryService {
 			List<KeywordResponse> wordCloud = aggregation.buckets().array().stream()
 				.filter(rel -> !rel.equals(keyword)) // keyword1과 중복 제거
 				.filter(rel -> !rel.equals(keywordMind))
-				.filter(rel -> !rel.equals(keywordCloud))
 				.map(bucket -> KeywordResponse.builder()
 					.name(bucket.key().stringValue())
 					.count(bucket.docCount())
@@ -328,9 +320,9 @@ public class CountryService {
 			CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
 
-            // Map을 JSON 문자열로 변환 & kafka로 전송
-            String json = objectMapper.writeValueAsString(payload);
-            kafkaTemplate.send("news-modal", json);
+			// Map을 JSON 문자열로 변환 & kafka로 전송
+			String json = objectMapper.writeValueAsString(payload);
+			kafkaTemplate.send("news-modal", json);
 
 			// 5초 대기
 			NewsModalResponse data = future.get(5, TimeUnit.SECONDS);

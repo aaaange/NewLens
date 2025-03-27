@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Bookmark,
   ChevronFirst,
@@ -7,6 +7,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Flag from 'react-world-flags';
+import { getNewsListForModalApi } from '../../services/api/worldService';
+
 interface propsType {
   date: string;
   title: string;
@@ -14,7 +16,7 @@ interface propsType {
   sentiment: string;
   tags: string[];
   bookmarked: boolean;
-  onToggleBookmark: () => {};
+  onToggleBookmark: () => void;
 }
 
 const NewsItem = ({
@@ -26,7 +28,6 @@ const NewsItem = ({
   bookmarked,
   onToggleBookmark,
 }: propsType) => {
-  // 감정에 따라서 태그의 스타일 결정
   const getSentimentStyle = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
@@ -38,7 +39,6 @@ const NewsItem = ({
     }
   };
 
-  // 감정 표현 한글화 - req 확인후 수정해야함 한글로 올수도?
   const getSentimentText = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
@@ -52,11 +52,7 @@ const NewsItem = ({
 
   return (
     <div className="flex items-start md:items-center mb-2 hover:bg-gray-50 p-2 rounded transition-colors">
-      <img
-        className="w-20 h-14 mr-4 object-fit"
-        src="/assets/images/logo-newLens.png"
-        alt={title}
-      />
+      <img className="w-20 h-14 mr-4 object-fit" src={image} alt={title} />
       <div className="flex-grow">
         <p className="text-slate-400 text-xs mb-1">{date}</p>
         <h3 className="text-black text-sm font-medium mb-2">{title}</h3>
@@ -66,7 +62,7 @@ const NewsItem = ({
           >
             #{getSentimentText(sentiment)}
           </span>
-          {tags.map((tag: string, index: number) => (
+          {tags.map((tag, index) => (
             <span
               key={index}
               className="px-2 py-1 bg-gray-100 rounded-full text-zinc-500 text-xs"
@@ -77,7 +73,7 @@ const NewsItem = ({
         </div>
       </div>
       <button
-        className="flex items-center justify-centerrounded-full cursor-pointer"
+        className="flex items-center justify-center rounded-full cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           onToggleBookmark();
@@ -95,7 +91,6 @@ const NewsItem = ({
   );
 };
 
-// 페이지네이션도 공통으로 빼야할지 고민해보기
 interface PaginationPropsType {
   page: number;
   size: number;
@@ -108,8 +103,6 @@ interface PaginationPropsType {
 
 const Pagination = ({
   page,
-  size,
-  totalElements,
   totalPages,
   hasNext,
   hasPrevious,
@@ -188,7 +181,28 @@ const Pagination = ({
   );
 };
 
-const NewsModal = () => {
+// category: category,
+// period: period,
+// keyword: keyword,
+// 'keyword-mind': keyword_mind,
+// 'keyword-cloud': keyword_cloud,
+// country: country,
+interface propsType {
+  category: string;
+  period: number;
+  keyword: string;
+  keyword_mind: string;
+  keyword_cloud: string;
+  country: string;
+}
+const NewsModal = ({
+  category,
+  period,
+  keyword,
+  keyword_mind,
+  keyword_cloud,
+  country,
+}: propsType) => {
   const allNewsItems = [
     {
       id: 1,
@@ -232,18 +246,19 @@ const NewsModal = () => {
     },
   ];
 
-  // 상태 관리
   const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalElements = allNewsItems.length;
+  const totalPages = Math.ceil(totalElements / itemsPerPage);
+  const hasNext = currentPage < totalPages;
+  const hasPrevious = currentPage > 1;
   const [bookmarks, setBookmarks] = useState<{ [key: number]: boolean }>({});
 
-  // 페이지 변경 핸들러
-  const handlePageChange = (page: any) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // 여기에 페이지 변경 시 데이터 로드 로직 추가 가능
   };
 
-  // 북마크 토글 핸들러
-  const toggleBookmark = (newsId: any) => {
+  const toggleBookmark = (newsId: number) => {
     setBookmarks((prev) => ({
       ...prev,
       [newsId]: !prev[newsId],
@@ -255,6 +270,25 @@ const NewsModal = () => {
     console.log(`뉴스 ID ${newsId} 클릭됨`);
     // 여기에 뉴스 상세 페이지로 이동하는 로직 추가 가능
   };
+
+  const searchNewsList = async () => {
+    const params = {
+      category: category,
+      period: period,
+      keyword: keyword,
+      'keyword-mind': keyword_mind,
+      'keyword-cloud': keyword_cloud,
+      country: country,
+      page: currentPage,
+      size: 5,
+    };
+    const response = await getNewsListForModalApi(params);
+    console.log(response);
+  };
+
+  useEffect(() => {
+    searchNewsList();
+  }, []);
 
   return (
     <div className="p-12 w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden">
@@ -302,14 +336,17 @@ const NewsModal = () => {
               />
             </div>
           ))}
+          <Pagination
+            page={currentPage}
+            size={itemsPerPage}
+            totalElements={totalElements}
+            totalPages={totalPages}
+            hasNext={hasNext}
+            hasPrevious={hasPrevious}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={24} // 총 120건, 페이지당 5개 = 24페이지
-        onPageChange={handlePageChange}
-      />
     </div>
   );
 };

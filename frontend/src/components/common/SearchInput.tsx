@@ -33,7 +33,10 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
             }
           }}
         />
-        <button className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer">
+        <button
+          onClick={() => onSearch()}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
+        >
           <svg
             fill="#011728"
             viewBox="0 0 30 30"

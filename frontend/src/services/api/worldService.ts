@@ -43,6 +43,24 @@ export interface sentimentObjType {
   [countryCode: string]: sentimentType;
 }
 
+export interface NewsModalReqType {
+  category: string;
+  period: number;
+  keyword: string;
+  'keyword-mind': string;
+  'keyword-cloud': string;
+  country: string;
+  page: number;
+  size: number;
+}
+
+interface MindMapReqType {
+  category: string;
+  period: number;
+  keyword: string;
+  is_korea: boolean;
+}
+
 //==============================================
 // API 정의
 //==============================================
@@ -58,14 +76,8 @@ export const getWorldMapDataApi = async (
 };
 
 //메인 완
-export const getMindMapApi = async (
-  category: string,
-  period: number,
-  keyword: string
-) => {
-  const response = await api.get(`search/extract-related_words`, {
-    params: { category, period, keyword },
-  });
+export const getMindMapApi = async (params: MindMapReqType) => {
+  const response = await api.get(`search/extract-related_words`, { params });
   return response.data;
 };
 
@@ -82,26 +94,17 @@ export const getKeywordRankingApi = async (
 };
 
 // api 논의후
-export const getNewsListForModalApi = async (
-  category: string,
-  period: number,
-  keyword: string,
-  country: string,
-  page: number,
-  size: number
-) => {
-  const response = await api.get(`search/news`, {
-    params: { category, period, keyword, country, page, size },
-  });
+export const getNewsListForModalApi = async (params: NewsModalReqType) => {
+  const response = await api.get(`search/country/news-modal`, { params });
   return response.data;
 };
 
 export const getCountryDataApi = async (params: CountryParams) => {
-  const response = await api.get('country/dashboard', { params });
+  const response = await api.get('search/country/dashboard', { params });
   return response.data; // { code, success, message, data }
 };
 
 export const getCompareInfoApi = async (params: CompareParams) => {
-  const response = await api.get('country/compare-info', { params });
+  const response = await api.get('search/ountry/compare-info', { params });
   return response.data;
 };
