@@ -89,6 +89,7 @@ interface MindMapProps {
   category: string;
   period: number;
   mainKeyword: string;
+  isKorea: boolean;
 }
 
 const MindMap = ({
@@ -96,6 +97,7 @@ const MindMap = ({
   category,
   period,
   mainKeyword,
+  isKorea,
 }: MindMapProps) => {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -123,7 +125,13 @@ const MindMap = ({
   useEffect(() => {
     const fetchMindMapData = async () => {
       try {
-        const response = await getMindMapApi(category, period, mainKeyword);
+        const params = {
+          category: category,
+          period: period,
+          keyword: mainKeyword,
+          is_korea: isKorea,
+        };
+        const response = await getMindMapApi(params);
         const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
 
         const newNodes: Node[] = [
