@@ -38,13 +38,14 @@ public class CountryService {
 	private final ElasticsearchClient esClient;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
-	private final Map<String, CompletableFuture<String>> pendingCompareResults = new ConcurrentHashMap<>();
+	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
 
 	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
 		boolean isKorea) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+			String requestId = UUID.randomUUID().toString();
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -109,19 +110,7 @@ public class CountryService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-			// kafka로 전달할 payload에 newsIds, page, size를 함께 포함
-			Map<String, Object> payload = new HashMap<>();
-			payload.put("newsIds", idList);
-			payload.put("period", period);
-			payload.put("keyword", keyword);
-			payload.put("keyword-mind", keywordMind);
-			payload.put("country", country);
-
-			// Map을 JSON 문자열로 변환 & kafka로 전송
-			String json = objectMapper.writeValueAsString(payload);
-			kafkaTemplate.send("dashboard", json);
-
-			// 4. Aggregation 처리
+			// Aggregation 처리
 			StringTermsAggregate aggregation = response.aggregations()
 				.get("word_cloud")
 				.sterms();
@@ -133,14 +122,32 @@ public class CountryService {
 					.name(bucket.key().stringValue())
 					.count(bucket.docCount())
 					.build())
-				.collect(Collectors.toList());
+				.toList();
 
-			System.out.println("워드 클라우드");
-			for (KeywordResponse keywordResponse : wordCloud) {
-				System.out.println(keywordResponse.toString());
-			}
+			// kafka로 전달할 payload에 newsIds, page, size를 함께 포함
+			Map<String, Object> payload = new HashMap<>();
+			payload.put("newsIds", idList);
+			payload.put("period", period);
+			payload.put("wordCloud", wordCloud);
+			payload.put("requestId", requestId);
+			payload.put("callbackUrl", "http://localhost:8080/api/search/country/dashboard-callback");
 
-			return DashboardData.builder().keywords(wordCloud).build();
+			// System.out.println("워드 클라우드");
+			// for (KeywordResponse keywordResponse : wordCloud) {
+			// 	System.out.println(keywordResponse.toString());
+			// }
+
+			CompletableFuture<DashboardData> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
+
+			// Map을 JSON 문자열로 변환 & kafka로 전송
+			String json = objectMapper.writeValueAsString(payload);
+			kafkaTemplate.send("dashboard", json);
+
+			// 5초 대기
+			DashboardData data = future.get(5, TimeUnit.SECONDS);
+
+			return data;
 		} catch (Exception e) {
 			throw new RuntimeException("Dashboard 데이터 검색 실패", e);
 		}
@@ -188,7 +195,7 @@ public class CountryService {
 		}
 	}
 
-	public CompletableFuture<String> removeFuture(String requestId) {
+	public CompletableFuture<?> removeFuture(String requestId) {
 		return pendingCompareResults.remove(requestId);
 	}
 
@@ -240,6 +247,7 @@ public class CountryService {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+			String requestId = UUID.randomUUID().toString();
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -301,17 +309,25 @@ public class CountryService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-			// kafka로 전달할 payload에 newsIds, page, size를 함께 포함
-			Map<String, Object> payload = new HashMap<>();
-			payload.put("newsIds", idList);
-			payload.put("page", page);
-			payload.put("size", size);
+            // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("newsIds", idList);
+            payload.put("page", page);
+            payload.put("size", size);
+			payload.put("requestId", requestId);
+			payload.put("callbackUrl", "http://localhost:8080/api/search/country/news-modal-callback");
+
+			CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
 
 			// Map을 JSON 문자열로 변환 & kafka로 전송
 			String json = objectMapper.writeValueAsString(payload);
 			kafkaTemplate.send("news-modal", json);
 
-			return NewsModalResponse.builder().build();
+			// 5초 대기
+			NewsModalResponse data = future.get(5, TimeUnit.SECONDS);
+
+            return data;
 
 		} catch (Exception e) {
 			throw new RuntimeException("뉴스 모달창 데이터 검색 실패", e);
