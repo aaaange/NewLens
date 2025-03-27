@@ -76,13 +76,20 @@ public class CountryService {
     @KafkaListener(topics = "news-modal")
     public void listenNews(String message) {
         try {
-            List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
-            });
+            Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+
+            List<String> newsIds = (List<String>) payload.get("newsIds");
+            int page = (Integer) payload.get("page");
+            int size = (Integer) payload.get("size");
+
             List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
             System.out.println("뉴스 모달창을 위한 뉴스 리스트");
             for (ForeignNewsMongo foreignNewsMongo : newsList) {
                 System.out.println(foreignNewsMongo);
             }
+
+            NewsModalResponse response = processNews(newsList, page, size);
+            System.out.println(response);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -126,10 +133,6 @@ public class CountryService {
 
         return prompt.toString();
     }
-
-
-
-
 
     // 뉴스 리스트 모달창 출력을 위한 집계 로직
     public NewsModalResponse processNews(List<ForeignNewsMongo> newsList, int page, int size) {
