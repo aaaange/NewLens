@@ -15,4 +15,16 @@ public class NewsDto {
 	private String imageUrl;
 	private int sentiment;
 	private List<String> keywords;
+
+	@Override
+	public String toString() {
+		return "NewsDto{" +
+			"title='" + title + '\'' +
+			", url='" + url + '\'' +
+			", publishedAt=" + publishedAt +
+			", imageUrl='" + imageUrl + '\'' +
+			", sentiment=" + sentiment +
+			", keywords=" + keywords +
+			'}';
+	}
 }
