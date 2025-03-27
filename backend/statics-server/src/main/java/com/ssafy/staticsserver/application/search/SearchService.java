@@ -71,6 +71,7 @@ public class SearchService {
 
 			// keyword와 ids 추출 (ids는 List<String>으로 캐스팅)
 			String keyword = (String) payload.get("keyword");
+			String keywordMind = (String) payload.get("keyword-mind");
 			List<String> newsIds = (List<String>) payload.get("ids");
 
 			// MongoDB에서 해당 id에 해당하는 뉴스 조회
@@ -84,7 +85,7 @@ public class SearchService {
 			for (ForeignNewsMongo foreignNewsMongo : newsList) {
 				System.out.println(foreignNewsMongo);
 			}
-			processWorldwide(keyword, newsList);
+			processWorldwide(keyword, keywordMind, newsList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -165,7 +166,7 @@ public class SearchService {
 
 
 	// 세계지도 집계 로직
-	public SentimentMentionResponse processWorldwide(String keyword, List<ForeignNewsMongo> newsList) {
+	public SentimentMentionResponse processWorldwide(String keyword, String keywordMind, List<ForeignNewsMongo> newsList) {
 		// 국가별로 뉴스 그룹핑
 		Map<String, List<ForeignNewsMongo>> countryNewsMap = new HashMap<>();
 		for (ForeignNewsMongo news : newsList) {
@@ -224,6 +225,7 @@ public class SearchService {
 
 		SentimentMentionResponse response = SentimentMentionResponse.builder()
 			.keyword(keyword)
+			.keywordMind(keywordMind)
 			.sentiment(sentimentResponses)
 			.mention(mentionResponses)
 			.build();

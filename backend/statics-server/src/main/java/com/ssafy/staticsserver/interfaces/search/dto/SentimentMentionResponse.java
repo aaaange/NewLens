@@ -5,10 +5,14 @@ import lombok.Getter;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Getter
 @Builder
 public class SentimentMentionResponse {
 	String keyword;
+	@JsonProperty("keyword-mind")
+	String keywordMind;
 	private List<SentimentResponse> sentiment;
 	private List<MentionResponse> mention;
 
