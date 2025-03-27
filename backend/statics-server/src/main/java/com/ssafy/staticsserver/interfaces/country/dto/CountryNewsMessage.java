@@ -8,6 +8,8 @@ import java.util.List;
 @Getter
 @Builder
 public class CountryNewsMessage {
+    private String requestId;
+    private String callbackUrl;
     private String keyword;
     private String keywordMind;
     private String country1;
