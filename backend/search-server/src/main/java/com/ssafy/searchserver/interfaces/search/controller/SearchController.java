@@ -86,9 +86,12 @@ public class SearchController {
 		@RequestParam String category,
 
 		@Parameter(description = "조회 기간 ex)1, 7, 30", example = "7")
-		@RequestParam(defaultValue = "7") int period
+		@RequestParam(defaultValue = "7") int period,
+
+		@Parameter(description = "한국 특화 여부", example = "false")
+		@RequestParam(defaultValue = "false", name = "is_korea") boolean isKorea
 	) {
-		RelatedKeywordsResponse data = service.getRelatedKeywords(keyword, category, period);
+		RelatedKeywordsResponse data = service.getRelatedKeywords(keyword, category, period, isKorea);
 		return CommonResponse.success(data);
 	}
 
