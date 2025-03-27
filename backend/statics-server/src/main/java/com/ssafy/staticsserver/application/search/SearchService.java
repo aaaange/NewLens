@@ -67,7 +67,7 @@ public class SearchService {
 	public void listenWorldwide(String message) {
 		try {
 			// 메시지를 Map으로 변환
-			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<Map<String, Object>>() {});
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
 
 			// keyword와 ids 추출 (ids는 List<String>으로 캐스팅)
 			String keyword = (String) payload.get("keyword");
