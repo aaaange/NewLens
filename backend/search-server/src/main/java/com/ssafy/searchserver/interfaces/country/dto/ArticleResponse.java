@@ -1,5 +1,7 @@
 package com.ssafy.searchserver.interfaces.country.dto;
 
+import java.time.LocalDateTime;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +17,7 @@ public class ArticleResponse {
 	private String url;
 
 	@Schema(description = "게시일 (yyyy-MM-dd)", example = "2025-03-11")
-	private String publishedDate;
+	private LocalDateTime publishedAt;
 
 	@Schema(description = "이미지 URL", example = "https://example.com/images/article1.jpg")
 	private String imageUrl;
