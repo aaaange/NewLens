@@ -143,102 +143,27 @@ public class CountryController {
 	@GetMapping("/dashboard")
 	public CommonResponse<DashboardData> extractDashboard(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
-		@Parameter(description = "카테고리", example = "sports")
-		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
-		@RequestParam int period,
-		@Parameter(description = "검색 키워드", example = "트럼프")
-		@RequestParam String keyword,
-		@Parameter(description = "마인드맵 키워드", example = "관세")
-		@RequestParam(name = "keyword-mind") String keywordMind,
-		@Parameter(description = "국가", example = "ko")
-		@RequestParam String country,
-		@Parameter(description = "한국 여부", example = "false")
-		@RequestParam(name = "is_korea") boolean isKorea
+		@Parameter(description = "카테고리", example = "sports") @RequestParam String category,
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7") @RequestParam int period,
+		@Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword,
+		@Parameter(description = "마인드맵 키워드", example = "관세") @RequestParam(name = "keyword-mind") String keywordMind,
+		@Parameter(description = "클라우드 키워드", example = "도널드") @RequestParam(name = "keyword-cloud") String keywordCloud,
+		@Parameter(description = "국가", example = "ko") @RequestParam String country,
+		@Parameter(description = "한국 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
 	) {
-		DashboardData data = countryService.getDashboard(category, period, keyword, keywordMind, country, isKorea);
-		// // 예시 더미 데이터
-		// // 1) keywords
-		// List<KeywordResponse> keywords = List.of(
-		// 	KeywordResponse.builder().name("트럼프").count(121).build(),
-		// 	KeywordResponse.builder().name("관세").count(121).build()
-		// );
-		//
-		// // 2) description
-		// String description = "3줄 요약편\n2줄...\n1줄...";
-		//
-		// // 3) sentiment
-		// List<SentimentResponse> sentiment = List.of(
-		// 	SentimentResponse.builder().publishedAt(LocalDateTime.parse("2025-03-01T03:00:00")).positive(0.7).neutral(0.2).negative(0.1).build(),
-		// 	SentimentResponse.builder().publishedAt(LocalDateTime.parse("2025-03-02T03:00:00")).positive(0.7).neutral(0.2).negative(0.1).build()
-		// );
-		//
-		// // 4) mentions
-		// List<MentionResponse> mentions = List.of(
-		// 	MentionResponse.builder().publishedAt(LocalDateTime.parse("2025-03-01T03:00:00")).count(121).build(),
-		// 	MentionResponse.builder().publishedAt(LocalDateTime.parse("2025-03-02T03:00:00")).count(126).build()
-		// );
-		//
-		// // 5) articles
-		// List<ArticleResponse> articles = List.of(
-		// 	ArticleResponse.builder()
-		// 		.title("AI 기술의 발전과 미래")
-		// 		.url("https://example.com/article1")
-		// 		.publishedAt(LocalDateTime.parse("2025-03-11T03:00:00"))
-		// 		.imageUrl("https://example.com/images/article1.jpg")
-		// 		.build(),
-		// 	ArticleResponse.builder()
-		// 		.title("챗봇이 바꾸는 고객 서비스")
-		// 		.url("https://example.com/article2")
-		// 		.publishedAt(LocalDateTime.parse("2025-03-12T03:00:00"))
-		// 		.imageUrl("https://example.com/images/article2.jpg")
-		// 		.build()
-		// );
-		//
-		// // 6) videos
-		// List<VideoResponse> videos = List.of(
-		// 	VideoResponse.builder()
-		// 		.title("AI가 바꿀 미래, 우리는 어떻게 준비해야 할까?")
-		// 		.url("https://www.youtube.com/watch?v=abcd1234")
-		// 		.publishedAt(LocalDateTime.parse("2025-03-11T03:00:00"))
-		// 		.thumbnailUrl("https://img.youtube.com/vi/abcd1234/maxresdefault.jpg")
-		// 		.build(),
-		// 	VideoResponse.builder()
-		// 		.title("챗봇 기술의 발전과 전망")
-		// 		.url("https://www.youtube.com/watch?v=efgh5678")
-		// 		.publishedAt(LocalDateTime.parse("2025-03-12T03:00:00"))
-		// 		.thumbnailUrl("[https://img.youtube.com/vi/efgh5678/maxresdefault.jpg")
-		// 		.build()
-		// );
-		//
-		// // data DTO 구성
-		// DashboardData data = DashboardData.builder()
-		// 	.keywords(keywords)
-		// 	.description(description)
-		// 	.sentiment(sentiment)
-		// 	.mentions(mentions)
-		// 	.articles(articles)
-		// 	.videos(videos)
-		// 	.build();
-
+		DashboardData data = countryService.getDashboard(category, period, keyword, keywordMind, keywordCloud, country, isKorea);
 		return CommonResponse.success(data);
 	}
 
 	@GetMapping("/compare-info")
 	public CompareInfoResponse extractCompareInfo(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
-		@Parameter(description = "카테고리", example = "sports")
-		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
-		@RequestParam int period,
-		@Parameter(description = "검색 키워드", example = "트럼프")
-		@RequestParam String keyword,
-		@Parameter(description = "마인드맵 키워드", example = "관세")
-		@RequestParam(name = "keyword-mind") String keywordMind,
-		@Parameter(description = "국가1", example = "ko")
-		@RequestParam String country1,
-		@Parameter(description = "국가2", example = "us")
-		@RequestParam String country2
+		@Parameter(description = "카테고리", example = "sports") @RequestParam String category,
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7") @RequestParam int period,
+		@Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword,
+		@Parameter(description = "마인드맵 키워드", example = "관세") @RequestParam(name = "keyword-mind") String keywordMind,
+		@Parameter(description = "국가1", example = "ko") @RequestParam String country1,
+		@Parameter(description = "국가2", example = "us") @RequestParam String country2
 	) {
 		return countryService.getCompareInfo(category, period, keyword, keywordMind, country1, country2);
 		// 예시 더미 데이터
@@ -258,28 +183,18 @@ public class CountryController {
 	@GetMapping("/news")
 	public CommonResponse<NewsModalResponse> getNewsModal(
 		@RequestHeader(name = "Authorization", required = false) String authorization,
-		@Parameter(description = "카테고리", example = "sports")
-		@RequestParam String category,
-		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7")
-		@RequestParam int period,
-		@Parameter(description = "검색 키워드", example = "트럼프")
-		@RequestParam String keyword,
-		@Parameter(description = "마인드맵 키워드", example = "관세")
-		@RequestParam(name = "keyword-mind") String keywordMind,
-		@Parameter(description = "클라우드 키워드", example = "정책")
-		@RequestParam(name = "keyword-cloud") String keywordCloud,
-		@Parameter(description = "국가", example = "ko")
-		@RequestParam String country,
-		@Parameter(description = "페이지", example = "1")
-		@RequestParam int page,
-		@Parameter(description = "페이지 당 보여줄 개수", example = "5")
-		@RequestParam int size,
-		@Parameter(description = "한국 특화 여부", example = "false")
-		@RequestParam(name = "is_korea") boolean isKorea
+		@Parameter(description = "카테고리", example = "sports") @RequestParam String category,
+		@Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7") @RequestParam int period,
+		@Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword,
+		@Parameter(description = "마인드맵 키워드", example = "관세") @RequestParam(name = "keyword-mind") String keywordMind,
+		@Parameter(description = "클라우드 키워드", example = "정책") @RequestParam(name = "keyword-cloud") String keywordCloud,
+		@Parameter(description = "국가", example = "ko") @RequestParam String country,
+		@Parameter(description = "페이지", example = "1") @RequestParam int page,
+		@Parameter(description = "페이지 당 보여줄 개수", example = "5") @RequestParam int size,
+		@Parameter(description = "한국 특화 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
 
 	) {
 		NewsModalResponse data = countryService.getNewsNodal(category, period, keyword, keywordMind, keywordCloud, country, page, size, isKorea);
-
 		return CommonResponse.success(data);
 	}
 
