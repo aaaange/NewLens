@@ -231,7 +231,7 @@ public class CountryService {
 			var searchRequest = SearchRequest.of(s -> s
 				.index("foreign_news")
 				.query(boolQuery)
-				.size(5)
+				.size(3)
 				.source(src -> src.filter(f -> f.includes("id")))
 			);
 
