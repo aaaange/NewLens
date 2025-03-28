@@ -9,7 +9,7 @@ import lombok.Getter;
 @Schema(description = "Sentiment 응답 데이터")
 public class SentimentResponse {
 	@Schema(description = "국가 코드", example = "ko")
-	private String name;
+	private String country;
 
 	@Schema(description = "긍정 비율", example = "0.7")
 	private double positive;
