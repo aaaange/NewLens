@@ -1,11 +1,5 @@
 package com.ssafy.searchserver.interfaces.country.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,19 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.searchserver.application.country.CountryService;
 import com.ssafy.searchserver.common.dto.CommonResponse;
-import com.ssafy.searchserver.interfaces.country.dto.AnalysisData;
-import com.ssafy.searchserver.interfaces.country.dto.ArticleResponse;
 import com.ssafy.searchserver.interfaces.country.dto.CompareInfoResponse;
 import com.ssafy.searchserver.interfaces.country.dto.DashboardData;
-import com.ssafy.searchserver.interfaces.country.dto.DashboardResponse;
-import com.ssafy.searchserver.interfaces.country.dto.KeywordResponse;
-import com.ssafy.searchserver.interfaces.country.dto.MentionResponse;
-import com.ssafy.searchserver.interfaces.country.dto.NewsData;
 import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
-import com.ssafy.searchserver.interfaces.country.dto.NewsResponse;
-import com.ssafy.searchserver.interfaces.country.dto.SearchNewsResponse;
-import com.ssafy.searchserver.interfaces.country.dto.SentimentResponse;
-import com.ssafy.searchserver.interfaces.country.dto.VideoResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
