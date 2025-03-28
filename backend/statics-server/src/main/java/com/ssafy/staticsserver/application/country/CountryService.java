@@ -93,8 +93,8 @@ public class CountryService {
 			List<VideoResponse> videos;
 			if (!newsList.isEmpty()) {
 				videos = processVideos(keyword, keywordMind, country);
-			}
-			else videos = new ArrayList<>();
+			} else
+				videos = new ArrayList<>();
 
 			DashboardData response = DashboardData.builder()
 				.keywords(wordCloud)
