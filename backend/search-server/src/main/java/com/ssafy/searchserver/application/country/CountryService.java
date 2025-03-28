@@ -117,8 +117,10 @@ public class CountryService {
 				.sterms();
 
 			List<KeywordResponse> wordCloud = aggregation.buckets().array().stream()
-				.filter(rel -> !rel.equals(keyword)) // keyword1과 중복 제거
-				.filter(rel -> !rel.equals(keywordMind))
+				.filter(bucket -> {
+					String key = bucket.key().stringValue();
+					return !key.equals(keyword) && !key.equals(keywordMind);
+				})
 				.map(bucket -> KeywordResponse.builder()
 					.name(bucket.key().stringValue())
 					.count(bucket.docCount())
@@ -229,7 +231,7 @@ public class CountryService {
 			var searchRequest = SearchRequest.of(s -> s
 				.index("foreign_news")
 				.query(boolQuery)
-				.size(5)
+				.size(3)
 				.source(src -> src.filter(f -> f.includes("id")))
 			);
 
