@@ -66,8 +66,8 @@ public class CountryService {
 			if (newsList.size() >= GptNewsSize) {
 				String prompt = makeDescription(keyword, keywordMind, newsList, country);
 				description = gptClient.ask(prompt);
-			}
-			else description = "관련된 뉴스가 없습니다.";
+			} else
+				description = "관련된 뉴스가 없습니다.";
 
 			// sentiment & mentions
 			List<SentimentResponse> sentiment;
@@ -90,7 +90,11 @@ public class CountryService {
 			List<ArticleResponse> articles = processArticles(newsList);
 
 			// videos
-			List<VideoResponse> videos = processVideos(keyword, keywordMind, country);
+			List<VideoResponse> videos;
+			if (!newsList.isEmpty()) {
+				videos = processVideos(keyword, keywordMind, country);
+			}
+			else videos = new ArrayList<>();
 
 			DashboardData response = DashboardData.builder()
 				.keywords(wordCloud)
