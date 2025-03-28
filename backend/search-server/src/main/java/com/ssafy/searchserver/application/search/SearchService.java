@@ -9,6 +9,8 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.searchserver.interfaces.country.dto.DashboardData;
+import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsListResponse;
 import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.interfaces.search.dto.KeywordRankingData;
@@ -32,6 +34,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +49,7 @@ public class SearchService {
 	private final ElasticsearchClient esClient;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
+	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
 
 	public ForeignNewsMongo save(ForeignNewsMongo news) {
 		return mongoDBRepository.save(news);
@@ -130,7 +137,7 @@ public class SearchService {
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
 					.field("keywords")
-					.size(10) // 상위 10개만
+					.size(11) // 상위 11개만 나중에 자기자신 빼기 때문에
 				)
 			);
 
@@ -171,6 +178,7 @@ public class SearchService {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+			String requestId = UUID.randomUUID().toString();
 
 			Query boolQuery = Query.of(q -> q.bool(b -> b
 				.must(List.of(
@@ -205,27 +213,37 @@ public class SearchService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
+			Map<String, Object> payload = new HashMap<>();
+			payload.put("newsIds", idList);
+			payload.put("requestId", requestId);
+			payload.put("callbackUrl", "http://localhost:8080/api/search/keyword-ranking-callback");
+
+			CompletableFuture<KeywordRankingData> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
+
 			// kafka로 전송
-			String json = objectMapper.writeValueAsString(idList);
+			String json = objectMapper.writeValueAsString(payload);
 			kafkaTemplate.send("keyword-ranking", json);
-			// kafkaTemplate.send("foreign_news", idList);
 
 			// 더미 반환값
-			List<KeywordResponse> data = List.of();
+			KeywordRankingData data = future.get(5, TimeUnit.SECONDS);
 
-			return KeywordRankingData.builder()
-				.keywords(data)
-				.build();
+			return data;
 		} catch (Exception e) {
 			throw new NoSuchElementException("키워드 랭킹을 불러오지 못했습니다.");
 		}
 
 	}
 
+	public CompletableFuture<?> removeFuture(String requestId) {
+		return pendingCompareResults.remove(requestId);
+	}
+
 	public SentimentMentionData getWorldwide(String keyword, String keywordMind,String category, int period) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+			String requestId = UUID.randomUUID().toString();
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -279,13 +297,17 @@ public class SearchService {
 			payload.put("keyword", keyword);
 			payload.put("keyword-mind", keywordMind);
 			payload.put("ids", idList);
+			payload.put("requestId", requestId);
+			payload.put("callbackUrl", "http://localhost:8080/api/search/worldwide-callback");
+
+			CompletableFuture<SentimentMentionData> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
 
 			// Map을 JSON 문자열로 변환 & kafka로 전송
 			String json = objectMapper.writeValueAsString(payload);
 			kafkaTemplate.send("worldwide", json);
 
-			// 더미 반환값
-			SentimentMentionData data = SentimentMentionData.builder().build();
+			SentimentMentionData data = future.get(5, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
