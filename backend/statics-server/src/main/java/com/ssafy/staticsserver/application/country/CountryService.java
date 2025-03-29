@@ -16,6 +16,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import com.ssafy.staticsserver.common.config.GptClient;
+import com.ssafy.staticsserver.common.config.YouTubeClient;
+import com.ssafy.staticsserver.interfaces.country.dto.*;
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -23,17 +27,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
-import com.ssafy.staticsserver.infrastructure.client.GptClient;
-import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
-import com.ssafy.staticsserver.interfaces.country.dto.ArticleResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.CountryNewsMessage;
-import com.ssafy.staticsserver.interfaces.country.dto.DashboardData;
-import com.ssafy.staticsserver.interfaces.country.dto.KeywordResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.MentionResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.NewsDto;
-import com.ssafy.staticsserver.interfaces.country.dto.NewsModalResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.SentimentResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.VideoResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -69,8 +62,12 @@ public class CountryService {
 			}
 
 			// description
-			String prompt = makeDescription(keyword, keywordMind, newsList, country);
-			String description = gptClient.ask(prompt);
+			String description;
+			if (newsList.size() >= GptNewsSize) {
+				String prompt = makeDescription(keyword, keywordMind, newsList, country);
+				description = gptClient.ask(prompt);
+			} else
+				description = "관련된 뉴스가 없습니다.";
 
 			// sentiment & mentions
 			List<SentimentResponse> sentiment;
@@ -93,10 +90,11 @@ public class CountryService {
 			List<ArticleResponse> articles = processArticles(newsList);
 
 			// videos
-			List<VideoResponse> videos = processVideos(keyword, keywordMind, country);
-			//			for (YouTubeVideo video : videos) {
-			//				System.out.println(video);
-			//			}
+			List<VideoResponse> videos;
+			if (!newsList.isEmpty()) {
+				videos = processVideos(keyword, keywordMind, country);
+			} else
+				videos = new ArrayList<>();
 
 			DashboardData response = DashboardData.builder()
 				.keywords(wordCloud)
@@ -137,8 +135,6 @@ public class CountryService {
 			String callbackUrl = msg.getCallbackUrl();
 			List<ForeignNewsMongo> newsList1 = mongoDBRepository.findByIdIn(msg.getCountry1NewsIds());
 			List<ForeignNewsMongo> newsList2 = mongoDBRepository.findByIdIn(msg.getCountry2NewsIds());
-			newsList1.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
-			newsList2.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
 
 			String prompt = buildComparePrompt(
 				keyword, keywordMind,
@@ -146,7 +142,6 @@ public class CountryService {
 				country2, newsList2
 			);
 			String summary = gptClient.ask(prompt);
-			System.out.println(summary);
 			// String summary = "결과";
 
 			// 콜백 요청 전송
@@ -466,14 +461,14 @@ public class CountryService {
 		prompt.append("\" 키워드와 관련된 ").append(country1).append("과 ").append(country2).append("의 뉴스입니다.\n\n");
 
 		prompt.append("[").append(country1).append(" 뉴스]").append("\n");
-		for (int i = 0; i < GptNewsSize; i++) {
+		for (int i = 0; i < news1.size(); i++) {
 			ForeignNewsMongo news = news1.get(i);
 			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
 			prompt.append("- ").append(news.getDescription()).append("\n\n");
 		}
 
 		prompt.append("[").append(country2).append(" 뉴스]").append("\n");
-		for (int i = 0; i < GptNewsSize; i++) {
+		for (int i = 0; i < news2.size(); i++) {
 			ForeignNewsMongo news = news2.get(i);
 			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
 			prompt.append("- ").append(news.getDescription()).append("\n\n");
