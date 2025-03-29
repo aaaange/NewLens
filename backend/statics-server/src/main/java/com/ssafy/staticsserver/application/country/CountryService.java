@@ -16,10 +16,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import com.ssafy.staticsserver.common.config.GptClient;
-import com.ssafy.staticsserver.common.config.YouTubeClient;
-import com.ssafy.staticsserver.interfaces.country.dto.*;
-
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +23,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
+import com.ssafy.staticsserver.infrastructure.client.GptClient;
+import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
+import com.ssafy.staticsserver.interfaces.country.dto.ArticleResponse;
+import com.ssafy.staticsserver.interfaces.country.dto.CountryNewsMessage;
+import com.ssafy.staticsserver.interfaces.country.dto.DashboardData;
+import com.ssafy.staticsserver.interfaces.country.dto.KeywordResponse;
+import com.ssafy.staticsserver.interfaces.country.dto.MentionResponse;
+import com.ssafy.staticsserver.interfaces.country.dto.NewsDto;
+import com.ssafy.staticsserver.interfaces.country.dto.NewsModalResponse;
+import com.ssafy.staticsserver.interfaces.country.dto.SentimentResponse;
+import com.ssafy.staticsserver.interfaces.country.dto.VideoResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,14 +49,15 @@ public class CountryService {
 	@KafkaListener(topics = "dashboard")
 	public void listenDashboard(String message) {
 		try {
-			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
+			});
 
-			List<String> newsIds = (List<String>) payload.get("newsIds");
-			int period = (Integer) payload.get("period");
-			String keyword = (String) payload.get("keyword");
-			String keywordMind = (String) payload.get("keyword-mind");
-			String country = (String) payload.get("country");
-			List<KeywordResponse> wordCloud = (List<KeywordResponse>) payload.get("wordCloud");
+			List<String> newsIds = (List<String>)payload.get("newsIds");
+			int period = (Integer)payload.get("period");
+			String keyword = (String)payload.get("keyword");
+			String keywordMind = (String)payload.get("keyword-mind");
+			String country = (String)payload.get("country");
+			List<KeywordResponse> wordCloud = (List<KeywordResponse>)payload.get("wordCloud");
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();
 
@@ -86,9 +94,9 @@ public class CountryService {
 
 			// videos
 			List<VideoResponse> videos = processVideos(keyword, keywordMind, country);
-//			for (YouTubeVideo video : videos) {
-//				System.out.println(video);
-//			}
+			//			for (YouTubeVideo video : videos) {
+			//				System.out.println(video);
+			//			}
 
 			DashboardData response = DashboardData.builder()
 				.keywords(wordCloud)
@@ -157,27 +165,28 @@ public class CountryService {
 		}
 	}
 
-    @KafkaListener(topics = "news-modal")
-    public void listenNews(String message) {
-        try {
-            Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+	@KafkaListener(topics = "news-modal")
+	public void listenNews(String message) {
+		try {
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
+			});
 
-			List<String> newsIds = (List<String>) payload.get("newsIds");
-            int page = (Integer) payload.get("page");
-            int size = (Integer) payload.get("size");
+			List<String> newsIds = (List<String>)payload.get("newsIds");
+			int page = (Integer)payload.get("page");
+			int size = (Integer)payload.get("size");
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();
 
 			System.out.println("newsIds : " + newsIds.toString());
-            List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-            System.out.println("뉴스 모달창을 위한 뉴스 리스트");
-            for (ForeignNewsMongo foreignNewsMongo : newsList) {
-                System.out.println(foreignNewsMongo);
-            }
+			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
+			System.out.println("뉴스 모달창을 위한 뉴스 리스트");
+			for (ForeignNewsMongo foreignNewsMongo : newsList) {
+				System.out.println(foreignNewsMongo);
+			}
 
-            NewsModalResponse response = processNews(newsList, page, size);
+			NewsModalResponse response = processNews(newsList, page, size);
 			String responseJson = objectMapper.writeValueAsString(response);
-            System.out.println(response);
+			System.out.println(response);
 
 			// 콜백 요청 전송
 			HttpClient httpClient = HttpClient.newHttpClient();
@@ -188,19 +197,19 @@ public class CountryService {
 				.build();
 
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	// 국가별 대시보드 집계 로직
 	public void processDashboard(List<ForeignNewsMongo> newsList) {
 	}
 
 	// 언론 반응 요약
-	private String makeDescription(String keyword, String keywordMind, List<ForeignNewsMongo> newsList, String country) {
+	private String makeDescription(String keyword, String keywordMind, List<ForeignNewsMongo> newsList,
+		String country) {
 		StringBuilder prompt = new StringBuilder();
-
 
 		prompt.append("[국가 뉴스 여론 분석 요청]\n\n");
 		prompt.append("다음은 \"").append(keyword);
@@ -215,8 +224,6 @@ public class CountryService {
 			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
 			prompt.append("- ").append(news.getDescription()).append("\n\n");
 		}
-
-
 
 		prompt.append("위 뉴스를 참고하여, ").append(country)
 			.append("이 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
@@ -254,9 +261,9 @@ public class CountryService {
 				}
 			}
 
-			double posRatio = total > 0 ? (double) positive / total : 0.0;
-			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
-			double negRatio = total > 0 ? (double) negative / total : 0.0;
+			double posRatio = total > 0 ? (double)positive / total : 0.0;
+			double neuRatio = total > 0 ? (double)neutral / total : 0.0;
+			double negRatio = total > 0 ? (double)negative / total : 0.0;
 
 			posRatio = Math.round(posRatio * 100.0) / 100.0;
 			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
@@ -300,9 +307,9 @@ public class CountryService {
 				}
 			}
 
-			double posRatio = total > 0 ? (double) positive / total : 0.0;
-			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
-			double negRatio = total > 0 ? (double) negative / total : 0.0;
+			double posRatio = total > 0 ? (double)positive / total : 0.0;
+			double neuRatio = total > 0 ? (double)neutral / total : 0.0;
+			double negRatio = total > 0 ? (double)negative / total : 0.0;
 
 			posRatio = Math.round(posRatio * 100.0) / 100.0;
 			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
@@ -347,9 +354,9 @@ public class CountryService {
 				}
 			}
 
-			double posRatio = total > 0 ? (double) positive / total : 0.0;
-			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
-			double negRatio = total > 0 ? (double) negative / total : 0.0;
+			double posRatio = total > 0 ? (double)positive / total : 0.0;
+			double neuRatio = total > 0 ? (double)neutral / total : 0.0;
+			double negRatio = total > 0 ? (double)negative / total : 0.0;
 
 			posRatio = Math.round(posRatio * 100.0) / 100.0;
 			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
@@ -439,7 +446,6 @@ public class CountryService {
 
 	// 영상 목록
 	private List<VideoResponse> processVideos(String keyword, String keywordMind, String country) {
-
 
 		return youTubeClient.searchVideos(keyword, keywordMind, country);
 	}
