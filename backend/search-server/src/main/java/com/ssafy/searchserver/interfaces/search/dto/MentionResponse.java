@@ -9,7 +9,7 @@ import lombok.Getter;
 @Schema(description = "Mention 응답 데이터")
 public class MentionResponse {
 	@Schema(description = "국가 코드", example = "ko")
-	private String name;
+	private String country;
 
 	@Schema(description = "언급 수", example = "125")
 	private int count;

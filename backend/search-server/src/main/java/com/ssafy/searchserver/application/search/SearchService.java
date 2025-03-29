@@ -159,8 +159,8 @@ public class SearchService {
 
 			// 연관 키워드 리스트 반환
 			List<String> relatedKeywords = aggregation.buckets().array().stream()
-				.filter(rel -> !rel.equals(keyword)) // 자기 자신 제외
 				.map(bucket -> bucket.key().stringValue())
+				.filter(rel -> !rel.equals(keyword)) // 자기 자신 제외
 				.collect(Collectors.toList());
 
 			return RelatedKeywordsResponse.builder()
