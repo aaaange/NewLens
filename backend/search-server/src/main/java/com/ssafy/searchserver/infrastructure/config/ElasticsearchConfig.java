@@ -1,35 +1,41 @@
 package com.ssafy.searchserver.infrastructure.config;
 
-
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
-
 @Configuration
 public class ElasticsearchConfig {
 
-    @Value("${ES_HOST}")
-    private String ES_HOST;
-    @Value("${ES_PORT}")
-    private int ES_PORT;
+	@Value("${elasticsearch.host}")
+	private String esHost;
 
-    @Bean
-    public ElasticsearchClient elasticsearchClient() {
-        RestClient restClient = RestClient.builder(
-                new HttpHost(ES_HOST, ES_PORT)
-        ).build();
+	@Value("${elasticsearch.port}")
+	private int esPort;
 
-        RestClientTransport transport = new RestClientTransport(
-                restClient,
-                new JacksonJsonpMapper()
-        );
+	@Value("${elasticsearch.scheme}")
+	private String esScheme;
 
-        return new ElasticsearchClient(transport);
-    }
+	@Bean
+	public RestClient restClient() {
+		return RestClient.builder(
+			new HttpHost(esHost, esPort, esScheme)
+		).build();
+	}
+
+	@Bean
+	public RestClientTransport elasticsearchTransport(RestClient restClient) {
+		// JacksonJsonpMapper는 JSON 직렬화/역직렬화를 담당합니다.
+		return new RestClientTransport(restClient, new JacksonJsonpMapper());
+	}
+
+	@Bean
+	public ElasticsearchClient elasticsearchClient(RestClientTransport transport) {
+		return new ElasticsearchClient(transport);
+	}
 }
