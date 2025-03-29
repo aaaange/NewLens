@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
 
+@EnableElasticsearchRepositories
 public interface ForeignNewsElasticsearchRepository extends ElasticsearchRepository<ForeignNewsElastic, String> {
 	List<ForeignNewsElastic> findByKeywords(String keyword);
 	List<ForeignNewsElastic> findByCategories(String category);
