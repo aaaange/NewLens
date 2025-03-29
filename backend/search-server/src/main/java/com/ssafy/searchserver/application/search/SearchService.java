@@ -216,7 +216,7 @@ public class SearchService {
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("newsIds", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", "http://localhost:8080/api/search/keyword-ranking-callback");
+			payload.put("callbackUrl", "http://search-server:8080/api/search/keyword-ranking-callback");
 
 			CompletableFuture<KeywordRankingData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
@@ -298,7 +298,7 @@ public class SearchService {
 			payload.put("keyword-mind", keywordMind);
 			payload.put("ids", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", "http://localhost:8080/api/search/worldwide-callback");
+			payload.put("callbackUrl", "http://search-server:8080/api/search/worldwide-callback");
 
 			CompletableFuture<SentimentMentionData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
