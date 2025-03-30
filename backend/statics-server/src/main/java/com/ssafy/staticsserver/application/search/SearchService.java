@@ -38,20 +38,6 @@ public class SearchService {
 	private static final List<String> G20_COUNTRIES = Collections.unmodifiableList(Arrays.asList(
 		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB", "US", "EU"));
 
-	@KafkaListener(topics = "related-keywords")
-	public void listenRelatedKeywords(String message) {
-		try {
-			List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
-			});
-			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("연관어 처리를 위한 뉴스 리스트");
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	@KafkaListener(topics = "keyword-ranking")
 	public void listenKeywordRanking(String message) {
