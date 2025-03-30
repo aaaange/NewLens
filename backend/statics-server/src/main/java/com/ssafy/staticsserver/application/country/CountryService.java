@@ -56,10 +56,8 @@ public class CountryService {
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			newsList.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
-			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트");
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
+			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트 사이즈" + newsList.size());
+
 
 			// description
 			String description;
@@ -174,10 +172,8 @@ public class CountryService {
 
 			System.out.println("newsIds : " + newsIds.toString());
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("뉴스 모달창을 위한 뉴스 리스트");
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
+			System.out.println("뉴스 모달창을 위한 뉴스 리스트 사이즈" + newsList.size());
+
 
 			NewsModalResponse response = processNews(newsList, page, size);
 			String responseJson = objectMapper.writeValueAsString(response);
@@ -221,7 +217,7 @@ public class CountryService {
 		}
 
 		prompt.append("위 뉴스를 참고하여, ").append(country)
-			.append("이 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+			.append("을 국가명으로 바꿔주고 ex) US -> 미국 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
 
 		return prompt.toString();
 	}
@@ -475,7 +471,7 @@ public class CountryService {
 		}
 
 		prompt.append("위 뉴스를 참고하여, ").append(country1).append("과 ").append(country2)
-			.append("이 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 한 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+                .append("국가명으로 바꿔주고 ex) US -> 미국, 각 국가에서의 여론").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 한 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
 
 		return prompt.toString();
 	}
