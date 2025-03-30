@@ -136,7 +136,7 @@ public class SearchService {
 			// keyword가 포함된 뉴스에서 다른 키워드들을 연관어로 뽑음
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
-					.field("keywords")
+					.field("keywords.keyword")
 					.size(11) // 상위 11개만 나중에 자기자신 빼기 때문에
 				)
 			);
