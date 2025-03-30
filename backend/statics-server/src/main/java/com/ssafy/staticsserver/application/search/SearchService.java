@@ -48,12 +48,9 @@ public class SearchService {
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("키워드 처리를 위한 뉴스 리스트");
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
+			System.out.println("키워드 처리를 위한 뉴스 리스트 사이즈"+ newsList.size());
 
-			System.out.println();
+
 			KeywordRankingResponse response = processKeywordRanking(newsList);
 			String responseJson = objectMapper.writeValueAsString(response);
 

@@ -181,8 +181,12 @@ public class SearchService {
 	public KeywordRankingData getKeywordRanking(String category, int period, boolean isKorea) {
 		// 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
 			String requestId = UUID.randomUUID().toString();
 
 			Query boolQuery = Query.of(q -> q.bool(b -> b
@@ -196,8 +200,8 @@ public class SearchService {
 					Query.of(m -> m.range(r -> r
 						.date(d -> d
 							.field("published_at")
-							.gte(from.toString())
-							.lte(now.toString())
+							.gte(gte)
+							.lte(lte)
 						)
 					))
 
@@ -207,6 +211,7 @@ public class SearchService {
 			var searchRequest = SearchRequest.of(s -> s
 					.index("foreign_news")
 					.query(boolQuery)
+							.size(10000)
 					.source(src -> src.filter(f -> f.includes("id")))
 				// 우리는 id만 필요하니까 id만 반환
 			);
@@ -231,7 +236,7 @@ public class SearchService {
 			kafkaTemplate.send("keyword-ranking", json);
 
 			// 더미 반환값
-			KeywordRankingData data = future.get(5, TimeUnit.SECONDS);
+			KeywordRankingData data = future.get(15, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
@@ -312,7 +317,7 @@ public class SearchService {
 			String json = objectMapper.writeValueAsString(payload);
 			kafkaTemplate.send("worldwide", json);
 
-			SentimentMentionData data = future.get(5, TimeUnit.SECONDS);
+			SentimentMentionData data = future.get(15, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
