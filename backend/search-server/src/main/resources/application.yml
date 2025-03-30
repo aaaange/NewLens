@@ -6,6 +6,10 @@ spring:
     mongodb:
       uri: mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
       database: ${MONGODB_DATABASE}
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    admin:
+      auto-create: true
 
 elasticsearch:
   host: ${ES_HOST}
@@ -16,7 +20,3 @@ redis:
   host: ${REDIS_HOST}
   port: ${REDIS_PORT}
 
-kafka:
-  bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
-  admin:
-    auto-create: true

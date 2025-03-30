@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import com.ssafy.staticsserver.common.config.GptClient;
-import com.ssafy.staticsserver.common.config.YouTubeClient;
+import com.ssafy.staticsserver.infrastructure.client.GptClient;
+import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
 import com.ssafy.staticsserver.interfaces.country.dto.*;
 
 import org.springframework.kafka.annotation.KafkaListener;
