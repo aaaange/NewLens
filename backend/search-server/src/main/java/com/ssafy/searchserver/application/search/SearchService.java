@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,8 +106,12 @@ public class SearchService {
 
 	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> b
@@ -125,8 +130,8 @@ public class SearchService {
 					Query.of(m -> m.range(r -> r
 						.date(d -> d
 							.field("published_at")
-							.gte(from.toString())
-							.lte(now.toString())
+							.gte(gte)
+							.lte(lte)
 						)
 					))
 				))
@@ -136,7 +141,7 @@ public class SearchService {
 			// keyword가 포함된 뉴스에서 다른 키워드들을 연관어로 뽑음
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
-					.field("keywords.keyword")
+					.field("keywords.keyword") // 집계 코드에서 text 타입은 집계가 불가능 keyword 타입만 가능 따라서 .keyword 필수로 붙여야 함
 					.size(11) // 상위 11개만 나중에 자기자신 빼기 때문에
 				)
 			);
