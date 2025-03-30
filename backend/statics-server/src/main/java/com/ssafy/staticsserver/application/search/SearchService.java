@@ -88,11 +88,8 @@ public class SearchService {
 			// List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
 			// });
 
-			System.out.println("세계 지도 처리를 위한 뉴스 리스트");
-			System.out.println(newsIds);
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
+			System.out.println("세계 지도 처리를 위한 뉴스 리스트 사이즈" + newsList.size());
+
 			SentimentMentionResponse response = processWorldwide(keyword, keywordMind, newsList);
 			String responseJson = objectMapper.writeValueAsString(response);
 

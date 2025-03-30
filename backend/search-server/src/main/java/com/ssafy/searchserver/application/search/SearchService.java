@@ -251,8 +251,12 @@ public class SearchService {
 
 	public SentimentMentionData getWorldwide(String keyword, String keywordMind,String category, int period) {
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
 			String requestId = UUID.randomUUID().toString();
 
 			// 필터링 Query
