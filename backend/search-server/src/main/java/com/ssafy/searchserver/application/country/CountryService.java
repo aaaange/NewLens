@@ -136,7 +136,7 @@ public class CountryService {
 			payload.put("newsIds", idList);
 			payload.put("period", period);
 			payload.put("keyword", keyword);
-			payload.put("keyword-mind", keywordMind);
+			payload.put("keyword_mind", keywordMind);
 			payload.put("wordCloud", wordCloud);
 			payload.put("requestId", requestId);
 			payload.put("country", country);
@@ -181,7 +181,7 @@ public class CountryService {
 			pendingCompareResults.put(requestId, future);
 
 			String json = objectMapper.writeValueAsString(message);
-			kafkaTemplate.send("compare-info", json);
+			kafkaTemplate.send("compare_info", json);
 
 			// 15초 대기
 			String gptResult = future.get(15, TimeUnit.SECONDS);
@@ -313,7 +313,7 @@ public class CountryService {
 
 			// Map을 JSON 문자열로 변환 & kafka로 전송
 			String json = objectMapper.writeValueAsString(payload);
-			kafkaTemplate.send("news-modal", json);
+			kafkaTemplate.send("news_modal", json);
 
 			// 15초 대기
 			NewsModalResponse data = future.get(15, TimeUnit.SECONDS);
