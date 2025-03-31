@@ -24,9 +24,9 @@ public class CommonResponse<T> {
 			.build();
 	}
 
-	public static <T> CommonResponse<T> fail(String message) {
+	public static <T> CommonResponse<T> fail(String code, String message) {
 		return CommonResponse.<T>builder()
-			.code("FAIL")
+			.code(code)
 			.success(false)
 			.message(message)
 			.build();
