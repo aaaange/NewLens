@@ -16,7 +16,7 @@ public class SentimentMentionData {
 	private String keyword;
 
 	@Schema(description = "마인드맵 키워드")
-	@JsonProperty("keyword-mind")
+	@JsonProperty("keyword_mind")
 	private String keywordMind;
 
 	@Schema(description = "Sentiment 리스트")
