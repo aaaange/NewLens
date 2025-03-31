@@ -140,7 +140,7 @@ public class CountryService {
 			payload.put("wordCloud", wordCloud);
 			payload.put("requestId", requestId);
 			payload.put("country", country);
-			payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard_callback");
 
 			CompletableFuture<DashboardData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
@@ -173,7 +173,7 @@ public class CountryService {
 				.country1NewsIds(country1NewsIds)
 				.country2NewsIds(country2NewsIds)
 				.requestId(requestId)
-				.callbackUrl(callBackUrl + "/api/search/country/compare-callback")
+				.callbackUrl(callBackUrl + "/api/search/country/compare_callback")
 				.build();
 
 			// CompletableFuture 등록 (5초 대기)
@@ -306,7 +306,7 @@ public class CountryService {
 			payload.put("page", page);
 			payload.put("size", size);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", callBackUrl + "/api/search/country/news-modal-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/news_modal_callback");
 
 			CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
