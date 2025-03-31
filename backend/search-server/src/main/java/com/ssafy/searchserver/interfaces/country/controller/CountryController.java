@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/search/country")
 @Tag(name = "Country API", description = "국가 대시보드 추출 API")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class CountryController {
 
 	private final CountryService countryService;
