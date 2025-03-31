@@ -54,17 +54,17 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
         height: data.height || 40,
         position: 'relative',
         cursor: 'pointer',
-        // isSelected 상태에 따라 스타일 변경
         border: data.isSelected ? '2px solid #007bff' : 'none',
         boxShadow: data.isSelected ? '0 0 10px rgba(0, 0, 0, 0.2)' : 'none',
+        whiteSpace: 'nowrap',
       }}
     >
       {data.label}
-      {/* ✅ 중앙 노드에 정확히 중앙 핸들 추가 */}
+      {/* 중앙 노드에 정확히 중앙 핸들 추가 */}
       {id === '1' && (
         <Handle
           type="source"
-          position={Position.Top} // 🔥 중앙 노드의 정확한 중앙에서 출발
+          position={Position.Top}
           id={`source-${id}`}
           style={{
             left: '50%',
@@ -76,7 +76,7 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
       )}
       <Handle
         type="target"
-        position={Position.Bottom} // 🔥 다른 노드는 기존처럼 위쪽
+        position={Position.Bottom}
         id={`target-${id}`}
         style={{ opacity: 0 }}
       />
@@ -103,7 +103,6 @@ const MindMap = ({
   const [edges, setEdges] = useEdgesState([]);
   const [keyword, setKeyword] = useState('');
   const [selectedNodeId, setSelectedNodeId] = useState('');
-  console.log(keyword);
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
   const onConnect = useCallback(
     (params: Connection) =>
@@ -122,110 +121,113 @@ const MindMap = ({
     [onKeywordChange]
   );
 
+  const fetchMindMapData = async () => {
+    try {
+      const params = {
+        category: category,
+        period: period,
+        keyword: mainKeyword,
+        is_korea: isKorea,
+      };
+      const response = await getMindMapApi(params);
+      const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
+      const truncateLabel = (label: string, maxLength: number = 6) => {
+        return label.length > maxLength
+          ? label.slice(0, maxLength) + '…'
+          : label;
+      };
+      const newNodes: Node[] = [
+        {
+          id: '1',
+          type: 'custom',
+          position: { x: 150 - 30, y: 140 - 20 },
+          data: {
+            label: mainKeywordLabel,
+            backgroundColor: '#000',
+            textColor: '#fff',
+            width: 70,
+            height: 50,
+          },
+        },
+        ...relatedKeywords.map((label: string, index: number) => ({
+          id: `${index + 2}`,
+          type: 'custom',
+          position: getCirclePosition(index, relatedKeywords.length),
+          data: {
+            label: truncateLabel(label),
+            backgroundColor: getRandomColor(),
+            textColor: '#fff',
+          },
+        })),
+      ];
+
+      const newEdges = newNodes.slice(1).map((node) => ({
+        id: `e1-${node.id}`,
+        source: '1',
+        target: node.id,
+        sourceHandle: `source-1`,
+        targetHandle: `target-${node.id}`,
+        type: 'straight',
+        style: { stroke: '#e1e6ed', strokeWidth: 1 },
+      }));
+
+      setNodes(newNodes);
+      setEdges(newEdges);
+    } catch (error) {
+      console.error('마인드맵 데이터 가져오기 실패:', error);
+
+      // API 응답이 없을 때 기본 데이터로 초기화
+      const defaultNodes: Node[] = [
+        {
+          id: '1',
+          type: 'custom',
+          position: { x: 150 - 30, y: 140 - 20 },
+          data: {
+            label: 'it',
+            backgroundColor: '#000',
+            textColor: '#fff',
+            width: 80,
+            height: 50,
+          },
+        },
+        ...Array.from({ length: 10 }, (_, i) => ({
+          id: `${i + 2}`,
+          type: 'custom',
+          position: getCirclePosition(i, 10),
+          data: {
+            label: [
+              '산업',
+              '전략',
+              '교육',
+              '시장',
+              '티라노사우르스',
+              '한국',
+              '기업',
+              '투자',
+              '운영',
+              '전문가',
+            ][i],
+            backgroundColor: getRandomColor(),
+            textColor: '#fff',
+          },
+        })),
+      ];
+
+      const defaultEdges = defaultNodes.slice(1).map((node) => ({
+        id: `e1-${node.id}`,
+        source: '1',
+        target: node.id,
+        sourceHandle: `source-1`,
+        targetHandle: `target-${node.id}`,
+        type: 'straight',
+        style: { stroke: '#e1e6ed', strokeWidth: 1 },
+      }));
+
+      setNodes(defaultNodes);
+      setEdges(defaultEdges);
+    }
+  };
   useEffect(() => {
-    const fetchMindMapData = async () => {
-      try {
-        const params = {
-          category: category,
-          period: period,
-          keyword: mainKeyword,
-          is_korea: isKorea,
-        };
-        const response = await getMindMapApi(params);
-        const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
-
-        const newNodes: Node[] = [
-          {
-            id: '1',
-            type: 'custom',
-            position: { x: 150 - 30, y: 140 - 20 },
-            data: {
-              label: mainKeywordLabel,
-              backgroundColor: '#000',
-              textColor: '#fff',
-              width: 70,
-              height: 50,
-            },
-          },
-          ...relatedKeywords.map((label: string, index: number) => ({
-            id: `${index + 2}`,
-            type: 'custom',
-            position: getCirclePosition(index, relatedKeywords.length),
-            data: {
-              label,
-              backgroundColor: getRandomColor(),
-              textColor: '#fff',
-            },
-          })),
-        ];
-
-        const newEdges = newNodes.slice(1).map((node) => ({
-          id: `e1-${node.id}`,
-          source: '1',
-          target: node.id,
-          sourceHandle: `source-1`,
-          targetHandle: `target-${node.id}`,
-          type: 'straight',
-          style: { stroke: '#e1e6ed', strokeWidth: 1 },
-        }));
-
-        setNodes(newNodes);
-        setEdges(newEdges);
-      } catch (error) {
-        console.error('마인드맵 데이터 가져오기 실패:', error);
-
-        // API 응답이 없을 때 기본 데이터로 초기화
-        const defaultNodes: Node[] = [
-          {
-            id: '1',
-            type: 'custom',
-            position: { x: 150 - 30, y: 140 - 20 },
-            data: {
-              label: 'it',
-              backgroundColor: '#000',
-              textColor: '#fff',
-              width: 70,
-              height: 50,
-            },
-          },
-          ...Array.from({ length: 10 }, (_, i) => ({
-            id: `${i + 2}`,
-            type: 'custom',
-            position: getCirclePosition(i, 10),
-            data: {
-              label: [
-                '산업',
-                '전략',
-                '교육',
-                '시장',
-                '글로벌',
-                '한국',
-                '기업',
-                '투자',
-                '운영',
-                '전문가',
-              ][i],
-              backgroundColor: getRandomColor(),
-              textColor: '#fff',
-            },
-          })),
-        ];
-
-        const defaultEdges = defaultNodes.slice(1).map((node) => ({
-          id: `e1-${node.id}`,
-          source: '1',
-          target: node.id,
-          sourceHandle: `source-1`,
-          targetHandle: `target-${node.id}`,
-          type: 'straight',
-          style: { stroke: '#e1e6ed', strokeWidth: 1 },
-        }));
-
-        setNodes(defaultNodes);
-        setEdges(defaultEdges);
-      }
-    };
-
     fetchMindMapData();
   }, [category, period, mainKeyword]);
 
@@ -282,9 +284,11 @@ const MindMap = ({
           onConnect={onConnect}
           onNodeClick={onNodeClick}
           fitView
-          fitViewOptions={{ padding: 0.1 }}
+          fitViewOptions={{ padding: 0.5 }} // 패딩을 줄여서 덜 축소되게 함
+          minZoom={0.8} // 최소 줌 제한
+          maxZoom={2} // 최대 줌 제한
           panOnDrag={false}
-          zoomOnScroll={false}
+          zoomOnScroll={true}
           zoomOnDoubleClick={false}
           elementsSelectable={false}
           nodesDraggable={false}
@@ -292,11 +296,7 @@ const MindMap = ({
           proOptions={{ hideAttribution: true }}
           style={{ cursor: 'default' }}
         >
-          {/* <Controls
-            showZoom={false}
-            showFitView={false}
-            showInteractive={false}
-          /> */}
+          {/* <Controls showZoom={true} showFitView={true} showInteractive={true} /> */}
         </ReactFlow>
       </div>
     </div>

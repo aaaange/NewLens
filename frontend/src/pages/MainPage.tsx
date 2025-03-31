@@ -28,9 +28,9 @@ const MainPage = () => {
   //==============================================
   // 지도에 넘겨줄 데이터
   //==============================================
-  const [category, setCategory] = useState('all');
+  const [category, setCategory] = useState('general');
   const [period, setPeriod] = useState(1);
-  const [keyword, setKeyword] = useState('it');
+  const [keyword, setKeyword] = useState('');
   const [mapData, setMapData] = useState(null);
 
   const categoryChangeHandler = (category: string) => {
@@ -82,7 +82,7 @@ const MainPage = () => {
   }, [mapData, keyword]);
 
   return (
-    <div className="mt-5 flex gap-20 justify-center">
+    <div className="mt-5 flex gap-20 justify-center overflow-hidden">
       <div className="flex flex-col gap-5">
         <SearchInput
           value={keyword}
@@ -94,6 +94,7 @@ const MainPage = () => {
           category={category}
           period={period}
           mainKeyword={keyword}
+          isKorea={false}
         />
         <KeywordRanking
           category={category}

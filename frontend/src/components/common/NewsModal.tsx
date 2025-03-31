@@ -276,8 +276,8 @@ const NewsModal = ({
       category: category,
       period: period,
       keyword: keyword,
-      'keyword-mind': keyword_mind,
-      'keyword-cloud': keyword_cloud,
+      keyword_mind: keyword_mind,
+      keyword_cloud: keyword_cloud,
       country: country,
       page: currentPage,
       size: 5,
@@ -290,13 +290,15 @@ const NewsModal = ({
     searchNewsList();
   }, []);
 
+  const FixedFlag = Flag as any;
+
   return (
     <div className="p-12 w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden">
       <div className="md:p-6">
         <div className="flex items-start justify-between">
           <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2 flex">
             <div>
-              <Flag code="US" width="50" />
+              <FixedFlag code="US" width="50" />
             </div>
             <div className="text-black ml-4">미국</div>
           </h2>
