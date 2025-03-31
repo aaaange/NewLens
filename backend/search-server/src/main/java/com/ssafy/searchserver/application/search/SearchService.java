@@ -52,7 +52,7 @@ public class SearchService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
-	@Value("call_back_url")
+	@Value("${call_back_url}")
 	private String callBackUrl;
 
 	public ForeignNewsMongo save(ForeignNewsMongo news) {
@@ -287,8 +287,8 @@ public class SearchService {
 				mustQueries.add(Query.of(m -> m.range(r -> r
 					.date(d -> d
 						.field("published_at")
-						.gte(from.toString())
-						.lte(now.toString())
+						.gte(gte)
+						.lte(lte)
 					)
 				)));
 				return b.must(mustQueries);
