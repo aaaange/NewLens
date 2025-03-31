@@ -9,13 +9,14 @@ interface propsType {
 const SearchInput = ({ onChange, onSearch, value }: propsType) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
+
     if (inputValue.includes(' ')) {
-      e.target.value = inputValue.replace(' ', '');
-      return notify({ type: 'warning', text: '단어 하나만 입력해 주세요.' });
-    } else {
-      onChange(e);
+      notify({ type: 'warning', text: '단어 하나만 입력해 주세요.' });
+      return;
     }
+    onChange(e);
   };
+
   return (
     <div>
       <div
