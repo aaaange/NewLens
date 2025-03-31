@@ -42,7 +42,7 @@ public class KafkaConfig {
 		configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		// JSON 직렬화를 사용하여 프로듀서의 value를 처리합니다.
 		configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		configs.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 6242880);
+		configs.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10242880); // 10MB
 		// 추가로 숨기고 싶은 민감 정보나 설정이 있다면 환경변수로 관리할 수 있습니다.
 		return new DefaultKafkaProducerFactory<>(configs);
 	}
