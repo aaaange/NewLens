@@ -26,9 +26,20 @@ async def process_hdfs_news(source: str) -> list:
     """
     redis_client = RedisClient()
     articles = fetch_news_from_hdfs(source)
-    processed_articles = []
     now = datetime.now()
-    threshold = now - timedelta(minutes=30)
+
+    # 00:00 ~ 01:00 사이면 전날 뉴스도 추가로 불러옴
+    if now.hour < 1:
+        yesterday = now - timedelta(days=1)
+        articles_yesterday = fetch_news_from_hdfs(source, date=yesterday)
+        articles.extend(articles_yesterday)
+        logger.info(
+            "Including %d articles from yesterday for processing",
+            len(articles_yesterday),
+        )
+
+    processed_articles = []
+    threshold = now - timedelta(minutes=60)
 
     for article in articles:
         try:
@@ -51,11 +62,6 @@ async def process_hdfs_news(source: str) -> list:
             formatted_date_str = format_date(published_at_str)
 
             published_at = datetime.fromisoformat(formatted_date_str)
-            # try:
-            #     # ISO 형식 처리 (Z 제거)
-            #     published_at = datetime.fromisoformat(formatted_date_str)
-            # except Exception:
-            #     published_at = now
 
             print(published_at)
             # 최근 30분 이내 기사만 처리
