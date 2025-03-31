@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { Fade } from 'react-awesome-reveal';
 const Section2 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div
@@ -18,16 +19,12 @@ const Section2 = forwardRef<HTMLDivElement>((_, ref) => {
         </p>
       </div>
       <div className="flex justify-center">
-        <p
-          className="display-small"
-          data-aos="fade-down"
-          data-aos-delay="2700"
-          data-aos-easing="ease-in-out"
-          data-aos-offset="200"
-        >
-          <span className="text-amount-300">NEW</span>LEN
-          <span className="text-amount-300">S</span>에서 경험해보세요
-        </p>
+        <Fade direction="down" triggerOnce={false} duration={1000}>
+          <p className="display-small">
+            <span className="text-amount-300">NEW</span>LEN
+            <span className="text-amount-300">S</span>에서 경험해보세요
+          </p>
+        </Fade>
       </div>
     </div>
   );
