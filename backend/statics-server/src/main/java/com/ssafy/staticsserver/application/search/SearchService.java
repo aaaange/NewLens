@@ -39,7 +39,7 @@ public class SearchService {
 		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB", "US", "EU"));
 
 
-	@KafkaListener(topics = "keyword-ranking")
+	@KafkaListener(topics = "keyword_ranking")
 	public void listenKeywordRanking(String message) {
 		try {
 			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
@@ -77,7 +77,7 @@ public class SearchService {
 
 			// keyword와 ids 추출 (ids는 List<String>으로 캐스팅)
 			String keyword = (String)payload.get("keyword");
-			String keywordMind = (String)payload.get("keyword-mind");
+			String keywordMind = (String)payload.get("keyword_mind");
 			List<String> newsIds = (List<String>)payload.get("ids");
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();

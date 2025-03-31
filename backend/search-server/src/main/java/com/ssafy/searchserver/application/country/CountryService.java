@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
-import com.ssafy.searchserver.domain.search.repository.ForeignNewsMongoDBRepository;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
@@ -41,13 +40,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CountryService {
 
-	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final ElasticsearchClient esClient;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
 	@Value("${call_back_url}")
 	private String callBackUrl;
+	private final int timeout = 30;
 
 	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
 		boolean isKorea) {
@@ -138,11 +137,11 @@ public class CountryService {
 			payload.put("newsIds", idList);
 			payload.put("period", period);
 			payload.put("keyword", keyword);
-			payload.put("keyword-mind", keywordMind);
+			payload.put("keyword_mind", keywordMind);
 			payload.put("wordCloud", wordCloud);
 			payload.put("requestId", requestId);
 			payload.put("country", country);
-			payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard_callback");
 
 			CompletableFuture<DashboardData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
@@ -152,7 +151,7 @@ public class CountryService {
 			kafkaTemplate.send("dashboard", json);
 
 			// 15초 대기
-			DashboardData data = future.get(15, TimeUnit.SECONDS);
+			DashboardData data = future.get(timeout, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
@@ -160,7 +159,7 @@ public class CountryService {
 		}
 	}
 
-	public CompareInfoResponse getCompareInfo(String category, int period, String keyword, String keywordMind,
+	public AnalysisData getCompareInfo(String category, int period, String keyword, String keywordMind,
 		String country1, String country2) {
 		try {
 			List<String> country1NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country1);
@@ -175,7 +174,7 @@ public class CountryService {
 				.country1NewsIds(country1NewsIds)
 				.country2NewsIds(country2NewsIds)
 				.requestId(requestId)
-				.callbackUrl(callBackUrl + "/api/search/country/compare-callback")
+				.callbackUrl(callBackUrl + "/api/search/country/compare_callback")
 				.build();
 
 			// CompletableFuture 등록 (5초 대기)
@@ -183,19 +182,12 @@ public class CountryService {
 			pendingCompareResults.put(requestId, future);
 
 			String json = objectMapper.writeValueAsString(message);
-			kafkaTemplate.send("compare-info", json);
+			kafkaTemplate.send("compare_info", json);
 
 			// 15초 대기
-			String gptResult = future.get(15, TimeUnit.SECONDS);
+			String gptResult = future.get(timeout, TimeUnit.SECONDS);
 
-			AnalysisData data = AnalysisData.builder().analysis(gptResult).build();
-
-			return CompareInfoResponse.builder()
-				.code("SUCCESS")
-				.success(true)
-				.message("요약 성공")
-				.data(data)
-				.build();
+			return AnalysisData.builder().analysis(gptResult).build();
 
 		} catch (Exception e) {
 			throw new RuntimeException("GPT 요약 요청 실패", e);
@@ -315,17 +307,17 @@ public class CountryService {
 			payload.put("page", page);
 			payload.put("size", size);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", callBackUrl + "/api/search/country/news-modal-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/news_modal_callback");
 
 			CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
 
 			// Map을 JSON 문자열로 변환 & kafka로 전송
 			String json = objectMapper.writeValueAsString(payload);
-			kafkaTemplate.send("news-modal", json);
+			kafkaTemplate.send("news_modal", json);
 
 			// 15초 대기
-			NewsModalResponse data = future.get(15, TimeUnit.SECONDS);
+			NewsModalResponse data = future.get(timeout, TimeUnit.SECONDS);
 
 			return data;
 

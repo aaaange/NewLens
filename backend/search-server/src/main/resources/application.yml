@@ -2,14 +2,7 @@ server:
   port: 8080
 
 spring:
-  data:
-    mongodb:
-      uri: mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
-      database: ${MONGODB_DATABASE}
   kafka:
-#    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
-#    producer:
-#      max-request-size: 5242880 # 5MB
     admin:
       auto-create: true
 

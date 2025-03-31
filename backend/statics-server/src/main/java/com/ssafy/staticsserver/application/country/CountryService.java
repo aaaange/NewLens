@@ -48,7 +48,7 @@ public class CountryService {
 			List<String> newsIds = (List<String>)payload.get("newsIds");
 			int period = (Integer)payload.get("period");
 			String keyword = (String)payload.get("keyword");
-			String keywordMind = (String)payload.get("keyword-mind");
+			String keywordMind = (String)payload.get("keyword_mind");
 			String country = (String)payload.get("country");
 			List<KeywordResponse> wordCloud = (List<KeywordResponse>)payload.get("wordCloud");
 			String callbackUrl = payload.get("callbackUrl").toString();
@@ -120,7 +120,7 @@ public class CountryService {
 		}
 	}
 
-	@KafkaListener(topics = "compare-info")
+	@KafkaListener(topics = "compare_info")
 	public void listenCompareInfo(String message) {
 		try {
 			CountryNewsMessage msg = objectMapper.readValue(message, new TypeReference<>() {
@@ -158,7 +158,7 @@ public class CountryService {
 		}
 	}
 
-	@KafkaListener(topics = "news-modal")
+	@KafkaListener(topics = "news_modal")
 	public void listenNews(String message) {
 		try {
 			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
