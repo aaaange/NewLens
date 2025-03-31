@@ -16,11 +16,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import com.ssafy.staticsserver.common.config.GptClient;
-import com.ssafy.staticsserver.interfaces.country.dto.ArticleResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.CountryNewsMessage;
+import com.ssafy.staticsserver.infrastructure.client.GptClient;
+import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
+import com.ssafy.staticsserver.interfaces.country.dto.*;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +27,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
-import com.ssafy.staticsserver.interfaces.country.dto.DashboardData;
-import com.ssafy.staticsserver.interfaces.country.dto.MentionResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.NewsDto;
-import com.ssafy.staticsserver.interfaces.country.dto.NewsModalResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.SentimentResponse;
-import com.ssafy.staticsserver.interfaces.country.dto.VideoResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,26 +36,36 @@ public class CountryService {
 	private final ObjectMapper objectMapper;
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final GptClient gptClient;
+	private final YouTubeClient youTubeClient;
+	private final int GptNewsSize = 3;
 
 	@KafkaListener(topics = "dashboard")
 	public void listenDashboard(String message) {
 		try {
-			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
+			});
 
-			List<String> newsIds = (List<String>) payload.get("newsIds");
-			int period = (Integer) payload.get("period");
+			List<String> newsIds = (List<String>)payload.get("newsIds");
+			int period = (Integer)payload.get("period");
+			String keyword = (String)payload.get("keyword");
+			String keywordMind = (String)payload.get("keyword-mind");
+			String country = (String)payload.get("country");
+			List<KeywordResponse> wordCloud = (List<KeywordResponse>)payload.get("wordCloud");
+			String callbackUrl = payload.get("callbackUrl").toString();
+			String requestId = payload.get("requestId").toString();
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트");
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
+			newsList.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
+			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트 사이즈" + newsList.size());
 
-			// keywords
-			// search-server에서 완성
 
 			// description
-			String description = makeDescription(newsList);
+			String description;
+			if (newsList.size() >= GptNewsSize) {
+				String prompt = makeDescription(keyword, keywordMind, newsList, country);
+				description = gptClient.ask(prompt);
+			} else
+				description = "관련된 뉴스가 없습니다.";
 
 			// sentiment & mentions
 			List<SentimentResponse> sentiment;
@@ -85,9 +88,14 @@ public class CountryService {
 			List<ArticleResponse> articles = processArticles(newsList);
 
 			// videos
-			List<VideoResponse> videos = processVideos(newsList);
+			List<VideoResponse> videos;
+			if (!newsList.isEmpty()) {
+				videos = processVideos(keyword, keywordMind, country);
+			} else
+				videos = new ArrayList<>();
 
 			DashboardData response = DashboardData.builder()
+				.keywords(wordCloud)
 				.description(description)
 				.sentiment(sentiment)
 				.mentions(mentions)
@@ -95,8 +103,18 @@ public class CountryService {
 				.videos(videos)
 				.build();
 
+			String responseJson = objectMapper.writeValueAsString(response);
 			System.out.println(response);
 
+			// 콜백 요청 전송
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
+				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
+				.header("Content-Type", "application/json")
+				.build();
+
+			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -115,8 +133,6 @@ public class CountryService {
 			String callbackUrl = msg.getCallbackUrl();
 			List<ForeignNewsMongo> newsList1 = mongoDBRepository.findByIdIn(msg.getCountry1NewsIds());
 			List<ForeignNewsMongo> newsList2 = mongoDBRepository.findByIdIn(msg.getCountry2NewsIds());
-			newsList1.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
-			newsList2.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
 
 			String prompt = buildComparePrompt(
 				keyword, keywordMind,
@@ -124,7 +140,6 @@ public class CountryService {
 				country2, newsList2
 			);
 			String summary = gptClient.ask(prompt);
-			System.out.println(summary);
 			// String summary = "결과";
 
 			// 콜백 요청 전송
@@ -143,35 +158,68 @@ public class CountryService {
 		}
 	}
 
-    @KafkaListener(topics = "news-modal")
-    public void listenNews(String message) {
-        try {
-            Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+	@KafkaListener(topics = "news-modal")
+	public void listenNews(String message) {
+		try {
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
+			});
 
-            List<String> newsIds = (List<String>) payload.get("newsIds");
-            int page = (Integer) payload.get("page");
-            int size = (Integer) payload.get("size");
+			List<String> newsIds = (List<String>)payload.get("newsIds");
+			int page = (Integer)payload.get("page");
+			int size = (Integer)payload.get("size");
+			String callbackUrl = payload.get("callbackUrl").toString();
+			String requestId = payload.get("requestId").toString();
 
-            List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-            System.out.println("뉴스 모달창을 위한 뉴스 리스트");
-            for (ForeignNewsMongo foreignNewsMongo : newsList) {
-                System.out.println(foreignNewsMongo);
-            }
+			System.out.println("newsIds : " + newsIds.toString());
+			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
+			System.out.println("뉴스 모달창을 위한 뉴스 리스트 사이즈" + newsList.size());
 
-            NewsModalResponse response = processNews(newsList, page, size);
-            System.out.println(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
+			NewsModalResponse response = processNews(newsList, page, size);
+			String responseJson = objectMapper.writeValueAsString(response);
+			System.out.println(response);
+
+			// 콜백 요청 전송
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
+				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
+				.header("Content-Type", "application/json")
+				.build();
+
+			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	// 국가별 대시보드 집계 로직
 	public void processDashboard(List<ForeignNewsMongo> newsList) {
 	}
 
 	// 언론 반응 요약
-	private String makeDescription(List<ForeignNewsMongo> newsList) {
-		return "";
+	private String makeDescription(String keyword, String keywordMind, List<ForeignNewsMongo> newsList,
+		String country) {
+		StringBuilder prompt = new StringBuilder();
+
+		prompt.append("[국가 뉴스 여론 분석 요청]\n\n");
+		prompt.append("다음은 \"").append(keyword);
+		if (keywordMind != null && !keywordMind.isBlank()) {
+			prompt.append(" (").append(keywordMind).append(")");
+		}
+		prompt.append("\" 키워드와 관련된 ").append(country).append("의 뉴스입니다.\n\n");
+
+		prompt.append("[").append(country).append(" 뉴스]").append("\n");
+		for (int i = 0; i < GptNewsSize; i++) {
+			ForeignNewsMongo news = newsList.get(i);
+			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
+			prompt.append("- ").append(news.getDescription()).append("\n\n");
+		}
+
+		prompt.append("위 뉴스를 참고하여, ").append(country)
+			.append("을 국가명으로 바꿔주고 ex) US -> 미국 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+
+		return prompt.toString();
 	}
 
 	// 하루치 감정 분석 (4시간 단위)
@@ -204,9 +252,9 @@ public class CountryService {
 				}
 			}
 
-			double posRatio = total > 0 ? (double) positive / total : 0.0;
-			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
-			double negRatio = total > 0 ? (double) negative / total : 0.0;
+			double posRatio = total > 0 ? (double)positive / total : 0.0;
+			double neuRatio = total > 0 ? (double)neutral / total : 0.0;
+			double negRatio = total > 0 ? (double)negative / total : 0.0;
 
 			posRatio = Math.round(posRatio * 100.0) / 100.0;
 			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
@@ -250,9 +298,9 @@ public class CountryService {
 				}
 			}
 
-			double posRatio = total > 0 ? (double) positive / total : 0.0;
-			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
-			double negRatio = total > 0 ? (double) negative / total : 0.0;
+			double posRatio = total > 0 ? (double)positive / total : 0.0;
+			double neuRatio = total > 0 ? (double)neutral / total : 0.0;
+			double negRatio = total > 0 ? (double)negative / total : 0.0;
 
 			posRatio = Math.round(posRatio * 100.0) / 100.0;
 			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
@@ -297,9 +345,9 @@ public class CountryService {
 				}
 			}
 
-			double posRatio = total > 0 ? (double) positive / total : 0.0;
-			double neuRatio = total > 0 ? (double) neutral / total : 0.0;
-			double negRatio = total > 0 ? (double) negative / total : 0.0;
+			double posRatio = total > 0 ? (double)positive / total : 0.0;
+			double neuRatio = total > 0 ? (double)neutral / total : 0.0;
+			double negRatio = total > 0 ? (double)negative / total : 0.0;
 
 			posRatio = Math.round(posRatio * 100.0) / 100.0;
 			neuRatio = Math.round(neuRatio * 100.0) / 100.0;
@@ -373,11 +421,10 @@ public class CountryService {
 			.collect(Collectors.toList());
 	}
 
-	// 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택
+	// 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택 위에서 이미 정렬
 	private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList) {
 		return newsList.stream()
 			.filter(news -> news.getTitle() != null && news.getUrl() != null)
-			.sorted(Comparator.comparing(ForeignNewsMongo::getPublishedAt).reversed())
 			.limit(5)
 			.map(news -> ArticleResponse.builder()
 				.title(news.getTitle())
@@ -389,8 +436,9 @@ public class CountryService {
 	}
 
 	// 영상 목록
-	private List<VideoResponse> processVideos(List<ForeignNewsMongo> newsList) {
-		return new ArrayList<>();
+	private List<VideoResponse> processVideos(String keyword, String keywordMind, String country) {
+
+		return youTubeClient.searchVideos(keyword, keywordMind, country);
 	}
 
 	//  GPT 한줄 요약
@@ -423,7 +471,7 @@ public class CountryService {
 		}
 
 		prompt.append("위 뉴스를 참고하여, ").append(country1).append("과 ").append(country2)
-			.append("이 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 한 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+                .append("국가명으로 바꿔주고 ex) US -> 미국, 각 국가에서의 여론").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 한 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
 
 		return prompt.toString();
 	}

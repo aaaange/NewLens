@@ -1,6 +1,7 @@
 package com.ssafy.searchserver.application.country;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,9 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-
 import com.ssafy.searchserver.interfaces.country.dto.*;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -39,13 +40,21 @@ public class CountryService {
 	private final ElasticsearchClient esClient;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
-	private final Map<String, CompletableFuture<String>> pendingCompareResults = new ConcurrentHashMap<>();
+	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
+	@Value("${call_back_url}")
+	private String callBackUrl;
 
-	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind,
-		String keywordCloud, String country, boolean isKorea) {
+	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
+		boolean isKorea) {
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
+			String requestId = UUID.randomUUID().toString();
+			int size = keywordMind.isEmpty() ? 21 : 22;
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -63,15 +72,9 @@ public class CountryService {
 					)));
 				}
 
-				if (!keywordCloud.isEmpty()) {
-					mustQueries.add(Query.of(m -> m.term(t -> t
-						.field("keywords")
-						.value(FieldValue.of(keywordCloud))
-					)));
-				}
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
-					.field("country")
+					.field("country.keyword")
 					.value(FieldValue.of(country))
 				)));
 
@@ -83,8 +86,8 @@ public class CountryService {
 				mustQueries.add(Query.of(m -> m.range(r -> r
 					.date(d -> d
 						.field("published_at")
-						.gte(from.toString())
-						.lte(now.toString())
+						.gte(gte)
+						.lte(lte)
 					)
 				)));
 				return b.must(mustQueries);
@@ -93,8 +96,8 @@ public class CountryService {
 			// 연관어 추출 Aggregation
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
-					.field("keywords")
-					.size(20)
+					.field("keywords.keyword")
+					.size(size)
 				)
 			);
 
@@ -116,36 +119,49 @@ public class CountryService {
 				.map(hit -> hit.source().getId())
 				.collect(Collectors.toList());
 
-			// kafka로 전달할 payload에 newsIds, page, size를 함께 포함
-			Map<String, Object> payload = new HashMap<>();
-			payload.put("newsIds", idList);
-			payload.put("period", period);
-
-			// Map을 JSON 문자열로 변환 & kafka로 전송
-			String json = objectMapper.writeValueAsString(payload);
-			kafkaTemplate.send("dashboard", json);
-
-			// 4. Aggregation 처리
+			// Aggregation 처리
 			StringTermsAggregate aggregation = response.aggregations()
 				.get("word_cloud")
 				.sterms();
 
 			List<KeywordResponse> wordCloud = aggregation.buckets().array().stream()
-				.filter(rel -> !rel.equals(keyword)) // keyword1과 중복 제거
-				.filter(rel -> !rel.equals(keywordMind))
-				.filter(rel -> !rel.equals(keywordCloud))
+				.filter(bucket -> {
+					String key = bucket.key().stringValue();
+					return !key.equals(keyword) && !key.equals(keywordMind);
+				})
 				.map(bucket -> KeywordResponse.builder()
 					.name(bucket.key().stringValue())
 					.count(bucket.docCount())
 					.build())
-				.collect(Collectors.toList());
+				.toList();
 
-			System.out.println("워드 클라우드");
-			for (KeywordResponse keywordResponse : wordCloud) {
-				System.out.println(keywordResponse.toString());
-			}
+			// kafka로 전달할 payload에 newsIds, page, size를 함께 포함
+			Map<String, Object> payload = new HashMap<>();
+			payload.put("newsIds", idList);
+			payload.put("period", period);
+			payload.put("keyword", keyword);
+			payload.put("keyword-mind", keywordMind);
+			payload.put("wordCloud", wordCloud);
+			payload.put("requestId", requestId);
+			payload.put("country", country);
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard-callback");
 
-			return DashboardData.builder().keywords(wordCloud).build();
+			 System.out.println("워드 클라우드");
+			 for (KeywordResponse keywordResponse : wordCloud) {
+			 	System.out.println(keywordResponse.toString());
+			 }
+
+			CompletableFuture<DashboardData> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
+
+			// Map을 JSON 문자열로 변환 & kafka로 전송
+			String json = objectMapper.writeValueAsString(payload);
+			kafkaTemplate.send("dashboard", json);
+
+			// 15초 대기
+			DashboardData data = future.get(15, TimeUnit.SECONDS);
+
+			return data;
 		} catch (Exception e) {
 			throw new RuntimeException("Dashboard 데이터 검색 실패", e);
 		}
@@ -166,7 +182,7 @@ public class CountryService {
 				.country1NewsIds(country1NewsIds)
 				.country2NewsIds(country2NewsIds)
 				.requestId(requestId)
-				.callbackUrl("http://localhost:8080/api/search/country/compare-callback")
+				.callbackUrl(callBackUrl + "/api/search/country/compare-callback")
 				.build();
 
 			// CompletableFuture 등록 (5초 대기)
@@ -176,8 +192,8 @@ public class CountryService {
 			String json = objectMapper.writeValueAsString(message);
 			kafkaTemplate.send("compare-info", json);
 
-			// 5초 대기
-			String gptResult = future.get(5, TimeUnit.SECONDS);
+			// 15초 대기
+			String gptResult = future.get(15, TimeUnit.SECONDS);
 
 			AnalysisData data = AnalysisData.builder().analysis(gptResult).build();
 
@@ -193,15 +209,19 @@ public class CountryService {
 		}
 	}
 
-	public CompletableFuture<String> removeFuture(String requestId) {
+	public CompletableFuture<?> removeFuture(String requestId) {
 		return pendingCompareResults.remove(requestId);
 	}
 
 	public List<String> getNewsByCountry(String category, int period, String keyword, String keywordMind,
 		String country) {
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
 
 			Query boolQuery = Query.of(q -> q.bool(b -> {
 				List<Query> mustQueries = new ArrayList<>();
@@ -211,10 +231,10 @@ public class CountryService {
 					mustQueries.add(Query.of(m -> m.term(t -> t.field("keywords").value(FieldValue.of(keywordMind)))));
 				}
 
-				mustQueries.add(Query.of(m -> m.term(t -> t.field("country").value(FieldValue.of(country)))));
+				mustQueries.add(Query.of(m -> m.term(t -> t.field("country.keyword").value(FieldValue.of(country)))));
 				mustQueries.add(Query.of(m -> m.term(t -> t.field("categories").value(FieldValue.of(category)))));
 				mustQueries.add(Query.of(m -> m.range(r -> r.date(d -> d
-					.field("published_at").gte(from.toString()).lte(now.toString())
+					.field("published_at").gte(gte).lte(lte)
 				))));
 
 				return b.must(mustQueries);
@@ -223,7 +243,7 @@ public class CountryService {
 			var searchRequest = SearchRequest.of(s -> s
 				.index("foreign_news")
 				.query(boolQuery)
-				.size(5)
+				.size(3)
 				.source(src -> src.filter(f -> f.includes("id")))
 			);
 
@@ -243,8 +263,13 @@ public class CountryService {
 		String keywordCloud, String country, int page, int size,
 		boolean isKorea) {
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
+			String requestId = UUID.randomUUID().toString();
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> {
@@ -275,15 +300,15 @@ public class CountryService {
 				)));
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
-					.field("country")
+					.field("country.keyword")
 					.value(FieldValue.of(country))
 				)));
 
 				mustQueries.add(Query.of(m -> m.range(r -> r
 					.date(d -> d
 						.field("published_at")
-						.gte(from.toString())
-						.lte(now.toString())
+						.gte(gte)
+						.lte(lte)
 					)
 				)));
 				return b.must(mustQueries);
@@ -311,16 +336,25 @@ public class CountryService {
             payload.put("newsIds", idList);
             payload.put("page", page);
             payload.put("size", size);
+			payload.put("requestId", requestId);
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/news-modal-callback");
 
-            // Map을 JSON 문자열로 변환 & kafka로 전송
-            String json = objectMapper.writeValueAsString(payload);
-            kafkaTemplate.send("news-modal", json);
+			CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
 
-            return NewsModalResponse.builder().build();
+			// Map을 JSON 문자열로 변환 & kafka로 전송
+			String json = objectMapper.writeValueAsString(payload);
+			kafkaTemplate.send("news-modal", json);
+
+			// 15초 대기
+			NewsModalResponse data = future.get(15, TimeUnit.SECONDS);
+
+            return data;
 
 		} catch (Exception e) {
 			throw new RuntimeException("뉴스 모달창 데이터 검색 실패", e);
 		}
 	}
+
 
 }
