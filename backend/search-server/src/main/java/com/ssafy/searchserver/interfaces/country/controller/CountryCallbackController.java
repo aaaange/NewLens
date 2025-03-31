@@ -3,6 +3,7 @@ package com.ssafy.searchserver.interfaces.country.controller;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
 @RestController
 @RequestMapping("/api/search/country")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class CountryCallbackController {
 	private final CountryService countryService;
 

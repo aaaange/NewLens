@@ -5,6 +5,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,20 +35,9 @@ public class SearchService {
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final RedisTemplate<String, Object> redisTemplate;
 
-	@KafkaListener(topics = "related-keywords")
-	public void listenRelatedKeywords(String message) {
-		try {
-			List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
-			});
-			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("연관어 처리를 위한 뉴스 리스트");
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	private static final List<String> G20_COUNTRIES = Collections.unmodifiableList(Arrays.asList(
+		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB", "US", "EU"));
+
 
 	@KafkaListener(topics = "keyword-ranking")
 	public void listenKeywordRanking(String message) {
@@ -57,12 +48,9 @@ public class SearchService {
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("키워드 처리를 위한 뉴스 리스트");
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
+			System.out.println("키워드 처리를 위한 뉴스 리스트 사이즈"+ newsList.size());
 
-			System.out.println();
+
 			KeywordRankingResponse response = processKeywordRanking(newsList);
 			String responseJson = objectMapper.writeValueAsString(response);
 
@@ -100,11 +88,8 @@ public class SearchService {
 			// List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
 			// });
 
-			System.out.println("세계 지도 처리를 위한 뉴스 리스트");
-			System.out.println(newsIds);
-			for (ForeignNewsMongo foreignNewsMongo : newsList) {
-				System.out.println(foreignNewsMongo);
-			}
+			System.out.println("세계 지도 처리를 위한 뉴스 리스트 사이즈" + newsList.size());
+
 			SentimentMentionResponse response = processWorldwide(keyword, keywordMind, newsList);
 			String responseJson = objectMapper.writeValueAsString(response);
 
@@ -198,6 +183,7 @@ public class SearchService {
 	// 세계지도 집계 로직
 	public SentimentMentionResponse processWorldwide(String keyword, String keywordMind,
 		List<ForeignNewsMongo> newsList) {
+
 		// 국가별로 뉴스 그룹핑
 		Map<String, List<ForeignNewsMongo>> countryNewsMap = new HashMap<>();
 		for (ForeignNewsMongo news : newsList) {
@@ -208,10 +194,9 @@ public class SearchService {
 		List<SentimentResponse> sentimentResponses = new ArrayList<>();
 		List<MentionResponse> mentionResponses = new ArrayList<>();
 
-		// 각 국가별로 sentiment 및 mention 통계 계산
-		for (Map.Entry<String, List<ForeignNewsMongo>> entry : countryNewsMap.entrySet()) {
-			String country = entry.getKey();
-			List<ForeignNewsMongo> countryNews = entry.getValue();
+		// G20 국가 각각에 대해 통계 계산 (뉴스가 없으면 기본값 0 적용)
+		for (String country : G20_COUNTRIES) {
+			List<ForeignNewsMongo> countryNews = countryNewsMap.getOrDefault(country, new ArrayList<>());
 			int totalCount = countryNews.size();
 			int positiveCount = 0;
 			int neutralCount = 0;
@@ -237,7 +222,7 @@ public class SearchService {
 			neutralRatio = Math.round(neutralRatio * 100.0) / 100.0;
 			negativeRatio = Math.round(negativeRatio * 100.0) / 100.0;
 
-			// SentimentResponse 생성 (keyword 필드는 "all"로 채움)
+			// SentimentResponse 생성
 			SentimentResponse sentimentResponse = SentimentResponse.builder()
 				.country(country)
 				.positive(positiveRatio)
@@ -246,7 +231,7 @@ public class SearchService {
 				.build();
 			sentimentResponses.add(sentimentResponse);
 
-			// MentionResponse 생성 (뉴스 개수를 count로 사용, keyword는 "all")
+			// MentionResponse 생성
 			MentionResponse mentionResponse = MentionResponse.builder()
 				.country(country)
 				.count(totalCount)

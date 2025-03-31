@@ -5,6 +5,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
+      database: ${MONGODB_DATABASE}
 
     redis:
       host: ${REDIS_HOST}
@@ -13,7 +14,6 @@ spring:
 
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
-
     consumer:
       group-id: statics-group  # 같은 그룹 id를 쓰는 Consumer들을 하나로 묶음
       auto-offset-reset: earliest # Consumer가 처음 시작할때 메시지를 어디서 부터 읽을지
