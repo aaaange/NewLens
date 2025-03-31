@@ -20,6 +20,7 @@ import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
 @RestController
 @RequestMapping("/api/search/country")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class CountryCallbackController {
 	private final CountryService countryService;
 
