@@ -1,0 +1,60 @@
+package com.ssafy.userserver.infrastructure.security;
+
+import com.ssafy.userserver.domain.entity.User;
+import com.ssafy.userserver.domain.entity.UserProvider;
+import com.ssafy.userserver.domain.enums.Active;
+import com.ssafy.userserver.domain.enums.ProviderType;
+import com.ssafy.userserver.domain.repository.UserProviderRepository;
+import com.ssafy.userserver.domain.repository.UserRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Service
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+	private final UserRepository userRepository;
+	private final UserProviderRepository userProviderRepository;
+
+	public CustomOAuth2UserService(UserRepository userRepository,
+		UserProviderRepository userProviderRepository) {
+		this.userRepository = userRepository;
+		this.userProviderRepository = userProviderRepository;
+	}
+
+	@Override
+	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		OAuth2User oAuth2User = super.loadUser(userRequest);
+		// provider 구분 (예: google, kakao)
+		String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
+		// provider 별로 attribute key가 다를 수 있음.
+		Map<String, Object> attributes = oAuth2User.getAttributes();
+		String email = null;
+		String nickname = null;
+		String providerId = null;
+
+		if ("google".equals(registrationId)) {
+			email = (String) attributes.get("email");
+			nickname = (String) attributes.get("name");
+			providerId = (String) attributes.get("sub");
+		} else if ("kakao".equals(registrationId)) {
+			Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+			email = (String) kakaoAccount.get("email");
+			Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+			nickname = (String) profile.get("nickname");
+			providerId = String.valueOf(attributes.get("id"));
+		}
+		// 이후 회원가입 또는 업데이트 로직을 구현할 수 있음.
+		// 예를 들어, email을 기준으로 회원이 존재하는지 확인 후, 없으면 신규 등록, 있으면 토큰 갱신 등.
+		// 본 로직은 OAuth2AuthenticationSuccessHandler에서도 처리할 수 있음.
+
+		// 필요에 따라 커스텀 OAuth2User 객체에 추가 정보를 담아 반환할 수 있음.
+		return new CustomOAuth2User(oAuth2User.getAuthorities(), attributes, "email", email, nickname, providerId, registrationId);
+	}
+}
