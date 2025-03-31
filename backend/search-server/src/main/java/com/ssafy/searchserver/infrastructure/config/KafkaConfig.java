@@ -20,8 +20,10 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 @EnableKafka
 public class KafkaConfig {
 
-	@Value("${kafka.bootstrap-servers}")
-	private String bootstrapServers;
+	@Value("${KAFKA_HOST}")
+	private String kafkaHost;
+	@Value("${KAFKA_PORT}")
+	private String kafkaPort;
 
 	// 만약 추가로 admin 설정이 필요하면 여기서 다른 값들도 주입할 수 있습니다.
 	@Value("${kafka.admin.auto-create:false}")
@@ -30,7 +32,7 @@ public class KafkaConfig {
 	@Bean
 	public KafkaAdmin kafkaAdmin() {
 		Map<String, Object> configs = new HashMap<>();
-		configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHost + ":" + kafkaPort);
 		// 추가적인 관리자 설정을 원하면 여기에 넣을 수 있습니다.
 		return new KafkaAdmin(configs);
 	}
@@ -38,7 +40,7 @@ public class KafkaConfig {
 	@Bean
 	public ProducerFactory<String, String> producerFactory() {
 		Map<String, Object> configs = new HashMap<>();
-		configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHost + ":" + kafkaPort);
 		configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		// JSON 직렬화를 사용하여 프로듀서의 value를 처리합니다.
 		configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
