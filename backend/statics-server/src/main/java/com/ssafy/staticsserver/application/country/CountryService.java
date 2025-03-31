@@ -95,7 +95,7 @@ public class CountryService {
 				videos = new ArrayList<>();
 
 			DashboardData response = DashboardData.builder()
-				.keywords(wordCloud)
+				.wordcloud(wordCloud)
 				.description(description)
 				.sentiment(sentiment)
 				.mentions(mentions)
