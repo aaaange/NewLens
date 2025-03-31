@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class SearchCallbackController {
 	private final SearchService searchService;
 
-	@PostMapping("/worldwide-callback")
+	@PostMapping("/worldwide_callback")
 	public ResponseEntity<Void> receiveWorldwide(
 		@RequestParam("requestId") String requestId,
 		@RequestBody SentimentMentionData response
@@ -36,7 +36,7 @@ public class SearchCallbackController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/keyword-ranking-callback")
+	@PostMapping("/keyword_ranking_callback")
 	public ResponseEntity<Void> receiveKeywordRanking(
 		@RequestParam("requestId") String requestId,
 		@RequestBody KeywordRankingData response

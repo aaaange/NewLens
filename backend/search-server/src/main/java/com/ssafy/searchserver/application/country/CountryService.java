@@ -46,6 +46,7 @@ public class CountryService {
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
 	@Value("${call_back_url}")
 	private String callBackUrl;
+	private final int timeout = 30;
 
 	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
 		boolean isKorea) {
@@ -150,7 +151,7 @@ public class CountryService {
 			kafkaTemplate.send("dashboard", json);
 
 			// 15초 대기
-			DashboardData data = future.get(15, TimeUnit.SECONDS);
+			DashboardData data = future.get(timeout, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
@@ -184,7 +185,7 @@ public class CountryService {
 			kafkaTemplate.send("compare_info", json);
 
 			// 15초 대기
-			String gptResult = future.get(15, TimeUnit.SECONDS);
+			String gptResult = future.get(timeout, TimeUnit.SECONDS);
 
 			return AnalysisData.builder().analysis(gptResult).build();
 
@@ -316,7 +317,7 @@ public class CountryService {
 			kafkaTemplate.send("news_modal", json);
 
 			// 15초 대기
-			NewsModalResponse data = future.get(15, TimeUnit.SECONDS);
+			NewsModalResponse data = future.get(timeout, TimeUnit.SECONDS);
 
 			return data;
 
