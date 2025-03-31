@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 export const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 const setupInterceptors = (instance: AxiosInstance) => {

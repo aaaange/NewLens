@@ -7,7 +7,7 @@ const Header = () => {
     <div>
       <header>
         <nav>
-          <div className="flex items-center justify-between shadow-light h-[100px] bg-background px-4">
+          <div className="flex items-center justify-between h-[90px] bg-background px-4">
             <div className="w-[120px]">
               <Link to="/main">
                 <img src="/assets/images/logo-newLens.png" alt="로고" />
@@ -39,7 +39,7 @@ const Header = () => {
                       <img src="/assets/images/signout.png" alt="로그아웃" />
                     </Link>
                   </div>
-                  <div className="w-[40px]">
+                  <div className="w-[30px]">
                     <Link to="/mypage">
                       <img src="/assets/images/notifi.png" alt="알람" />
                     </Link>
