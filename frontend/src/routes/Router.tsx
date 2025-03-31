@@ -15,9 +15,9 @@ const Router = () => {
       {/* 헤더가 없는 페이지 */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Landing />} />
       </Route>
       <Route element={<Layout />}>
-        <Route path="/" element={<Landing />} />
         <Route path="/playground" element={<PlayGround />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/mypage" element={<MyPage />} />
