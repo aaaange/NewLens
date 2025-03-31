@@ -16,7 +16,6 @@ public class NewsDto {
 	private String url;
 	private LocalDateTime publishedAt;
 	private String imageUrl;
-	private int sentiment;
 	private List<String> keywords;
 
 	@Override
@@ -26,7 +25,6 @@ public class NewsDto {
 			", url='" + url + '\'' +
 			", publishedAt=" + publishedAt +
 			", imageUrl='" + imageUrl + '\'' +
-			", sentiment=" + sentiment +
 			", keywords=" + keywords +
 			'}';
 	}

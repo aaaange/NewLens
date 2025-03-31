@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DashboardData {
-	private List<KeywordResponse> keywords;
+	private List<KeywordResponse> wordcloud;
 	private String description;
 	private List<SentimentResponse> sentiment;
 	private List<MentionResponse> mentions;
@@ -18,7 +18,7 @@ public class DashboardData {
 	@Override
 	public String toString() {
 		return "DashboardData{" +
-			"keywords=" + keywords +
+			"wordcloud=" + wordcloud +
 			", description='" + description + '\'' +
 			", sentiment=" + sentiment +
 			", mentions=" + mentions +
