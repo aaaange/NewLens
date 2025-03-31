@@ -55,7 +55,7 @@ public class CustomExceptionHandler {
                 .status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(CommonResponse.fail(
                         ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
-                        ErrorCode.INTERNAL_SERVER_ERROR.getMessage()
+                        ErrorCode.INTERNAL_SERVER_ERROR.getMessage() + " " + ex.getMessage()
                 ));
     }
 }
