@@ -49,6 +49,7 @@ public class SearchService {
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
 	@Value("${call_back_url}")
 	private String callBackUrl;
+	private final int timeout = 30;
 
 
 	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
@@ -162,17 +163,17 @@ public class SearchService {
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("newsIds", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", callBackUrl + "/api/search/keyword-ranking-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/keyword_ranking_callback");
 
 			CompletableFuture<KeywordRankingData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
 
 			// kafka로 전송
 			String json = objectMapper.writeValueAsString(payload);
-			kafkaTemplate.send("keyword-ranking", json);
+			kafkaTemplate.send("keyword_ranking", json);
 
 			// 더미 반환값
-			KeywordRankingData data = future.get(120, TimeUnit.SECONDS);
+			KeywordRankingData data = future.get(timeout, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
@@ -234,10 +235,10 @@ public class SearchService {
 			// idList와 keyword를 함께 담을 수 있는 Map을 만듦
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("keyword", keyword);
-			payload.put("keyword-mind", keywordMind);
+			payload.put("keyword_mind", keywordMind);
 			payload.put("ids", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", callBackUrl + "/api/search/worldwide-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/worldwide_callback");
 
 			CompletableFuture<SentimentMentionData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
@@ -246,7 +247,7 @@ public class SearchService {
 			String json = objectMapper.writeValueAsString(payload);
 			kafkaTemplate.send("worldwide", json);
 
-			SentimentMentionData data = future.get(15, TimeUnit.SECONDS);
+			SentimentMentionData data = future.get(timeout, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
