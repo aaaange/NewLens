@@ -5,6 +5,8 @@ from fastapi_app.domain.services import (
     category_classification,
 )
 import logging
+import re
+import html
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,16 @@ def process_news_data(news: News) -> News:
     :return: 전처리 완료된 News 객체
     """
     try:
+        # 1. HTML 태그 전처리: <b>와 </b> 제거 후, 나머지 엔티티 변환
+        def clean_text(text: str) -> str:
+            # <b>와 </b> 태그 제거
+            text_without_b = re.sub(r"</?b>", "", text)
+            # 나머지 HTML 엔티티를 일반 문자로 변환
+            return html.unescape(text_without_b)
+
+        news.title = clean_text(news.title)
+        news.description = clean_text(news.description)
+
         # 감정 분석: 텍스트 내용에 따른 감정 점수를 도출
         news.sentiment = sentiment_analysis.analyze_sentiment(news.description)
         logger.debug("Sentiment analysis complete: %s", news.sentiment)
