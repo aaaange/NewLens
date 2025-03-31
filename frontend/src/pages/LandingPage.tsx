@@ -7,6 +7,7 @@ import Section6 from '../components/landing/Section6';
 import {
   useRef,
   useState,
+  useEffect,
   RefObject,
   WheelEvent as ReactWheelEvent,
 } from 'react';
@@ -60,7 +61,7 @@ const Landing = () => {
   };
 
   return (
-    <div onWheel={handleWheel}>
+    <div onWheel={handleWheel} className="bg-background overflow-hidden">
       <Section1 ref={sectionRefs[0]} />
       <Section2 ref={sectionRefs[1]} />
       <Section3 ref={sectionRefs[2]} />

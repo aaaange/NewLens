@@ -82,7 +82,7 @@ const MainPage = () => {
   }, [mapData, keyword]);
 
   return (
-    <div className="mt-5 flex gap-20 justify-center">
+    <div className="mt-5 flex gap-20 justify-center overflow-hidden">
       <div className="flex flex-col gap-5">
         <SearchInput
           value={keyword}
