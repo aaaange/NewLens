@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 const Section5 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className="h-screen border-b border-gray-400">
+    <div ref={ref} className="h-screen border-b border-gray-400 p-[20px]">
       <div className="flex flex-col justify-center items-center gap-[40px] mt-[50px]">
         <p className="display-small">
           당신의 관심 뉴스, <span className="text-amount-300">맞춤형 추천</span>
