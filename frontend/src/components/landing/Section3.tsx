@@ -6,32 +6,83 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
     AOS.init();
   }, []);
   return (
-    <div ref={ref} className="h-screen border-b border-gray-400">
+    <div ref={ref} className="h-screen border-b border-gray-400 p-[40px]">
       <div className="flex flex-col items-center gap-[60px]">
         <div className="flex justify-center gap-[100px]">
           <div
-            className="flex flex-col items-center gap-[50px]"
+            className="flex flex-col items-center h-[500px] w-fit"
             data-aos="fade-down"
             data-aos-delay="500"
           >
-            <img src="/assets/images/keywordranking.png" alt="로고" />
-            <p className="headline-xlarge">국가별 반응 분석</p>
+            <div className="flex flex-col gap-[20px]">
+              <div className="flex flex-col items-center">
+                <p className="headline-small">국가별 이슈 언급량 & 감정 분석</p>
+                <p className="caption-small text-tetiary-600">
+                  키워드에 대한 국가별 관심도와 반응을 확인해보세요!
+                </p>
+              </div>
+              <img
+                src="/assets/images/vector-world-map 3.png"
+                alt="로고"
+                className="w-[500px] h-[250px]"
+              />
+            </div>
+
+            <div className="flex items-end h-full">
+              <p className="headline-xlarge justify-baseline">
+                국가별 반응 분석
+              </p>
+            </div>
           </div>
           <div
-            className="flex flex-col items-center gap-[50px]"
+            className="flex flex-col items-center h-[500px] w-fit"
             data-aos="fade-down"
             data-aos-delay="1300"
           >
-            <img src="/assets/images/keywordranking.png" alt="로고" />
-            <p className="headline-xlarge">실시간 키워드 랭킹</p>
+            <div className="flex flex-col gap-[20px]">
+              <div className="flex flex-col items-center">
+                <p className="headline-small">실시간 인기 검색어</p>
+                <p className="caption-small text-tetiary-600">
+                  실시간으로 가장 핫한 키워드!
+                </p>
+              </div>
+              <img
+                src="/assets/images/keywordranking.png"
+                alt="로고"
+                className="w-[300px] h-[350px]"
+              />
+            </div>
+
+            <div className="flex items-end h-full">
+              <p className="headline-xlarge justify-baseline">
+                실시간 키워드 랭킹
+              </p>
+            </div>
           </div>
           <div
-            className="flex flex-col items-center gap-[50px]"
+            className="flex flex-col items-center h-[500px] w-fit"
             data-aos="fade-down"
             data-aos-delay="2100"
           >
-            <img src="/assets/images/keywordranking.png" alt="로고" />
-            <p className="headline-xlarge">연관어 분석까지!</p>
+            <div className="flex flex-col gap-[20px]">
+              <div className="flex flex-col items-center">
+                <p className="headline-small">연관어</p>
+                <p className="caption-small text-tetiary-600">
+                  추천 연관어를 선택하여 검색해보세요!{' '}
+                </p>
+              </div>
+              <img
+                src="/assets/images/mindmap.png"
+                alt="마인드맵"
+                className="w-[350px] h-[250px]"
+              />
+            </div>
+
+            <div className="flex items-end h-full">
+              <p className="headline-xlarge justify-baseline">
+                연관어 분석까지!
+              </p>
+            </div>
           </div>
         </div>
         <div className="display-small" data-aos="flip-up" data-aos-delay="2900">
