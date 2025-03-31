@@ -1,5 +1,6 @@
 package com.ssafy.searchserver.interfaces.country.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/search/country")
 @Tag(name = "Country API", description = "국가 대시보드 추출 API")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class CountryController {
 
 	private final CountryService countryService;
