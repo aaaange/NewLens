@@ -12,7 +12,8 @@ def scheduled_processing():
         logger.info("Starting scheduled processing task")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        tasks = [process_hdfs_news("domestic"), process_hdfs_news("worldwide")]
+        # tasks = [process_hdfs_news("domestic"), process_hdfs_news("worldwide")]
+        tasks = [process_hdfs_news("domestic")]
         results = loop.run_until_complete(asyncio.gather(*tasks))
         loop.close()
         domestic_processed, worldwide_processed = results
@@ -28,7 +29,7 @@ def scheduled_processing():
 
 def start_processing_scheduler():
     # 전처리 작업은 30분 주기로 실행
-    scheduler.add_job(scheduled_processing, "interval", minutes=30)
+    scheduler.add_job(scheduled_processing, "interval", minutes=25)
     scheduler.start()
     logger.info("Processing scheduler started")
 
