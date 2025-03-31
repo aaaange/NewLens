@@ -494,20 +494,22 @@ public class CountryService {
 		if (fromIndex < totalElements) {
 			paginatedList = newsList.subList(fromIndex, toIndex);
 		}
-
 		// 2. DTO 변환
 		List<NewsDto> newsDtos = paginatedList.stream()
 			.map(item -> {
 				// sentiment를 66 이상 / 34~65 / 0~33 으로 구분하려면 여기서 처리
 				// 예: 숫자를 그대로 내려준다고 가정
+				List<String> keywords = new ArrayList<>();
+				keywords.add(String.valueOf(item.getSentiment()));
+				keywords.addAll(item.getKeywords());
+
 				return NewsDto.builder()
-					.title(item.getTitle())
-					.url(item.getUrl())
-					.publishedAt(item.getPublishedAt())
-					.imageUrl(item.getImageUrl())
-					.sentiment(item.getSentiment())
-					.keywords(item.getKeywords())
-					.build();
+						.title(item.getTitle())
+						.url(item.getUrl())
+						.publishedAt(item.getPublishedAt())
+						.imageUrl(item.getImageUrl())
+						.keywords(keywords)
+						.build();
 			})
 			.collect(Collectors.toList());
 
