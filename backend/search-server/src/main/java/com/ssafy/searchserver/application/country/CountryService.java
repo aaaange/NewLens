@@ -158,7 +158,7 @@ public class CountryService {
 		}
 	}
 
-	public CompareInfoResponse getCompareInfo(String category, int period, String keyword, String keywordMind,
+	public AnalysisData getCompareInfo(String category, int period, String keyword, String keywordMind,
 		String country1, String country2) {
 		try {
 			List<String> country1NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country1);
@@ -186,14 +186,7 @@ public class CountryService {
 			// 15초 대기
 			String gptResult = future.get(15, TimeUnit.SECONDS);
 
-			AnalysisData data = AnalysisData.builder().analysis(gptResult).build();
-
-			return CompareInfoResponse.builder()
-				.code("SUCCESS")
-				.success(true)
-				.message("요약 성공")
-				.data(data)
-				.build();
+			return AnalysisData.builder().analysis(gptResult).build();
 
 		} catch (Exception e) {
 			throw new RuntimeException("GPT 요약 요청 실패", e);

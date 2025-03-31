@@ -29,28 +29,28 @@ public class SearchController {
 
 	private final SearchService service;
 
-	@Operation(
-		summary = "연관어 추출",
-		description = "검색 키워드를 기반으로 연관 키워드를 반환하는 API"
-	)
-	@ApiResponses({
-		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(
-			mediaType = "application/json",
-			examples = {
-				@ExampleObject(name = "INVALID_CATEGORY", summary = "유효하지 않은 카테고리", value = "{\"code\": \"INVALID_CATEGORY\", \"success\": false, \"message\": \"유효하지 않은 카테고리입니다\", \"data\": null}"),
-				@ExampleObject(name = "INVALID_PERIOD", summary = "유효하지 않은 기간", value = "{\"code\": \"INVALID_PERIOD\", \"success\": false, \"message\": \"유효하지 않은 기간 설정입니다\", \"data\": null}"),
-				@ExampleObject(name = "INVALID_KEYWORD", summary = "유효하지 않은 키워드", value = "{\"code\": \"INVALID_KEYWORD\", \"success\": false, \"message\": \"유효하지 않은 키워드입니다\", \"data\": null}")
-			}
-		)),
-		@ApiResponse(responseCode = "401", description = "Authorization 헤더 없음", content = @Content(
-			mediaType = "application/json",
-			examples = @ExampleObject(name = "UNAUTHORIZED", summary = "인증 실패", value = "{\"code\": \"UNAUTHORIZED\", \"success\": false, \"message\": \"Authorization 헤더가 없습니다\", \"data\": null}")
-		)),
-		@ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(
-			mediaType = "application/json",
-			examples = @ExampleObject(name = "SERVER_ERROR", summary = "서버 오류 발생", value = "{\"code\": \"SERVER_ERROR\", \"success\": false, \"message\": \"서버 내부 오류가 발생했습니다\", \"data\": null}")
-		))
-	})
+//	@Operation(
+//		summary = "연관어 추출",
+//		description = "검색 키워드를 기반으로 연관 키워드를 반환하는 API"
+//	)
+//	@ApiResponses({
+//		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(
+//			mediaType = "application/json",
+//			examples = {
+//				@ExampleObject(name = "INVALID_CATEGORY", summary = "유효하지 않은 카테고리", value = "{\"code\": \"INVALID_CATEGORY\", \"success\": false, \"message\": \"유효하지 않은 카테고리입니다\", \"data\": null}"),
+//				@ExampleObject(name = "INVALID_PERIOD", summary = "유효하지 않은 기간", value = "{\"code\": \"INVALID_PERIOD\", \"success\": false, \"message\": \"유효하지 않은 기간 설정입니다\", \"data\": null}"),
+//				@ExampleObject(name = "INVALID_KEYWORD", summary = "유효하지 않은 키워드", value = "{\"code\": \"INVALID_KEYWORD\", \"success\": false, \"message\": \"유효하지 않은 키워드입니다\", \"data\": null}")
+//			}
+//		)),
+//		@ApiResponse(responseCode = "401", description = "Authorization 헤더 없음", content = @Content(
+//			mediaType = "application/json",
+//			examples = @ExampleObject(name = "UNAUTHORIZED", summary = "인증 실패", value = "{\"code\": \"UNAUTHORIZED\", \"success\": false, \"message\": \"Authorization 헤더가 없습니다\", \"data\": null}")
+//		)),
+//		@ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(
+//			mediaType = "application/json",
+//			examples = @ExampleObject(name = "SERVER_ERROR", summary = "서버 오류 발생", value = "{\"code\": \"SERVER_ERROR\", \"success\": false, \"message\": \"서버 내부 오류가 발생했습니다\", \"data\": null}")
+//		))
+//	})
 
 	@GetMapping("/extract_related_words")
 	public ResponseEntity<CommonResponse<RelatedKeywordsResponse>> getRelatedKeywords(
