@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 const Section4 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className="h-screen border-b border-gray-400">
+    <div ref={ref} className="h-screen border-b border-gray-400 p-[20px]">
       <div className="flex flex-col justify-center items-center gap-[40px] mt-[50px]">
         <p className="display-small">
           다양한 <span className="text-amount-300">글로벌 이슈</span>에 대한{' '}
