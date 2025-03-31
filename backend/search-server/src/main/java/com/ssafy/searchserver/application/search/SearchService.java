@@ -56,8 +56,7 @@ public class SearchService {
     public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
         try {
             // 유효성 검사
-            Validation.validateCategory(category);
-            Validation.validatePeriod(period);
+//            Validation.validateCategoryAndPeriod(category, period);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
@@ -136,8 +135,7 @@ public class SearchService {
         // 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
         try {
             // 유효성 검사
-            Validation.validateCategory(category);
-            Validation.validatePeriod(period);
+//            Validation.validateCategoryAndPeriod(category, period);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
@@ -200,8 +198,7 @@ public class SearchService {
     public SentimentMentionData getWorldwide(String keyword, String keywordMind, String category, int period) {
         try {
             // 유효성 검사
-            Validation.validateCategory(category);
-            Validation.validatePeriod(period);
+//            Validation.validateCategoryAndPeriod(category, period);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
