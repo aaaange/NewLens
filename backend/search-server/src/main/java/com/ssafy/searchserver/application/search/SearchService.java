@@ -2,24 +2,15 @@ package com.ssafy.searchserver.application.search;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.Refresh;
-import co.elastic.clients.elasticsearch._types.Time;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.searchserver.interfaces.country.dto.DashboardData;
-import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
-import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsListResponse;
-import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.interfaces.search.dto.KeywordRankingData;
-import com.ssafy.searchserver.interfaces.search.dto.KeywordResponse;
 import com.ssafy.searchserver.interfaces.search.dto.RelatedKeywordsResponse;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
-import com.ssafy.searchserver.domain.search.model.ForeignNewsMongo;
-import com.ssafy.searchserver.domain.search.repository.ForeignNewsMongoDBRepository;
 import com.ssafy.searchserver.interfaces.search.dto.SentimentMentionData;
 
 import lombok.RequiredArgsConstructor;
@@ -52,7 +43,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SearchService {
 
-	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final ElasticsearchClient esClient;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
@@ -60,57 +50,6 @@ public class SearchService {
 	@Value("${call_back_url}")
 	private String callBackUrl;
 
-	public ForeignNewsMongo save(ForeignNewsMongo news) {
-		return mongoDBRepository.save(news);
-	}
-
-	public ForeignNewsListResponse getNewsList() {
-		List<ForeignNewsResponse> newsList = mongoDBRepository.findAll().stream()
-			.map(news -> ForeignNewsResponse.builder()
-				.id(news.getId())
-				.title(news.getTitle())
-				.description(news.getDescription())
-				.imageUrl(news.getImage_url())
-				.url(news.getUrl())
-				.categories(news.getCategories())
-				.country(news.getCountry())
-				.keywords(news.getKeywords())
-				.sentiment(news.getSentiment())
-				.publishedAt(news.getPublished_at())
-				.rawDataRef(news.getRawDataRef())
-				.build())
-			.collect(Collectors.toList());
-
-		return ForeignNewsListResponse.builder()
-			.code("SUCCESS")
-			.success(true)
-			.message("요청 성공")
-			.data(newsList)
-			.build();
-	}
-
-	public ForeignNewsResponse save(ForeignNewsElastic news) {
-		try {
-			esClient.index(i -> i
-					.index("foreign_news") // 인덱스명 지정 MySQL의 테이블 지정느낌
-					.id(news.getId()) // document의 id 지정
-					.document(news) // 저장할 document 객체
-					.refresh(Refresh.True) // 저장 후 바로 검색 가능
-				// 대량 저장 시에는 성능 떨어짐 추후 최적화 예정
-			);
-		} catch (IOException e) {
-			throw new RuntimeException("Elasticsearch 저장 실패", e);
-		}
-
-		return ForeignNewsResponse.builder()
-			.id(news.getId())
-			.publishedAt(news.getPublishedAt())
-			.categories(news.getCategories())
-			.country(news.getCountry())
-			.keywords(news.getKeywords())
-			.sentiment(news.getSentiment())
-			.build();
-	}
 
 	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
 		try {
