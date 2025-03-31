@@ -5,8 +5,10 @@ import { getCompareInfoApi } from '../services/api/worldService';
 export interface CompareParams {
   category: string;
   period: number;
-  keyword: string[];
-  country: string[]; // 꼭 2개
+  keyword: string;
+  keyword_mind: string;
+  country1: string; // 꼭 2개
+  country2: string; // 꼭 2개
 }
 
 interface CompareResponse {
@@ -22,18 +24,23 @@ const useCompareInfo = (params: CompareParams | null) => {
     const fetchData = async () => {
       if (
         !params ||
-        params.country.length !== 2 ||
-        !params.category ||
+        params.country1 === '' ||
+        params.country2 === '' ||
+        params.category === '' ||
         !params.period ||
-        params.keyword.length === 0
+        params.keyword === '' ||
+        params.keyword_mind === ''
       ) {
         return;
       }
 
       setIsLoading(true);
       try {
+        if (!params) {
+          throw new Error('params 확인필요');
+        }
         const response = await getCompareInfoApi(params);
-        setData(response.data.data);
+        setData(response.data.analysis);
       } catch (err) {
         if (isAxiosError(err)) {
           setError(new Error(err.response?.data?.message || err.message));
