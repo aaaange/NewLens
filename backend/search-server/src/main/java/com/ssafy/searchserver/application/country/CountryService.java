@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import com.ssafy.searchserver.interfaces.country.dto.*;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,8 @@ public class CountryService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
+	@Value("call_back_url")
+	private String callBackUrl;
 
 	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
 		boolean isKorea) {
@@ -141,7 +144,7 @@ public class CountryService {
 			payload.put("wordCloud", wordCloud);
 			payload.put("requestId", requestId);
 			payload.put("country", country);
-			payload.put("callbackUrl", "http://search-server:8080/api/search/country/dashboard-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard-callback");
 
 			 System.out.println("워드 클라우드");
 			 for (KeywordResponse keywordResponse : wordCloud) {
@@ -179,7 +182,7 @@ public class CountryService {
 				.country1NewsIds(country1NewsIds)
 				.country2NewsIds(country2NewsIds)
 				.requestId(requestId)
-				.callbackUrl("http://search-server:8080/api/search/country/compare-callback")
+				.callbackUrl(callBackUrl + "/api/search/country/compare-callback")
 				.build();
 
 			// CompletableFuture 등록 (5초 대기)
@@ -334,7 +337,7 @@ public class CountryService {
             payload.put("page", page);
             payload.put("size", size);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", "http://search-server:8080/api/search/country/news-modal-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/news-modal-callback");
 
 			CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
