@@ -41,7 +41,7 @@ public class CountryService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
-	@Value("call_back_url")
+	@Value("${call_back_url}")
 	private String callBackUrl;
 
 	public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
