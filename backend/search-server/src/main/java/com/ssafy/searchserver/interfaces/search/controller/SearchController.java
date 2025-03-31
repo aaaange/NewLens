@@ -1,16 +1,10 @@
 package com.ssafy.searchserver.interfaces.search.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.ssafy.searchserver.common.dto.CommonResponse;
-import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsListResponse;
-import com.ssafy.searchserver.interfaces.search.dto.ForeignNewsResponse;
 import com.ssafy.searchserver.interfaces.search.dto.KeywordRankingData;
 import com.ssafy.searchserver.interfaces.search.dto.RelatedKeywordsResponse;
-import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
-import com.ssafy.searchserver.domain.search.model.ForeignNewsMongo;
 import com.ssafy.searchserver.application.search.SearchService;
 import com.ssafy.searchserver.interfaces.search.dto.SentimentMentionData;
 
@@ -31,28 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class SearchController {
 
 	private final SearchService service;
-
-	// mongo 더미데이터 저장
-	@Operation(summary = "MongoDB 뉴스 저장", description = "MongoDB에 뉴스 더미 데이터를 저장합니다.")
-	@PostMapping("/mongo")
-	public ForeignNewsMongo save(@RequestBody ForeignNewsMongo news) {
-		return service.save(news);
-	}
-
-	// mongo 뉴스 리스트 조회
-	@Operation(summary = "MongoDB 뉴스 리스트 조회", description = "MongoDB에 저장된 뉴스 리스트를 조회합니다.")
-	@GetMapping("/mongo")
-	public ResponseEntity<ForeignNewsListResponse> getMongoDBNewsList() {
-		ForeignNewsListResponse response = service.getNewsList();
-		return ResponseEntity.status(HttpStatus.OK).body(response);
-	}
-
-	// elasticsearch 더미데이터 저장
-	@Operation(summary = "Elasticsearch 뉴스 저장", description = "Elasticsearch에 뉴스 더미 데이터를 저장합니다.")
-	@PostMapping("/es")
-	public ForeignNewsResponse saveNews(@RequestBody ForeignNewsElastic news) {
-		return service.save(news);
-	}
 
 	@Operation(
 		summary = "연관어 추출",

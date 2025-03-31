@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
-import com.ssafy.searchserver.domain.search.repository.ForeignNewsMongoDBRepository;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
@@ -41,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CountryService {
 
-	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final ElasticsearchClient esClient;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
