@@ -9,6 +9,7 @@ import Map from '../components/world/Map';
 
 import { useEffect, useState } from 'react';
 import { getWorldMapDataApi } from '../services/api/worldService';
+import { c } from 'vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P';
 
 const MainPage = () => {
   //==============================================
@@ -28,9 +29,10 @@ const MainPage = () => {
   //==============================================
   // 지도에 넘겨줄 데이터
   //==============================================
-  const [category, setCategory] = useState('general');
+  const [category, setCategory] = useState('all');
   const [period, setPeriod] = useState(1);
   const [keyword, setKeyword] = useState('');
+  const [keyword_mind, setKeywordMind] = useState('');
   const [mapData, setMapData] = useState(null);
 
   const categoryChangeHandler = (category: string) => {
@@ -50,7 +52,7 @@ const MainPage = () => {
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
-    setKeyword(`${keyword.split(' ')[0]} ${newKeyword}`);
+    setKeywordMind(newKeyword);
   };
   const handleRankingKeywordChange = (newKeyword: string) => {
     setKeyword(newKeyword);
@@ -58,7 +60,13 @@ const MainPage = () => {
 
   // const fetchWorldData = async () => {
   //   try {
-  //     const response = await getWorldMapDataApi(category, period, keyword);
+  // const params = {
+  //   category: category,
+  //   period: period,
+  //   keyword: keyword,
+  //   keyword_mind: keyword_mind,
+  // };
+  //     const response = await getWorldMapDataApi(params);
   //     setMapData(response.data);
   //     console.log(response.data);
   //   } catch (error) {
@@ -127,14 +135,12 @@ const MainPage = () => {
           <Map
             tabId={activeTab}
             keyword={keyword}
-            // keyword="테스트"
             category={category}
             period={period}
             // mapData={mapData}
             mapData={json}
           />
         </div>
-        <NewsModal />
         <MapSwitchTab />
       </div>
 

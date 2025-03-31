@@ -20,27 +20,34 @@ interface FirstCountryBoardProps {
   country: string;
   country_name: string;
   keyword: string;
+  keyword_mind: string;
   category: string;
   period: number;
+  handleWordCloudChange: (word: string) => void;
+  handleModalOpen: (country: string) => void;
+  handleModalClose: () => void;
 }
 
 const FirstCountryBoard = ({
   country,
   country_name,
   keyword,
+  keyword_mind,
   category,
   period,
+  handleWordCloudChange,
+  handleModalOpen,
 }: FirstCountryBoardProps) => {
   const memoizedParams = useMemo(
     () => ({
-      country,
-      country_name,
-      keyword,
       category,
       period,
+      keyword,
+      keyword_mind,
+      country,
       is_korea: country === 'kr',
     }),
-    [country, country_name, keyword, category, period]
+    [country, keyword_mind, keyword, category, period]
   );
 
   const { data, isLoading, error } = useCountryData(memoizedParams);
@@ -64,6 +71,7 @@ const FirstCountryBoard = ({
   return (
     <div className="flex flex-col gap-5">
       <WordCloud
+        handleWordCloudChange={handleWordCloudChange}
         keyword={keyword}
         keywords={safeData.keywords}
         width={410}
@@ -96,6 +104,7 @@ const FirstCountryBoard = ({
         country_code={country}
       />
       <NewsList
+        handleModalOpen={handleModalOpen}
         news={safeData.articles}
         width={410}
         keyword={keyword}
