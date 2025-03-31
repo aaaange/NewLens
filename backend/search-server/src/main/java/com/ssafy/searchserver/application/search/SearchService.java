@@ -24,11 +24,13 @@ import com.ssafy.searchserver.interfaces.search.dto.SentimentMentionData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +52,8 @@ public class SearchService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
+	@Value("${call_back_url}")
+	private String callBackUrl;
 
 	public ForeignNewsMongo save(ForeignNewsMongo news) {
 		return mongoDBRepository.save(news);
@@ -105,8 +109,12 @@ public class SearchService {
 
 	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
 
 			// 필터링 Query
 			Query boolQuery = Query.of(q -> q.bool(b -> b
@@ -125,8 +133,8 @@ public class SearchService {
 					Query.of(m -> m.range(r -> r
 						.date(d -> d
 							.field("published_at")
-							.gte(from.toString())
-							.lte(now.toString())
+							.gte(gte)
+							.lte(lte)
 						)
 					))
 				))
@@ -136,7 +144,7 @@ public class SearchService {
 			// keyword가 포함된 뉴스에서 다른 키워드들을 연관어로 뽑음
 			Aggregation agg = Aggregation.of(a -> a
 				.terms(t -> t
-					.field("keywords")
+					.field("keywords.keyword") // 집계 코드에서 text 타입은 집계가 불가능 keyword 타입만 가능 따라서 .keyword 필수로 붙여야 함
 					.size(11) // 상위 11개만 나중에 자기자신 빼기 때문에
 				)
 			);
@@ -159,8 +167,8 @@ public class SearchService {
 
 			// 연관 키워드 리스트 반환
 			List<String> relatedKeywords = aggregation.buckets().array().stream()
-				.filter(rel -> !rel.equals(keyword)) // 자기 자신 제외
 				.map(bucket -> bucket.key().stringValue())
+				.filter(rel -> !rel.equals(keyword)) // 자기 자신 제외
 				.collect(Collectors.toList());
 
 			return RelatedKeywordsResponse.builder()
@@ -176,8 +184,12 @@ public class SearchService {
 	public KeywordRankingData getKeywordRanking(String category, int period, boolean isKorea) {
 		// 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
 			String requestId = UUID.randomUUID().toString();
 
 			Query boolQuery = Query.of(q -> q.bool(b -> b
@@ -191,8 +203,8 @@ public class SearchService {
 					Query.of(m -> m.range(r -> r
 						.date(d -> d
 							.field("published_at")
-							.gte(from.toString())
-							.lte(now.toString())
+							.gte(gte)
+							.lte(lte)
 						)
 					))
 
@@ -202,6 +214,7 @@ public class SearchService {
 			var searchRequest = SearchRequest.of(s -> s
 					.index("foreign_news")
 					.query(boolQuery)
+							.size(10000)
 					.source(src -> src.filter(f -> f.includes("id")))
 				// 우리는 id만 필요하니까 id만 반환
 			);
@@ -216,7 +229,7 @@ public class SearchService {
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("newsIds", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", "http://localhost:8080/api/search/keyword-ranking-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/keyword-ranking-callback");
 
 			CompletableFuture<KeywordRankingData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
@@ -226,7 +239,7 @@ public class SearchService {
 			kafkaTemplate.send("keyword-ranking", json);
 
 			// 더미 반환값
-			KeywordRankingData data = future.get(5, TimeUnit.SECONDS);
+			KeywordRankingData data = future.get(15, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {
@@ -241,8 +254,12 @@ public class SearchService {
 
 	public SentimentMentionData getWorldwide(String keyword, String keywordMind,String category, int period) {
 		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
+
+			String gte = from.format(formatter);
+			String lte = now.format(formatter);
 			String requestId = UUID.randomUUID().toString();
 
 			// 필터링 Query
@@ -270,8 +287,8 @@ public class SearchService {
 				mustQueries.add(Query.of(m -> m.range(r -> r
 					.date(d -> d
 						.field("published_at")
-						.gte(from.toString())
-						.lte(now.toString())
+						.gte(gte)
+						.lte(lte)
 					)
 				)));
 				return b.must(mustQueries);
@@ -298,7 +315,7 @@ public class SearchService {
 			payload.put("keyword-mind", keywordMind);
 			payload.put("ids", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", "http://localhost:8080/api/search/worldwide-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/worldwide-callback");
 
 			CompletableFuture<SentimentMentionData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
@@ -307,7 +324,7 @@ public class SearchService {
 			String json = objectMapper.writeValueAsString(payload);
 			kafkaTemplate.send("worldwide", json);
 
-			SentimentMentionData data = future.get(5, TimeUnit.SECONDS);
+			SentimentMentionData data = future.get(15, TimeUnit.SECONDS);
 
 			return data;
 		} catch (Exception e) {

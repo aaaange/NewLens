@@ -1,7 +1,9 @@
-package com.ssafy.staticsserver.common.config;
+package com.ssafy.staticsserver.infrastructure.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -10,10 +12,19 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-	// Redis 연결 팩토리 빈 등록
+	@Value("${spring.data.redis.host}")
+	private String redisHost;
+
+	@Value("${spring.data.redis.port}")
+	private int redisPort;
+
 	@Bean
 	public LettuceConnectionFactory redisConnectionFactory() {
-		return new LettuceConnectionFactory();
+		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+		config.setHostName(redisHost);
+		config.setPort(redisPort);
+
+		return new LettuceConnectionFactory(config);
 	}
 
 	// RedisTemplate 빈 등록: key는 String, value는 Object로 사용
