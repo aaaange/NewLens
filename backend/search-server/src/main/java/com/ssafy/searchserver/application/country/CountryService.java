@@ -74,7 +74,7 @@ public class CountryService {
 
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
-					.field("country")
+					.field("country.keyword")
 					.value(FieldValue.of(country))
 				)));
 
@@ -231,7 +231,7 @@ public class CountryService {
 					mustQueries.add(Query.of(m -> m.term(t -> t.field("keywords").value(FieldValue.of(keywordMind)))));
 				}
 
-				mustQueries.add(Query.of(m -> m.term(t -> t.field("country").value(FieldValue.of(country)))));
+				mustQueries.add(Query.of(m -> m.term(t -> t.field("country.keyword").value(FieldValue.of(country)))));
 				mustQueries.add(Query.of(m -> m.term(t -> t.field("categories").value(FieldValue.of(category)))));
 				mustQueries.add(Query.of(m -> m.range(r -> r.date(d -> d
 					.field("published_at").gte(gte).lte(lte)
@@ -300,7 +300,7 @@ public class CountryService {
 				)));
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
-					.field("country")
+					.field("country.keyword")
 					.value(FieldValue.of(country))
 				)));
 
