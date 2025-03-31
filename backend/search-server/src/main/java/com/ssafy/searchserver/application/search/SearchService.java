@@ -24,6 +24,7 @@ import com.ssafy.searchserver.interfaces.search.dto.SentimentMentionData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +52,8 @@ public class SearchService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 	private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
+	@Value("call_back_url")
+	private String callBackUrl;
 
 	public ForeignNewsMongo save(ForeignNewsMongo news) {
 		return mongoDBRepository.save(news);
@@ -226,7 +229,7 @@ public class SearchService {
 			Map<String, Object> payload = new HashMap<>();
 			payload.put("newsIds", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", "http://search-server:8080/api/search/keyword-ranking-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/keyword-ranking-callback");
 
 			CompletableFuture<KeywordRankingData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
@@ -312,7 +315,7 @@ public class SearchService {
 			payload.put("keyword-mind", keywordMind);
 			payload.put("ids", idList);
 			payload.put("requestId", requestId);
-			payload.put("callbackUrl", "http://search-server:8080/api/search/worldwide-callback");
+			payload.put("callbackUrl", callBackUrl + "/api/search/worldwide-callback");
 
 			CompletableFuture<SentimentMentionData> future = new CompletableFuture<>();
 			pendingCompareResults.put(requestId, future);
