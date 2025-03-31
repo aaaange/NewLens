@@ -2,9 +2,10 @@ version: '3.8'
 
 services:
   search-server:
-    build:
-      context: ../backend/search-server
-      dockerfile: Dockerfile
+    image: kimsangouk/search-server:latest
+    # build:
+    #   context: ../backend/search-server
+    #   dockerfile: Dockerfile
     container_name: search-server
     env_file:
       - .env
@@ -29,9 +30,10 @@ services:
              exec your_search_server_start_command"
 
   statics-server:
-    build:
-      context: ../backend/statics-server
-      dockerfile: Dockerfile
+    image: kimsangouk/statics-server:latest
+    # build:
+    #   context: ../backend/statics-server
+    #   dockerfile: Dockerfile
     container_name: statics-server
     env_file:
       - .env

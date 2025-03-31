@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/search")
 @Tag(name = "Search API", description = "검색 및 연관어 추출 API")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class SearchController {
 
 	private final SearchService service;
