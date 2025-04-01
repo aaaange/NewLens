@@ -39,6 +39,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 		CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 		String email = oAuth2User.getEmail();
 		String nickname = oAuth2User.getNickname();
+		String profileImage = oAuth2User.getProfileImage();
 		String providerId = oAuth2User.getProviderId();
 		String registrationId = oAuth2User.getRegistrationId();
 
@@ -50,7 +51,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 			User newUser = User.builder()
 				.nickname(nickname)
 				.email(email)
-				.profileImage(null) // 프로필 이미지가 있을 경우 설정
+				.profileImage(profileImage) // 프로필 이미지가 있을 경우 설정
 				.active(Active.Y)
 				.createdAt(LocalDateTime.now())
 				.updatedAt(LocalDateTime.now())

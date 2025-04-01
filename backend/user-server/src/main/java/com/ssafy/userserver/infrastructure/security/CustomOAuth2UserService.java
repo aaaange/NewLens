@@ -37,17 +37,38 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		Map<String, Object> attributes = oAuth2User.getAttributes();
 		String email = null;
 		String nickname = null;
+		String profileImage = null;
 		String providerId = null;
 
 		if ("google".equals(registrationId)) {
+			// Google에서 받은 사용자 정보 구조
+			// attributes :
+			// {
+			//   "sub": "google12345",
+			//   "name": "John Doe",
+			//   "email": "john.doe@example.com"
+			// }
 			email = (String) attributes.get("email");
 			nickname = (String) attributes.get("name");
+			profileImage = (String) attributes.get("profile_image");
 			providerId = (String) attributes.get("sub");
 		} else if ("kakao".equals(registrationId)) {
+			// Kakao에서 받은 사용자 정보 구조
+			// attributes :
+			// {
+			//   "id": 98765,
+			//   "kakao_account": {
+			//       "email": "jane.doe@example.com",
+			//       "profile": {
+			//           "nickname": "Jane"
+			//       }
+			//   }
+			// }
 			Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
 			email = (String) kakaoAccount.get("email");
 			Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 			nickname = (String) profile.get("nickname");
+			profileImage = (String) profile.get("profile_image");
 			providerId = String.valueOf(attributes.get("id"));
 		}
 		// 이후 회원가입 또는 업데이트 로직을 구현할 수 있음.
@@ -55,6 +76,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		// 본 로직은 OAuth2AuthenticationSuccessHandler에서도 처리할 수 있음.
 
 		// 필요에 따라 커스텀 OAuth2User 객체에 추가 정보를 담아 반환할 수 있음.
-		return new CustomOAuth2User(oAuth2User.getAuthorities(), attributes, "email", email, nickname, providerId, registrationId);
+		return new CustomOAuth2User(oAuth2User.getAuthorities(), attributes, "email", email, nickname, profileImage, providerId, registrationId);
 	}
 }
