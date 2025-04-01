@@ -511,6 +511,7 @@ public class CountryService {
 
 
 				return NewsDto.builder()
+					.newsId(item.getId())
 						.title(item.getTitle())
 						.url(item.getUrl())
 						.publishedAt(item.getPublishedAt())
