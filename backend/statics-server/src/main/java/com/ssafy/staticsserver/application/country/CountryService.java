@@ -501,7 +501,14 @@ public class CountryService {
 				// 예: 숫자를 그대로 내려준다고 가정
 				List<String> keywords = new ArrayList<>();
 				keywords.add(String.valueOf(item.getSentiment()));
-				keywords.addAll(item.getKeywords());
+				List<String> subKeywords = item.getKeywords();
+				int length = Math.min(5, subKeywords.size());
+				if (subKeywords != null) {
+					for(int i = 0; i < length; i++){
+						keywords.add(subKeywords.get(i));
+					}
+				}
+
 
 				return NewsDto.builder()
 						.title(item.getTitle())

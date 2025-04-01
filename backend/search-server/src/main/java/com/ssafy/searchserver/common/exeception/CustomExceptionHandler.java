@@ -7,6 +7,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
@@ -46,6 +47,16 @@ public class CustomExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.INVALID_METHOD.getStatus())
                 .body(CommonResponse.fail(ErrorCode.INVALID_METHOD.getCode(), message));
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<CommonResponse<Object>> handleNotFound(NoHandlerFoundException ex) {
+        return ResponseEntity
+            .status(ErrorCode.INVALID_REQUEST.getStatus())
+            .body(CommonResponse.fail(
+                ErrorCode.INVALID_REQUEST.getCode(),
+                ErrorCode.INVALID_REQUEST.getMessage()
+            ));
     }
 
 
