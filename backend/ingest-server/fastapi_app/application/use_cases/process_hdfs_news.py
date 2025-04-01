@@ -1,7 +1,7 @@
-import asyncio
 import hashlib
 import logging
 from datetime import datetime, timedelta
+
 from fastapi_app.application.use_cases.fetch_news_from_hdfs import fetch_news_from_hdfs
 from fastapi_app.application.use_cases.process_news import (
     process_news_data,

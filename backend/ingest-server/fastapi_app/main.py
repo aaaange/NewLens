@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi_app.interfaces.http import news_controller
 from fastapi_app.interfaces.scheduler import ingestion_schedular, processing_scheduler
 
 app = FastAPI(title="Ingest Server - FastAPI News Pipeline")

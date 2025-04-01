@@ -1,9 +1,10 @@
 import asyncio
 import logging
+
 from apscheduler.schedulers.background import BackgroundScheduler
+
 from fastapi_app.application.use_cases.ingest_news_hdfs import (
     ingest_naver_news_to_hdfs,
-    ingest_thenewsapi_to_hdfs,
 )
 
 logger = logging.getLogger(__name__)

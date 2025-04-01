@@ -1,11 +1,12 @@
 # ingest-server/fastapi_app/application/use_cases/store_news.py
 
+import logging
+
 from fastapi_app.domain.models.news import News
-from fastapi_app.infrastructure.storage.mongodb.mongodb_client import MongoDBClient
 from fastapi_app.infrastructure.storage.elasticsearch.elasticsearch_client import (
     ESClient,
 )
-import logging
+from fastapi_app.infrastructure.storage.mongodb.mongodb_client import MongoDBClient
 
 logger = logging.getLogger(__name__)
 
