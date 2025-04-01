@@ -49,7 +49,7 @@ public class CountryService {
     private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
     @Value("${call_back_url}")
     private String callBackUrl;
-    private final int timeout = 30;
+    private final int timeout = 60;
 
     public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
                                       boolean isKorea) {
