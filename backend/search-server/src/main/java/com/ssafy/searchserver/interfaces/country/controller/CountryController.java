@@ -158,7 +158,7 @@ public class CountryController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/news")
+    @GetMapping("/news_modal")
     public ResponseEntity<CommonResponse<NewsModalResponse>> getNewsModal(
             @RequestHeader(name = "Authorization", required = false) String authorization,
             @Parameter(description = "카테고리", example = "sports") @RequestParam String category,
