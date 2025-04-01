@@ -19,18 +19,18 @@ spring:
     oauth2:
       client:
         registration:
-          google:
+          google: # 이게 registrationId 로서 역할
             client-id: ${GOOGLE_CLIENT}
             client-secret: ${GOOGLE_SECRET}
             scope: # google API의 범위 값
               - profile
               - email
 
-          kakao:
+          kakao: # 이게 registrationId 로서 역할
             client-id: ${KAKAO_CLIENT}
             client-secret: ${KAKAO_SECRET}
             redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
-            client-authentication-method: client_secret_post # kakao는 인증 토큰 발급 요청 메서드가 post이다. (최근 버전에는 작성 방법이 이렇게 바뀌었다.)
+            client-authentication-method: client_secret_post # kakao는 인증 토큰 발급 요청 메서드가 post이다.
             authorization-grant-type: authorization_code
             scope: # kakao 개인 정보 동의 항목 설정의 ID 값
               - profile_nickname
