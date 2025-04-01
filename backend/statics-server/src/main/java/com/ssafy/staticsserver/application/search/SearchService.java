@@ -49,7 +49,6 @@ public class SearchService {
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("키워드 처리를 위한 뉴스 리스트 사이즈"+ newsList.size());
 
 
 			KeywordRankingResponse response = processKeywordRanking(newsList);
@@ -65,7 +64,7 @@ public class SearchService {
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 			long end = System.currentTimeMillis();
 			int size = newsIds.size();
-			System.out.println("뉴스 " + size + "개 ====> 통계 시간: " + (end - start) + "ms");
+			System.out.println("뉴스 " + size + "개 ====> 키워드 랭킹 통계 시간: " + (end - start) + "ms");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -75,6 +74,7 @@ public class SearchService {
 	@KafkaListener(topics = "worldwide")
 	public void listenWorldwide(String message) {
 		try {
+			long start = System.currentTimeMillis();
 			// 메시지를 Map으로 변환
 			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
 			});
@@ -89,10 +89,6 @@ public class SearchService {
 			// MongoDB에서 해당 id에 해당하는 뉴스 조회
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 
-			// List<String> newsIds = objectMapper.readValue(message, new TypeReference<List<String>>() {
-			// });
-
-			System.out.println("세계 지도 처리를 위한 뉴스 리스트 사이즈" + newsList.size());
 
 			SentimentMentionResponse response = processWorldwide(keyword, keywordMind, newsList);
 			String responseJson = objectMapper.writeValueAsString(response);
@@ -105,6 +101,9 @@ public class SearchService {
 				.build();
 
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			long end = System.currentTimeMillis();
+			int newsSize = newsIds.size();
+			System.out.println("뉴스 " + newsSize + "개 ====>세계 지도 통계 시간: " + (end - start) + "ms");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -169,14 +168,7 @@ public class SearchService {
 		// 7. Redis에 새로운 키워드 랭킹 업데이트 (전체 랭킹 갱신)
 		// redisTemplate.opsForHash().putAll("keyword_ranking", keywordCounts);
 
-		// 결과 출력: 키워드 랭킹
-		System.out.println("키워드 랭킹 결과:");
-		for (int i = 0; i < limit; i++) {
-			Map.Entry<String, Integer> entry = sortedKeywordCounts.get(i);
-			KeywordRankingDto dto = resultList.get(i);
-			System.out.println(entry.getKey() + " : " + entry.getValue()
-				+ " (state=" + dto.getState() + ")");
-		}
+
 
 		// 8. 최종 결과를 KeywordRankingResponse로 구성하여 반환
 		return KeywordRankingResponse.builder()
@@ -250,8 +242,6 @@ public class SearchService {
 			.mention(mentionResponses)
 			.build();
 
-		System.out.println("세계지도 집계 결과:");
-		System.out.println(response);
 		return response;
 	}
 }
