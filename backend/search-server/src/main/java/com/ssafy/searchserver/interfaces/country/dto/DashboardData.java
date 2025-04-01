@@ -12,7 +12,7 @@ import java.util.List;
 public class DashboardData {
 
 	@Schema(description = "키워드 리스트")
-	private List<KeywordResponse> keywords;
+	private List<KeywordResponse> wordcloud;
 
 	@Schema(description = "3줄 요약")
 	private String description;

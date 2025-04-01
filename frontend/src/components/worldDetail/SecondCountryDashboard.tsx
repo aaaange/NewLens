@@ -20,27 +20,31 @@ interface SecondCountryBoardProps {
   country: string;
   country_name: string;
   keyword: string;
+  keyword_mind: string;
   category: string;
   period: number;
+  handleWordCloudChange: (word: string) => void;
 }
 
 const SecondCountryBoard = ({
   country,
   country_name,
   keyword,
+  keyword_mind,
   category,
   period,
+  handleWordCloudChange,
 }: SecondCountryBoardProps) => {
   const memoizedParams = useMemo(
     () => ({
       country,
-      country_name,
+      keyword_mind,
       keyword,
       category,
       period,
       is_korea: country === 'kr',
     }),
-    [country, country_name, keyword, category, period]
+    [country, keyword_mind, keyword, category, period]
   );
 
   const { data, isLoading, error } = useCountryData(memoizedParams);

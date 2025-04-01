@@ -48,7 +48,7 @@ public class CountryService {
 			List<String> newsIds = (List<String>)payload.get("newsIds");
 			int period = (Integer)payload.get("period");
 			String keyword = (String)payload.get("keyword");
-			String keywordMind = (String)payload.get("keyword-mind");
+			String keywordMind = (String)payload.get("keyword_mind");
 			String country = (String)payload.get("country");
 			List<KeywordResponse> wordCloud = (List<KeywordResponse>)payload.get("wordCloud");
 			String callbackUrl = payload.get("callbackUrl").toString();
@@ -95,7 +95,7 @@ public class CountryService {
 				videos = new ArrayList<>();
 
 			DashboardData response = DashboardData.builder()
-				.keywords(wordCloud)
+				.wordcloud(wordCloud)
 				.description(description)
 				.sentiment(sentiment)
 				.mentions(mentions)
@@ -120,7 +120,7 @@ public class CountryService {
 		}
 	}
 
-	@KafkaListener(topics = "compare-info")
+	@KafkaListener(topics = "compare_info")
 	public void listenCompareInfo(String message) {
 		try {
 			CountryNewsMessage msg = objectMapper.readValue(message, new TypeReference<>() {
@@ -158,7 +158,7 @@ public class CountryService {
 		}
 	}
 
-	@KafkaListener(topics = "news-modal")
+	@KafkaListener(topics = "news_modal")
 	public void listenNews(String message) {
 		try {
 			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
@@ -494,20 +494,22 @@ public class CountryService {
 		if (fromIndex < totalElements) {
 			paginatedList = newsList.subList(fromIndex, toIndex);
 		}
-
 		// 2. DTO 변환
 		List<NewsDto> newsDtos = paginatedList.stream()
 			.map(item -> {
 				// sentiment를 66 이상 / 34~65 / 0~33 으로 구분하려면 여기서 처리
 				// 예: 숫자를 그대로 내려준다고 가정
+				List<String> keywords = new ArrayList<>();
+				keywords.add(String.valueOf(item.getSentiment()));
+				keywords.addAll(item.getKeywords());
+
 				return NewsDto.builder()
-					.title(item.getTitle())
-					.url(item.getUrl())
-					.publishedAt(item.getPublishedAt())
-					.imageUrl(item.getImageUrl())
-					.sentiment(item.getSentiment())
-					.keywords(item.getKeywords())
-					.build();
+						.title(item.getTitle())
+						.url(item.getUrl())
+						.publishedAt(item.getPublishedAt())
+						.imageUrl(item.getImageUrl())
+						.keywords(keywords)
+						.build();
 			})
 			.collect(Collectors.toList());
 

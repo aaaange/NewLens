@@ -25,6 +25,7 @@ interface WordCloudProps {
   keyword: string;
   country_name: string;
   country_code: string;
+  handleWordCloudChange?: (word: string) => void; // 단어 클릭 시 부모 컴포넌트에 전달하는 함수
 }
 
 interface CloudWord {
@@ -43,10 +44,12 @@ const WordCloud = ({
   keyword,
   country_name,
   country_code,
+  handleWordCloudChange,
 }: WordCloudProps) => {
   // console.log('워드클라우드 키워드:', keyword);
   const handleWordClick = (word: CloudWord): void => {
     // alert는 반환 값이 없음으로 void
+    handleWordCloudChange?.(word.text);
     alert(`클릭한 단어: ${word.text}, 빈도: ${word.value}`);
   };
 

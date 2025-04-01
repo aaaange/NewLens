@@ -2,12 +2,7 @@ server:
   port: 8080
 
 spring:
-  data:
-    mongodb:
-      uri: mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
-      database: ${MONGODB_DATABASE}
   kafka:
-    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
     admin:
       auto-create: true
 
