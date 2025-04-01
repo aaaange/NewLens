@@ -123,6 +123,7 @@ public class CountryService {
 	@KafkaListener(topics = "compare_info")
 	public void listenCompareInfo(String message) {
 		try {
+			long start = System.currentTimeMillis();
 			CountryNewsMessage msg = objectMapper.readValue(message, new TypeReference<>() {
 			});
 			String keyword = msg.getKeyword();
@@ -152,6 +153,8 @@ public class CountryService {
 				.build();
 
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			long end = System.currentTimeMillis();
+			System.out.println("뉴스 " + 3 + "개 ====> 지피티 비교 통계 시간: " + (end - start) + "ms");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -159,8 +162,9 @@ public class CountryService {
 	}
 
 	@KafkaListener(topics = "news_modal")
-	public void listenNews(String message) {
+	public void listenNewsModal(String message) {
 		try {
+			long start = System.currentTimeMillis();
 			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
 			});
 
@@ -170,14 +174,11 @@ public class CountryService {
 			String callbackUrl = payload.get("callbackUrl").toString();
 			String requestId = payload.get("requestId").toString();
 
-			System.out.println("newsIds : " + newsIds.toString());
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("뉴스 모달창을 위한 뉴스 리스트 사이즈" + newsList.size());
 
 
 			NewsModalResponse response = processNews(newsList, page, size);
 			String responseJson = objectMapper.writeValueAsString(response);
-			System.out.println(response);
 
 			// 콜백 요청 전송
 			HttpClient httpClient = HttpClient.newHttpClient();
@@ -188,6 +189,9 @@ public class CountryService {
 				.build();
 
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			long end = System.currentTimeMillis();
+			int newsSize = newsIds.size();
+			System.out.println("뉴스 " + newsSize + "개 ====> 뉴스 모달 리스트 통계 시간: " + (end - start) + "ms");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
