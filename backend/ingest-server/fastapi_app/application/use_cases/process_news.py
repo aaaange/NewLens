@@ -2,13 +2,11 @@ from fastapi_app.domain.models.news import News
 from fastapi_app.domain.services import (
     sentiment_analysis,
     keyword_extraction,
-    translation,
-    country_detection,
     category_classification,
-    language_detection,
-    country_detection,
 )
 import logging
+import re
+import html
 
 logger = logging.getLogger(__name__)
 
@@ -23,50 +21,38 @@ def process_news_data(news: News) -> News:
     :return: 전처리 완료된 News 객체
     """
     try:
+        # 1. HTML 태그 전처리: <b>와 </b> 제거 후, 나머지 엔티티 변환
+        def clean_text(text: str) -> str:
+            # <b>와 </b> 태그 제거
+            text_without_b = re.sub(r"</?b>", "", text)
+            # 나머지 HTML 엔티티를 일반 문자로 변환
+            return html.unescape(text_without_b)
 
-        # 나라 추정: 기사 내용 기반으로 해당 기사의 연관 국가 추정
-        news.country = country_detection.determine_source_country(news.source)
-        logger.debug("Country detection complete: %s", news.country)
-
-        # 나라 추정 결과가 "Unknown"이면 해당 기사 건너뛰기
-        if news.country == "Unknown":
-            logger.info("Skipping news due to unknown country.")
-            return None
+        news.title = clean_text(news.title)
+        news.description = clean_text(news.description)
 
         # 감정 분석: 텍스트 내용에 따른 감정 점수를 도출
-        news.sentiment = sentiment_analysis.analyze_sentiment(news.content)
+        news.sentiment = sentiment_analysis.analyze_sentiment(news.description)
         logger.debug("Sentiment analysis complete: %s", news.sentiment)
 
-        # 언어 추정 : 텍스트의 언어를 감지하여 ISO 639-1 코드로 반환
-        lang_code = language_detection.detect_language(news.content)
-
-        # 뉴스 기사가 한국어가 아니면 한국어로 번역
-        if lang_code != "ko":
-            news.content = translation.translate_text(news.content, lang_code)
-            news.title = translation.translate_text(news.title, lang_code)
-
-        logger.debug(
-            "Translation complete: [title] %s, [description] %s",
-            news.title,
-            news.content,
-        )
-
         # 키워드 추출: 기사 내용에서 중요한 단어 목록 추출
-        news.keywords = keyword_extraction.extract_keywords(news.content)
+        news.keywords = keyword_extraction.extract_keywords(news.description)
         if not news.keywords:
             return None
         logger.debug("Keyword extraction complete: %s", news.keywords)
 
         # 카테고리 분류: 기사 내용을 분석하여 적절한 카테고리 결정
         if not news.categories:
-            news.categories = [category_classification.classify_category(news.content)]
+            news.categories = [
+                category_classification.classify_category(news.description)
+            ]
         else:
             return None
 
         # logger.debug("Category classification complete: %s", news.category)
 
         # 제목이나 내용이 "?" 또는 공백만 있으면 건너뛰기
-        if news.title.strip() in {"", "?"} or news.content.strip() in {"", "?"}:
+        if news.title.strip() in {"", "?"} or news.description.strip() in {"", "?"}:
             logger.info("Skipping news due to invalid title or content.")
             return None
 

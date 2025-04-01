@@ -1,7 +1,7 @@
-import asyncio
 import hashlib
 import logging
 from datetime import datetime, timedelta
+
 from fastapi_app.application.use_cases.fetch_news_from_hdfs import fetch_news_from_hdfs
 from fastapi_app.application.use_cases.process_news import (
     process_news_data,
@@ -26,9 +26,20 @@ async def process_hdfs_news(source: str) -> list:
     """
     redis_client = RedisClient()
     articles = fetch_news_from_hdfs(source)
-    processed_articles = []
     now = datetime.now()
-    threshold = now - timedelta(minutes=1000)
+
+    # 00:00 ~ 01:00 사이면 전날 뉴스도 추가로 불러옴
+    if now.hour < 1:
+        yesterday = now - timedelta(days=1)
+        articles_yesterday = fetch_news_from_hdfs(source, date=yesterday)
+        articles.extend(articles_yesterday)
+        logger.info(
+            "Including %d articles from yesterday for processing",
+            len(articles_yesterday),
+        )
+
+    processed_articles = []
+    threshold = now - timedelta(minutes=60)
 
     for article in articles:
         try:
@@ -36,7 +47,7 @@ async def process_hdfs_news(source: str) -> list:
             if source.lower() == "domestic":
                 title = article.get("title", "")
                 pubDate = article.get("pubDate", article.get("published_at", ""))
-                link = article.get("link", "")
+                link = article.get("originallink", "")
                 key_str = f"{title}-{pubDate}-{link}"
                 unique_key = hashlib.sha256(key_str.encode("utf-8")).hexdigest()
                 redis_set = "processed_domestic"
@@ -49,11 +60,8 @@ async def process_hdfs_news(source: str) -> list:
             # published_at 처리 (문자열을 datetime으로 변환)
             published_at_str = article.get("published_at", article.get("pubDate", ""))
             formatted_date_str = format_date(published_at_str)
-            try:
-                # ISO 형식 처리 (Z 제거)
-                published_at = datetime.fromisoformat(formatted_date_str)
-            except Exception:
-                published_at = now
+
+            published_at = datetime.fromisoformat(formatted_date_str)
 
             # 최근 30분 이내 기사만 처리
             if published_at < threshold:
@@ -69,16 +77,18 @@ async def process_hdfs_news(source: str) -> list:
             # News 모델 생성 (필요한 필드 매핑)
             news_obj = News(
                 title=article.get("title", ""),
-                content=article.get("description", article.get("snippet", "")),
-                source=article.get("source", ""),
+                description=article.get("description", article.get("snippet", "")),
+                url=article.get("originallink", ""),
                 published_at=formatted_date_str,
-                origin_title=article.get("title", ""),
-                origin_content=article.get("description", ""),
-                categories=article.get("category", []),
+                image_url="",
+                categories=[],
+                keywords=[],
+                sentiment=-1,
+                raw_data_ref=article.get("id", ""),
             )
 
             # 제목이나 내용이 "?" 또는 공백만 있으면 건너뛰기
-            if news_obj.title.strip() in {"", "?"} or news_obj.content.strip() in {
+            if news_obj.title.strip() in {"", "?"} or news_obj.description.strip() in {
                 "",
                 "?",
             }:
@@ -113,7 +123,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     # 테스트할 뉴스 소스 (예: "domestic" 또는 "worldwide")
-    source = "worldwide"
+    source = "domestic"
 
     # 시작 시간 기록
     start_time = time.time()

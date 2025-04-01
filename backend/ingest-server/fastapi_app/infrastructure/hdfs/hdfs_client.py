@@ -2,6 +2,10 @@ import json
 from datetime import datetime
 import os
 from hdfs import InsecureClient
+from dotenv import load_dotenv
+
+# .env 파일의 환경 변수를 로드합니다.'
+load_dotenv()
 
 
 class HDFSClient:
@@ -61,7 +65,7 @@ class HDFSClient:
 if __name__ == "__main__":
     client = HDFSClient()
     # 간단한 뉴스 기사 예시
-    test_articles = [{"title": "테스트 기사", "content": "내용"}]
+    test_articles = [{"title": "테스트 기사", "description": "내용"}]
     try:
         client.append_news_articles(test_articles, base_dir="/data/raw/news/domestic")
     except Exception as e:
