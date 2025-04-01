@@ -52,10 +52,6 @@ const FirstCountryBoard = ({
 
   const { data, isLoading, error } = useCountryData(memoizedParams);
 
-  useEffect(() => {
-    console.log('data from useCountryData:', data);
-  }, [data]);
-
   if (isLoading) return <div>Loading...</div>;
   // if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
   // if (!data) return <div>No Data</div>;
