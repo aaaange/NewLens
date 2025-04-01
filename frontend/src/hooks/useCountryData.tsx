@@ -55,6 +55,7 @@ const useCountryData = (params: CountryParams) => {
   const [data, setData] = useState<CountryApiData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  console.log(params.category);
 
   useEffect(() => {
     const fetchData = async () => {

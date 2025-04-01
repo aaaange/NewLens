@@ -198,6 +198,7 @@ const WorldDetail = () => {
                 period={period}
                 handleWordCloudChange={handleWordCloudChange}
                 handleModalOpen={handleModalOpen}
+                handleModalClose={handleModalClose}
               />
             ) : (
               <div className="flex items-center justify-center w-full h-full text-gray-400 "></div>
