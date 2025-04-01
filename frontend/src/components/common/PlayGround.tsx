@@ -13,10 +13,11 @@ const PlayGround = () => {
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#000' }}>
+    <div style={{ width: '100vw', height: '100vh', background: '#011728' }}>
       <Globe
         ref={globeRef as React.MutableRefObject<GlobeMethods | undefined>}
-        globeImageUrl="https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img/earth-blue-marble.jpg"
+        globeImageUrl="https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+        backgroundColor="#011728"
         bumpImageUrl="https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img/earth-topology.png"
       />
     </div>

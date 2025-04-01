@@ -50,7 +50,7 @@ public class SearchService {
     private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
     @Value("${call_back_url}")
     private String callBackUrl;
-    private final int timeout = 30;
+    private final int timeout = 60;
 
 
     public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {

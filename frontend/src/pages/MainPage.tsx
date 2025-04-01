@@ -30,8 +30,8 @@ const MainPage = () => {
   // 지도에 넘겨줄 데이터
   //==============================================
   const [category, setCategory] = useState('all');
-  const [period, setPeriod] = useState(1);
-  const [keyword, setKeyword] = useState('');
+  const [period, setPeriod] = useState(30);
+  const [keyword, setKeyword] = useState('it');
   const [keyword_mind, setKeywordMind] = useState('');
   const [mapData, setMapData] = useState(null);
 
@@ -58,36 +58,36 @@ const MainPage = () => {
     setKeyword(newKeyword);
   };
 
-  // const fetchWorldData = async () => {
-  //   try {
-  // const params = {
-  //   category: category,
-  //   period: period,
-  //   keyword: keyword,
-  //   keyword_mind: keyword_mind,
-  // };
-  //     const response = await getWorldMapDataApi(params);
-  //     setMapData(response.data);
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     console.error('검색 실패:', error);
-  //   }
-  // };
-  const [json, setJson] = useState();
   const fetchWorldData = async () => {
     try {
-      const response = await fetch('/worldData.json');
-      const jsonData = await response.json();
-      setJson(jsonData.data);
-      console.log(jsonData);
+      const params = {
+        category: category,
+        period: period,
+        keyword: keyword,
+        keyword_mind: keyword_mind,
+      };
+      const response = await getWorldMapDataApi(params);
+      setMapData(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error('검색 실패:', error);
     }
   };
+  const [json, setJson] = useState();
+  // const fetchWorldData = async () => {
+  //   try {
+  //     const response = await fetch('/worldData.json');
+  //     const jsonData = await response.json();
+  //     setJson(jsonData.data);
+  //     console.log(jsonData);
+  //   } catch (error) {
+  //     console.error('검색 실패:', error);
+  //   }
+  // };
 
   useEffect(() => {
     fetchWorldData();
-  }, [mapData, keyword]);
+  }, [keyword]);
 
   return (
     <div className="mt-5 flex gap-20 justify-center overflow-hidden">
