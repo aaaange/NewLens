@@ -9,7 +9,7 @@ import {
 import Flag from 'react-world-flags';
 import { getNewsListForModalApi } from '../../services/api/worldService';
 
-interface propsType {
+interface itemPropsType {
   date: string;
   title: string;
   image: string;
@@ -27,7 +27,7 @@ const NewsItem = ({
   tags,
   bookmarked,
   onToggleBookmark,
-}: propsType) => {
+}: itemPropsType) => {
   const getSentimentStyle = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
@@ -194,6 +194,7 @@ interface propsType {
   keyword_mind: string;
   keyword_cloud: string;
   country: string;
+  handleModalClose?: () => void;
 }
 const NewsModal = ({
   category,
@@ -202,6 +203,7 @@ const NewsModal = ({
   keyword_mind,
   keyword_cloud,
   country,
+  handleModalClose,
 }: propsType) => {
   const allNewsItems = [
     {
@@ -265,88 +267,79 @@ const NewsModal = ({
     }));
   };
 
-  // 뉴스 아이템 클릭 핸들러
   const handleNewsClick = (newsId: any) => {
     console.log(`뉴스 ID ${newsId} 클릭됨`);
-    // 여기에 뉴스 상세 페이지로 이동하는 로직 추가 가능
+    // 뉴스 상세 페이지 이동 로직 추가 가능
   };
-
-  const searchNewsList = async () => {
-    const params = {
-      category: category,
-      period: period,
-      keyword: keyword,
-      keyword_mind: keyword_mind,
-      keyword_cloud: keyword_cloud,
-      country: country,
-      page: currentPage,
-      size: 5,
-    };
-    const response = await getNewsListForModalApi(params);
-    console.log(response);
-  };
-
-  useEffect(() => {
-    searchNewsList();
-  }, []);
-
-  const FixedFlag = Flag as any;
 
   return (
-    <div className="p-12 w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden">
-      <div className="md:p-6">
-        <div className="flex items-start justify-between">
-          <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2 flex">
-            <div>
-              <FixedFlag code="US" width="50" />
-            </div>
-            <div className="text-black ml-4">미국</div>
-          </h2>
-          <img
-            className="cursor-pointer"
-            src="/assets/images/Close_round.png"
-          />
-        </div>
-        <div className="mb-4">
-          <span className="text-amber-300 text-lg md:text-xl font-semibold">
-            속초도련님
-          </span>
-          <span className="text-black text-base md:text-lg font-semibold">
-            에 대한{' '}
-          </span>
-          <span className="text-amber-300 text-base md:text-lg font-semibold">
-            뉴스
-          </span>
-          <span className="text-black text-base md:text-lg font-semibold">
-            {' '}
-            기사
-          </span>
-        </div>
-        <p className="text-slate-400 text-xs mb-2">총 120건</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* 흐려진 배경 */}
+      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
 
-        <div className="space-y-4">
-          {allNewsItems.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => handleNewsClick(item.id)}
+      {/* 모달 콘텐츠 */}
+      <div className="relative p-12 w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden z-10">
+        <div className="md:p-6">
+          {/* 헤더 */}
+          <div className="flex items-start justify-between">
+            <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2 flex">
+              <div>
+                <Flag code="US" width="50" />
+              </div>
+              <div className="text-black ml-4">미국</div>
+            </h2>
+            <img
+              onClick={handleModalClose}
               className="cursor-pointer"
-            >
-              <NewsItem
-                {...item}
-                bookmarked={!!bookmarks[item.id]}
-                onToggleBookmark={async () => toggleBookmark(item.id)}
-              />
-            </div>
-          ))}
-          <Pagination
-            page={currentPage}
-            size={itemsPerPage}
-            totalElements={totalElements}
-            totalPages={totalPages}
-            hasNext={hasNext}
-            hasPrevious={hasPrevious}
-            onPageChange={handlePageChange}
-          />
+              src="/assets/images/Close_round.png"
+              alt="닫기"
+            />
+          </div>
+
+          {/* 제목 */}
+          <div className="mb-4">
+            <span className="text-amber-300 text-lg md:text-xl font-semibold">
+              속초도련님
+            </span>
+            <span className="text-black text-base md:text-lg font-semibold">
+              에 대한{' '}
+            </span>
+            <span className="text-amber-300 text-base md:text-lg font-semibold">
+              뉴스
+            </span>
+            <span className="text-black text-base md:text-lg font-semibold">
+              {' '}
+              기사
+            </span>
+          </div>
+
+          {/* 뉴스 리스트 */}
+          <p className="text-slate-400 text-xs mb-2">총 {totalElements}건</p>
+          <div className="space-y-4">
+            {allNewsItems.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => handleNewsClick(item.id)}
+                className="cursor-pointer"
+              >
+                <NewsItem
+                  {...item}
+                  bookmarked={!!bookmarks[item.id]}
+                  onToggleBookmark={async () => toggleBookmark(item.id)}
+                />
+              </div>
+            ))}
+            {/* 페이지네이션 */}
+            <Pagination
+              page={currentPage}
+              size={itemsPerPage}
+              totalElements={totalElements}
+              totalPages={totalPages}
+              hasNext={hasNext}
+              hasPrevious={hasPrevious}
+              onPageChange={handlePageChange}
+            />
+          </div>
         </div>
       </div>
     </div>

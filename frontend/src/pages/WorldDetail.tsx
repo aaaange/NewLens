@@ -10,6 +10,7 @@ import Category from '../components/common/Category';
 import { useParams } from 'react-router-dom';
 import { getCountryName } from '../utils/countryUtils';
 import useCompareInfo from '../hooks/useCompareInfo';
+import NewsModal from '../components/common/NewsModal';
 
 const description =
   "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
@@ -38,6 +39,8 @@ const WorldDetail = () => {
     initialPeriod ? parseInt(initialPeriod) : 1
   );
   const [keyword, setKeyword] = useState(initialKeyword ?? '');
+  const [keyword_mind, setKeywordMind] = useState('');
+  const [keyword_cloud, setKeywordCloud] = useState('');
 
   const shouldCallCompare =
     secondCountry !== '' && category && period && keyword;
@@ -47,8 +50,10 @@ const WorldDetail = () => {
       ? {
           category,
           period,
-          keyword: [keyword],
-          country: [firstCountry, secondCountry],
+          keyword: keyword,
+          keyword_mind: keyword_mind,
+          country1: firstCountry,
+          country2: secondCountry,
         }
       : null
   );
@@ -69,10 +74,14 @@ const WorldDetail = () => {
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
-    setKeyword(`${keyword.split(' ')[0]} ${newKeyword}`);
+    setKeywordMind(newKeyword);
   };
   const handleRankingKeywordChange = (newKeyword: string) => {
     setKeyword(newKeyword);
+  };
+
+  const handleWordCloudChange = (newKeyword: string) => {
+    setKeywordCloud(newKeyword);
   };
 
   useEffect(() => {
@@ -99,6 +108,16 @@ const WorldDetail = () => {
     localStorage.setItem('secondCountry', code);
   };
 
+  const [isModal, setIsModal] = useState(false);
+  const [selectCountry, setSelectCountry] = useState('');
+  const handleModalOpen = (country: string) => {
+    setIsModal(true);
+    setSelectCountry(country);
+  };
+  const handleModalClose = () => {
+    setIsModal(false);
+  };
+
   return (
     <div className="mt-5 flex gap-10 justify-center">
       <div className="flex flex-col gap-5">
@@ -112,6 +131,7 @@ const WorldDetail = () => {
           category={category}
           period={period}
           mainKeyword={keyword}
+          isKorea={firstCountry === 'KR'}
         />
         <KeywordRanking
           category={category}
@@ -159,8 +179,12 @@ const WorldDetail = () => {
               country={firstCountry}
               country_name={firstCountryName}
               keyword={keyword}
+              keyword_mind={keyword_mind}
               category={category}
               period={period}
+              handleWordCloudChange={handleWordCloudChange}
+              handleModalOpen={handleModalOpen}
+              handleModalClose={handleModalClose}
             />
           </div>
           <div className="p-5 w-[410px] min-h-[800px]">
@@ -169,8 +193,11 @@ const WorldDetail = () => {
                 country_name={secondCountryName}
                 country={secondCountry}
                 keyword={keyword}
+                keyword_mind={keyword_mind}
                 category={category}
                 period={period}
+                handleWordCloudChange={handleWordCloudChange}
+                handleModalOpen={handleModalOpen}
               />
             ) : (
               <div className="flex items-center justify-center w-full h-full text-gray-400 "></div>
@@ -178,6 +205,17 @@ const WorldDetail = () => {
           </div>
         </div>
       </div>
+      {isModal && (
+        <NewsModal
+          handleModalClose={handleModalClose}
+          category={category}
+          period={period}
+          keyword={keyword}
+          keyword_mind={keyword_mind}
+          keyword_cloud={keyword_cloud}
+          country={selectCountry}
+        />
+      )}
     </div>
   );
 };

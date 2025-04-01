@@ -43,10 +43,11 @@ export interface CountryApiData {
 }
 
 export interface CountryParams {
-  country: string;
-  keyword: string;
   category: string;
   period: number;
+  keyword: string;
+  keyword_mind: string;
+  country: string;
   is_korea: boolean;
 }
 
@@ -60,6 +61,8 @@ const useCountryData = (params: CountryParams) => {
       setIsLoading(true);
       try {
         const response = await getCountryDataApi(params);
+        console.log(params);
+
         setData(response.data.data);
       } catch (err) {
         if (isAxiosError(err)) {
@@ -79,6 +82,7 @@ const useCountryData = (params: CountryParams) => {
     params.category,
     params.period,
     params.is_korea,
+    params.keyword_mind,
   ]);
 
   return { data, isLoading, error };

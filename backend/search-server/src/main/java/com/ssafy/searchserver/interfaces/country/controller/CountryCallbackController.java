@@ -25,7 +25,7 @@ import com.ssafy.searchserver.interfaces.country.dto.NewsModalResponse;
 public class CountryCallbackController {
 	private final CountryService countryService;
 
-	@PostMapping("/dashboard-callback")
+	@PostMapping("/dashboard_callback")
 	public ResponseEntity<Void> receiveDashboard(
 		@RequestParam("requestId") String requestId,
 		@RequestBody DashboardData response
@@ -39,7 +39,7 @@ public class CountryCallbackController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/compare-callback")
+	@PostMapping("/compare_callback")
 	public ResponseEntity<Void> receiveGptCompareSummary(
 		@RequestParam("requestId") String requestId,
 		@RequestBody String summary
@@ -53,7 +53,7 @@ public class CountryCallbackController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/news-modal-callback")
+	@PostMapping("/news_modal_callback")
 	public ResponseEntity<Void> receiveNewsModal(
 		@RequestParam("requestId") String requestId,
 		@RequestBody NewsModalResponse response

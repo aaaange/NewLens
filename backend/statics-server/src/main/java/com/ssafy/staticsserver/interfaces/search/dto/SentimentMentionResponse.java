@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Builder
 public class SentimentMentionResponse {
 	String keyword;
-	@JsonProperty("keyword-mind")
+	@JsonProperty("keyword_mind")
 	String keywordMind;
 	private List<SentimentResponse> sentiment;
 	private List<MentionResponse> mention;

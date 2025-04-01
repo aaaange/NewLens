@@ -33,8 +33,8 @@ const Category = ({
     { id: 30, label: '1달 전' },
   ];
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedPeriod, setSelectedPeriod] = useState<number | null>(1);
+  const [selectedCategory, setSelectedCategory] = useState<string>(isCategory);
+  const [selectedPeriod, setSelectedPeriod] = useState<number | null>(isPeriod);
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);

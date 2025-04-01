@@ -54,8 +54,10 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
         height: data.height || 40,
         position: 'relative',
         cursor: 'pointer',
-        border: data.isSelected ? '2px solid #007bff' : 'none',
-        boxShadow: data.isSelected ? '0 0 10px rgba(0, 0, 0, 0.2)' : 'none',
+        border: data.isSelected ? '6px solid #FFEA00' : '2px solid #ccc', // 선택되지 않은 노드는 연한 테두리
+        boxShadow: data.isSelected ? '0 0 10px rgba(0, 0, 0, 0.2)' : 'none', // 선택된 노드만 그림자 효과
+        opacity: data.isSelected ? 1 : 0.8, // 선택되지 않은 노드는 투명도 낮춤
+        transition: 'all 0.1s ease', // 부드러운 전환 효과
         whiteSpace: 'nowrap',
       }}
     >
@@ -114,6 +116,7 @@ const MindMap = ({
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
+      if (node.id === '1') return; // 중앙 노드는 클릭 이벤트 무시
       setKeyword(node.data.label);
       setSelectedNodeId(node.id);
       onKeywordChange(node.data.label);
@@ -130,6 +133,7 @@ const MindMap = ({
         is_korea: isKorea,
       };
       const response = await getMindMapApi(params);
+
       const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
       const truncateLabel = (label: string, maxLength: number = 6) => {
         return label.length > maxLength
