@@ -5,7 +5,7 @@ import NewsSummary from './NewsSummary';
 import StackedColumns from './StackedColumns';
 import VideoList from './VideoList';
 import WordCloud from './Wordcloud';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 import {
   words,
@@ -51,6 +51,10 @@ const FirstCountryBoard = ({
   );
 
   const { data, isLoading, error } = useCountryData(memoizedParams);
+
+  useEffect(() => {
+    console.log('data from useCountryData:', data);
+  }, [data]);
 
   if (isLoading) return <div>Loading...</div>;
   // if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
