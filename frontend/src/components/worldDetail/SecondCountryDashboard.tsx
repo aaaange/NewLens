@@ -24,6 +24,8 @@ interface SecondCountryBoardProps {
   category: string;
   period: number;
   handleWordCloudChange: (word: string) => void;
+  handleModalOpen: (country: string) => void;
+  handleModalClose: () => void;
 }
 
 const SecondCountryBoard = ({
@@ -34,6 +36,7 @@ const SecondCountryBoard = ({
   category,
   period,
   handleWordCloudChange,
+  handleModalOpen,
 }: SecondCountryBoardProps) => {
   const memoizedParams = useMemo(
     () => ({
@@ -68,10 +71,11 @@ const SecondCountryBoard = ({
   return (
     <div className="flex flex-col gap-5">
       <WordCloud
+        handleWordCloudChange={handleWordCloudChange}
+        keyword={keyword}
         keywords={safeData.keywords}
         width={410}
         height={200}
-        keyword={keyword}
         country_name={country_name}
         country_code={country}
       />
@@ -100,6 +104,7 @@ const SecondCountryBoard = ({
         country_code={country}
       />
       <NewsList
+        handleModalOpen={handleModalOpen}
         news={safeData.articles}
         width={410}
         keyword={keyword}
