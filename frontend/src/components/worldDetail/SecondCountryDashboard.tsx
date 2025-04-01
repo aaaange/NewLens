@@ -40,11 +40,11 @@ const SecondCountryBoard = ({
 }: SecondCountryBoardProps) => {
   const memoizedParams = useMemo(
     () => ({
-      country,
-      keyword_mind,
-      keyword,
       category,
       period,
+      keyword,
+      keyword_mind,
+      country,
       is_korea: country === 'kr',
     }),
     [country, keyword_mind, keyword, category, period]
@@ -60,7 +60,7 @@ const SecondCountryBoard = ({
 
   // 서버 응답 없을 경우 목데이터로 대체
   const safeData = data ?? {
-    keywords: words,
+    keywords: words.map((word) => ({ text: word.text, value: word.value })),
     description: description,
     sentimentData: sentimentData,
     mentions: mentionData,
