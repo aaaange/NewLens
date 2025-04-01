@@ -1,3 +1,4 @@
+import { keyword } from './../../components/worldDetail/MockData';
 // world에 관련한 api를 작성하는 곳.
 import { CountryParams } from '../../hooks/useCountryData';
 import { CompareParams } from '../../hooks/useCompareInfo';
@@ -64,13 +65,15 @@ interface MindMapReqType {
 //==============================================
 // API 정의
 //==============================================
-export const getWorldMapDataApi = async (
-  category: string,
-  period: number,
-  keyword: string
-) => {
+interface WorldMapReqType {
+  category: string;
+  period: number;
+  keyword: string;
+  keyword_mind: string;
+}
+export const getWorldMapDataApi = async (params: WorldMapReqType) => {
   const response = await api.get(`search/worldwide`, {
-    params: { category, period, keyword },
+    params: params,
   });
   return response.data;
 };
