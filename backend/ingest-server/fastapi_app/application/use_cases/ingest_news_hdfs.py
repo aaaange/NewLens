@@ -1,5 +1,3 @@
-import asyncio
-import json
 import hashlib
 import logging
 from datetime import datetime
