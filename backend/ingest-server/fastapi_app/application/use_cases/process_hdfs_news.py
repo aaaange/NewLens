@@ -63,7 +63,6 @@ async def process_hdfs_news(source: str) -> list:
 
             published_at = datetime.fromisoformat(formatted_date_str)
 
-            print(published_at)
             # 최근 30분 이내 기사만 처리
             if published_at < threshold:
                 continue
