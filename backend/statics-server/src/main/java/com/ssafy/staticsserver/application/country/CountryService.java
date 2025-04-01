@@ -42,6 +42,7 @@ public class CountryService {
 	@KafkaListener(topics = "dashboard")
 	public void listenDashboard(String message) {
 		try {
+			long start = System.currentTimeMillis();
 			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
 			});
 
@@ -56,7 +57,6 @@ public class CountryService {
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			newsList.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
-			System.out.println("국가별 대시보드 처리를 위한 뉴스 리스트 사이즈" + newsList.size());
 
 
 			// description
@@ -104,7 +104,6 @@ public class CountryService {
 				.build();
 
 			String responseJson = objectMapper.writeValueAsString(response);
-			System.out.println(response);
 
 			// 콜백 요청 전송
 			HttpClient httpClient = HttpClient.newHttpClient();
@@ -115,6 +114,9 @@ public class CountryService {
 				.build();
 
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			long end = System.currentTimeMillis();
+			int newsSize = newsIds.size();
+			System.out.println("뉴스 " + newsSize + "개 ====> 대시보드 통계 시간: " + (end - start) + "ms");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
