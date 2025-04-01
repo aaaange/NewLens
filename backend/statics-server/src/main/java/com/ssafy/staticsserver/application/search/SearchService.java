@@ -42,6 +42,7 @@ public class SearchService {
 	@KafkaListener(topics = "keyword_ranking")
 	public void listenKeywordRanking(String message) {
 		try {
+			long start = System.currentTimeMillis();
 			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
 			});
 			List<String> newsIds = (List<String>)payload.get("newsIds");
@@ -62,6 +63,9 @@ public class SearchService {
 				.build();
 
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			long end = System.currentTimeMillis();
+			int size = newsIds.size();
+			System.out.println("뉴스 " + size + "개 ====> 통계 시간: " + (end - start) + "ms");
 
 		} catch (Exception e) {
 			e.printStackTrace();
