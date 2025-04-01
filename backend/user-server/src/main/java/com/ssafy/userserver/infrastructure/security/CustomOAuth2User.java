@@ -13,6 +13,7 @@ public class CustomOAuth2User implements OAuth2User {
 	private String nameAttributeKey;
 	private String email;
 	private String nickname;
+	private String profileImage;
 	private String providerId;
 	private String registrationId;
 
@@ -21,6 +22,7 @@ public class CustomOAuth2User implements OAuth2User {
 		String nameAttributeKey,
 		String email,
 		String nickname,
+		String profileImage,
 		String providerId,
 		String registrationId) {
 		this.authorities = authorities;
@@ -28,6 +30,7 @@ public class CustomOAuth2User implements OAuth2User {
 		this.nameAttributeKey = nameAttributeKey;
 		this.email = email;
 		this.nickname = nickname;
+		this.profileImage = profileImage;
 		this.providerId = providerId;
 		this.registrationId = registrationId;
 	}
@@ -53,6 +56,10 @@ public class CustomOAuth2User implements OAuth2User {
 
 	public String getNickname() {
 		return nickname;
+	}
+
+	public String getProfileImage() {
+		return profileImage;
 	}
 
 	public String getProviderId() {
