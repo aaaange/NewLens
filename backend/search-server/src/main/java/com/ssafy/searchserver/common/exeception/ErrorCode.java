@@ -8,6 +8,7 @@ public enum ErrorCode {
 
     // 공통
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "INVALID_PARAMETER", "필수 파라미터가 누락ㅋ"),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "INVALID_REQEUST", "그런 메서드 없어용ㅠ"),
     INVALID_METHOD(HttpStatus.METHOD_NOT_ALLOWED, "INVALID_METHOD", "GET POST 구분 합시다잉"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "서버 오류인데 내탓 아님ㅎ"),
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "INVALID_CATEGORY", "그런 카테고리 없음ㅋ"),
