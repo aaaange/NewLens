@@ -1,19 +1,13 @@
 import { forwardRef, useEffect } from 'react';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import { Fade } from 'react-awesome-reveal';
+import { motion } from 'framer-motion';
+
 const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
-  useEffect(() => {
-    AOS.init();
-  }, []);
   return (
     <div ref={ref} className="h-screen border-b border-gray-400 p-[40px]">
       <div className="flex flex-col items-center gap-[60px]">
         <div className="flex justify-center gap-[100px]">
-          <div
-            className="flex flex-col items-center h-[500px] w-fit"
-            data-aos="fade-down"
-            data-aos-delay="500"
-          >
+          <div className="flex flex-col items-center h-[500px] w-fit">
             <div className="flex flex-col gap-[20px]">
               <div className="flex flex-col items-center">
                 <p className="headline-small">국가별 이슈 언급량 & 감정 분석</p>
@@ -34,11 +28,7 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
               </p>
             </div>
           </div>
-          <div
-            className="flex flex-col items-center h-[500px] w-fit"
-            data-aos="fade-down"
-            data-aos-delay="1300"
-          >
+          <div className="flex flex-col items-center h-[500px] w-fit">
             <div className="flex flex-col gap-[20px]">
               <div className="flex flex-col items-center">
                 <p className="headline-small">실시간 인기 검색어</p>
@@ -59,23 +49,21 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
               </p>
             </div>
           </div>
-          <div
-            className="flex flex-col items-center h-[500px] w-fit"
-            data-aos="fade-down"
-            data-aos-delay="2100"
-          >
-            <div className="flex flex-col gap-[20px]">
+          <div className="flex flex-col items-center h-[500px] w-fit">
+            <div className="flex flex-col gap-[60px]">
               <div className="flex flex-col items-center">
                 <p className="headline-small">연관어</p>
                 <p className="caption-small text-tetiary-600">
                   추천 연관어를 선택하여 검색해보세요!{' '}
                 </p>
               </div>
-              <img
-                src="/assets/images/mindmap.png"
-                alt="마인드맵"
-                className="w-[350px] h-[250px]"
-              />
+              <div className="flex justify-center items-center">
+                <img
+                  src="/assets/images/mindmap.png"
+                  alt="마인드맵"
+                  className="w-[350px] h-[250px]"
+                />
+              </div>
             </div>
 
             <div className="flex items-end h-full">
@@ -85,9 +73,12 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
             </div>
           </div>
         </div>
-        <div className="display-small" data-aos="flip-up" data-aos-delay="2900">
-          글로벌 <span className="text-amount-300">뉴스 흐름</span>을 한눈에!
-        </div>
+
+        <Fade direction="down" triggerOnce={false} duration={1000} delay={2800}>
+          <div className="display-small">
+            글로벌 <span className="text-amount-300">뉴스 흐름</span>을 한눈에!
+          </div>
+        </Fade>
       </div>
     </div>
   );
