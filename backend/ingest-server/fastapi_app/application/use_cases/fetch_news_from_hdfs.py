@@ -6,7 +6,7 @@ from fastapi_app.infrastructure.hdfs.hdfs_client import HDFSClient
 logger = logging.getLogger(__name__)
 
 
-def fetch_news_from_hdfs(source: str) -> list:
+def fetch_news_from_hdfs(source: str, date: datetime = None) -> list:
     """
     HDFS에 저장된 원시 뉴스 데이터를 읽어와서 리스트로 반환합니다.
 
@@ -17,11 +17,13 @@ def fetch_news_from_hdfs(source: str) -> list:
     :return: 뉴스 기사들이 담긴 리스트 (각각 dict)
     """
     hdfs_client = HDFSClient()
+    if date is None:
+        date = datetime.now()
     # 오늘 날짜에 따른 디렉토리 및 파일 이름 생성
-    today_dir = datetime.now().strftime("%Y/%m/%d")
+    date_dir = date.strftime("%Y/%m/%d")
     file_name = f"news_{datetime.now().strftime('%Y%m%d')}.json"
     # HDFS 기본 경로는 /data/raw/news 이며, source에 따라 하위 폴더가 달라집니다.
-    hdfs_path = f"/data/raw/news/{source}/{today_dir}/{file_name}"
+    hdfs_path = f"/data/raw/news/{source}/{date_dir}/{file_name}"
 
     try:
         # with 블록을 사용해 파일 객체를 연다.

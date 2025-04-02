@@ -172,6 +172,7 @@ const WorldDetail = () => {
           description={data?.analysis ?? 'GPT 요약 정보가 없습니다.'}
           width={880}
           height={125}
+          keyword={keyword}
         />
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
           <div className="p-5 min-w-[430px]">
@@ -198,6 +199,7 @@ const WorldDetail = () => {
                 period={period}
                 handleWordCloudChange={handleWordCloudChange}
                 handleModalOpen={handleModalOpen}
+                handleModalClose={handleModalClose}
               />
             ) : (
               <div className="flex items-center justify-center w-full h-full text-gray-400 "></div>
