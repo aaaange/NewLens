@@ -60,6 +60,12 @@ const Landing = () => {
     }
   };
 
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
   return (
     <div onWheel={handleWheel} className="bg-background overflow-hidden">
       <Section1 ref={sectionRefs[0]} />
@@ -68,6 +74,31 @@ const Landing = () => {
       <Section4 ref={sectionRefs[3]} />
       <Section5 ref={sectionRefs[4]} />
       <Section6 ref={sectionRefs[5]} />
+
+      <img
+        onClick={() => {
+          setCurrentSectionIndex(0);
+          sectionRefs[0].current?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        src="/assets/images/scroll-to-top.png"
+        alt="scroll to top"
+        className="fixed bottom-10 right-10 w-12 h-12 cursor-pointer z-50"
+      />
+
+      {/* Dot Navigation */}
+      <div className="fixed right-[32px] top-1/2 -translate-y-1/2 z-50 flex flex-col gap-[16px]">
+        {sectionRefs.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => scrollToSection(i)}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              currentSectionIndex === i
+                ? 'bg-amber-300 scale-130'
+                : 'bg-gray-300'
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 };

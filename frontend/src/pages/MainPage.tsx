@@ -1,15 +1,11 @@
 import Category from '../components/common/Category';
 import KeywordRanking from '../components/common/KeywordRanking';
 import MindMap from '../components/common/MindMap';
-import NewsModal from '../components/common/NewsModal';
 import SearchInput from '../components/common/SearchInput';
-import MapSwitchTab from '../components/world/MapSwitchTab';
-
 import Map from '../components/world/Map';
 
 import { useEffect, useState } from 'react';
 import { getWorldMapDataApi } from '../services/api/worldService';
-import { c } from 'vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P';
 
 const MainPage = () => {
   //==============================================
@@ -68,7 +64,7 @@ const MainPage = () => {
       };
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
-      console.log(response.data);
+      console.log('reponse', response.data);
     } catch (error) {
       console.error('검색 실패:', error);
     }
@@ -137,16 +133,11 @@ const MainPage = () => {
             keyword={keyword}
             category={category}
             period={period}
-            // mapData={mapData}
-            mapData={json}
+            mapData={mapData || undefined}
+            // mapData={json}
           />
         </div>
-        <MapSwitchTab />
       </div>
-
-      {/* <div>
-        <NewsModal />
-      </div> */}
     </div>
   );
 };
