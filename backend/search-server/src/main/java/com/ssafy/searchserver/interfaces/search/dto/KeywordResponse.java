@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class KeywordResponse {
 	private String name;
 	private String state;
+	private int count;
 }
