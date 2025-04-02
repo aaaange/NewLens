@@ -39,6 +39,20 @@ public class CountryCallbackController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PostMapping("/country/dashboard_gpt_callback")
+	public ResponseEntity<Void> receiveDashboardGpt(
+		@RequestParam("requestId") String requestId,
+		@RequestBody String gptSummary
+	) {
+		CompletableFuture<String> future = (CompletableFuture<String>) countryService.removeFuture(requestId);
+		if (future != null) {
+			future.complete(gptSummary);
+		}
+		return ResponseEntity.ok().build();
+	}
+
+
+
 	@PostMapping("/compare_callback")
 	public ResponseEntity<Void> receiveGptCompareSummary(
 		@RequestParam("requestId") String requestId,
