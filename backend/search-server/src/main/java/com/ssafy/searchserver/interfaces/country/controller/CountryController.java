@@ -143,6 +143,17 @@ public class CountryController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/dashboard_gpt")
+    public ResponseEntity<CommonResponse<AnalysisData>> getGptDescription(
+        @RequestHeader(name = "Authorization", required = false) String authorization,
+        @Parameter(description = "한국 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
+    ) {
+        AnalysisData data = countryService.getGptDescription();
+        CommonResponse<AnalysisData> response = CommonResponse.success(data);
+        return ResponseEntity.ok(response);
+    }
+
+
     @GetMapping("/compare_info")
     public ResponseEntity<CommonResponse<AnalysisData>> extractCompareInfo(
             @RequestHeader(name = "Authorization", required = false) String authorization,
