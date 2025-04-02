@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +48,7 @@ public class SearchService {
     private final ElasticsearchClient esClient;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final Map<String, CompletableFuture<?>> pendingCompareResults = new ConcurrentHashMap<>();
     @Value("${call_back_url}")
     private String callBackUrl;
@@ -135,63 +137,23 @@ public class SearchService {
     }
 
     public KeywordRankingData getKeywordRanking(String category, int period, boolean isKorea) {
-        // 아직 국내 뉴스 부분 추가 안됨 추후 수정 예정
         try {
-            // 유효성 검사
-//            Validation.validateCategoryAndPeriod(category, period);
+            // 조건에 맞는 Redis 키 생성 (ex: "keyword_ranking:politics:7:false")
+            String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime from = now.minusDays(period);
+            // Redis에서 해당 키의 값을 Object로 불러오기
+            Object rawData = redisTemplate.opsForValue().get(redisKey);
+            if (rawData == null) {
+                throw new NoSuchElementException("키워드 랭킹 데이터가 존재하지 않습니다.");
+            }
 
-            String gte = from.format(formatter);
-            String lte = now.format(formatter);
-            String requestId = UUID.randomUUID().toString();
-
-            Query boolQuery = Query.of(q -> q.bool(b -> {
-                List<Query> mustQueries = new ArrayList<>();
-
-                if (!category.equalsIgnoreCase("all")) {
-                    mustQueries.add(Query.of(m -> m.term(t -> t
-                            .field("categories")
-                            .value(FieldValue.of(category))
-                    )));
-                }
-                mustQueries.add(Query.of(m -> m.range(r -> r
-                        .date(d -> d
-                                .field("published_at")
-                                .gte(gte)
-                                .lte(lte)
-                        )
-                )));
-                return b.must(mustQueries);
-            }));
-
-
-            // Slice Scroll 로 전체 뉴스 조회
-            List<String> idList = sliceScroll(boolQuery);
-
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("newsIds", idList);
-            payload.put("requestId", requestId);
-            payload.put("callbackUrl", callBackUrl + "/api/search/keyword_ranking_callback");
-
-            CompletableFuture<KeywordRankingData> future = new CompletableFuture<>();
-            pendingCompareResults.put(requestId, future);
-
-            // kafka로 전송
-            String json = objectMapper.writeValueAsString(payload);
-            kafkaTemplate.send("keyword_ranking", json);
-
-            // 더미 반환값
-            KeywordRankingData data = future.get(timeout, TimeUnit.SECONDS);
-
+            // rawData(LinkedHashMap 등)를 KeywordRankingData 객체로 변환
+            KeywordRankingData data = objectMapper.convertValue(rawData, KeywordRankingData.class);
             return data;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new NoSuchElementException("키워드 랭킹을 불러오지 못했습니다.");
         }
-
     }
 
     public CompletableFuture<?> removeFuture(String requestId) {
@@ -342,4 +304,126 @@ public class SearchService {
         return idList;
     }
 
+    public void triggerKeywordRanking(String category, int period, boolean isKorea) {
+        try {
+            // 기간 설정: 현재 시간부터 period일 전까지
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime to = LocalDateTime.now().minusDays(1);
+            LocalDateTime from = to.minusDays(period);
+            String gte = from.format(formatter);
+            String lte = to.format(formatter);
+
+            // ES Query 구성 (category가 all인 경우는 조건 미포함)
+            Query boolQuery = Query.of(q -> q.bool(b -> {
+                List<Query> mustQueries = new ArrayList<>();
+                if (!category.equalsIgnoreCase("all")) {
+                    mustQueries.add(Query.of(m -> m.term(t -> t
+                        .field("categories")
+                        .value(FieldValue.of(category))
+                    )));
+                }
+                mustQueries.add(Query.of(m -> m.range(r -> r
+                    .date(d -> d
+                        .field("published_at")
+                        .gte(gte)
+                        .lte(lte)
+                    )
+                )));
+                return b.must(mustQueries);
+            }));
+
+            // isKorea 값에 따라 사용할 인덱스 결정
+            String index = isKorea ? "domestic_news" : "foreign_news";
+
+            // ES에서 뉴스 ID 목록 조회 (slice scroll 방식)
+            List<String> newsIds = sliceScroll(boolQuery, index);
+            log.info("뉴스 {}개 조회됨 - category: {}, period: {}, isKorea: {}", newsIds.size(), category, period, isKorea);
+
+            // payload 구성 (callbackUrl은 사용하지 않음)
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("newsIds", newsIds);
+            payload.put("category", category);
+            payload.put("period", period);
+            payload.put("isKorea", isKorea);
+
+            // Kafka 메시지 전송 (토픽: "schedule_keyword_ranking")
+            String json = objectMapper.writeValueAsString(payload);
+            kafkaTemplate.send("schedule_keyword_ranking", json);
+            log.info("Kafka 메시지 전송 완료 (schedule_keyword_ranking) - payload size: {}", newsIds.size());
+        } catch (Exception e) {
+            log.error("키워드 랭킹 통계 요청 전송 실패", e);
+            throw new RuntimeException("키워드 랭킹 통계 요청 전송 실패", e);
+        }
+    }
+
+    public List<String> sliceScroll(Query query, String index) {
+        long start = System.currentTimeMillis();
+
+        int pageSize = 10000; // 한 페이지에 처리할 개수 (예: 10,000)
+        int sliceCount = 4;   // 병렬 처리 개수
+        ExecutorService executor = Executors.newFixedThreadPool(sliceCount); // 4개의 스레드 풀 생성
+        List<String> idList = Collections.synchronizedList(new ArrayList<>()); // 멀티스레드에서 접근 가능한 리스트 생성
+        CountDownLatch latch = new CountDownLatch(sliceCount); // 모든 스레드가 끝날 때까지 메인 스레드 대기
+
+        // 스레드 별 slice 영역 할당
+        for (int sliceId = 0; sliceId < sliceCount; sliceId++) {
+            final int currentSlice = sliceId;
+
+            executor.submit(() -> {
+                try {
+                    String scrollId = null;
+                    var response = esClient.search(s -> s
+                            .index(index) // 여기서 인덱스를 동적으로 설정 ("foreign_news" 또는 "domestic_news")
+                            .scroll(t -> t.time("2m"))
+                            .size(pageSize)
+                            .query(query)
+                            .slice(sl -> sl
+                                .field("_id") // _id 필드를 기준으로 슬라이스 나눔
+                                .id(String.valueOf(currentSlice))
+                                .max(sliceCount)
+                            )
+                            .source(src -> src.filter(f -> f.includes("id")))
+                        , ForeignNewsElastic.class);
+
+                    response.hits().hits().forEach(hit -> idList.add(hit.source().getId()));
+                    scrollId = response.scrollId();
+
+                    // 데이터가 없을 때까지 스크롤 반복
+                    while (true) {
+                        String finalScrollId = scrollId;
+                        var scrollResponse = esClient.scroll(sc -> sc
+                                .scroll(t -> t.time("2m"))
+                                .scrollId(finalScrollId)
+                            , ForeignNewsElastic.class);
+
+                        if (scrollResponse.hits().hits().isEmpty()) break;
+
+                        scrollResponse.hits().hits().forEach(hit -> idList.add(hit.source().getId()));
+                        scrollId = scrollResponse.scrollId();
+                    }
+
+                    // 스크롤 종료
+                    String finalScrollId1 = scrollId;
+                    esClient.clearScroll(c -> c.scrollId(finalScrollId1));
+                } catch (Exception e) {
+                    log.error("Slice scroll 실패 - slice {}", currentSlice, e);
+                } finally {
+                    latch.countDown(); // 스레드 종료 알림
+                }
+            });
+        }
+
+        // 모든 스레드 종료 대기
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        executor.shutdown();
+
+        long end = System.currentTimeMillis();
+        int size = idList.size();
+        System.out.println("뉴스 " + size + "개 ====> 조회 시간: " + (end - start) + "ms");
+        return idList;
+    }
 }
