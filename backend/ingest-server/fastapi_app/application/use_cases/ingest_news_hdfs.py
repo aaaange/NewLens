@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import asyncio
 from datetime import datetime
 
 from fastapi_app.infrastructure.external.news_providers.naver_newsapi_client import (
