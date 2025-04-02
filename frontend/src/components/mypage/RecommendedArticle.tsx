@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import NewsItem from '../worldDetail/NewsItem';
 import { Bookmark, Mail, MailOpen } from 'lucide-react';
-import { formatDate } from '../../utils/formatDateUtils'
+import { formatDate } from '../../utils/formatDateUtils';
 
 import {
   words,
@@ -43,7 +43,7 @@ const RecommendedArticle = () => {
   // 날짜별로 그룹
   const groupedArticles = safeData.articles.reduce(
     (acc: Record<string, any[]>, article, index) => {
-      const date = formatDate(article.published_at);
+      const date = formatDate(article.published_at, 'day');
       if (!acc[date]) acc[date] = [];
       acc[date].push({ ...article, _index: index });
       return acc;
