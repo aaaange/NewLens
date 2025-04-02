@@ -146,9 +146,12 @@ public class CountryController {
     @GetMapping("/dashboard_gpt")
     public ResponseEntity<CommonResponse<AnalysisData>> getGptDescription(
         @RequestHeader(name = "Authorization", required = false) String authorization,
+        @Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword,
+        @Parameter(description = "마인드맵 키워드", example = "관세") @RequestParam(name = "keyword_mind") String keywordMind,
+        @Parameter(description = "국가", example = "ko") @RequestParam String country,
         @Parameter(description = "한국 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
     ) {
-        AnalysisData data = countryService.getGptDescription();
+        AnalysisData data = countryService.getGptDescription(keyword, keywordMind, country);
         CommonResponse<AnalysisData> response = CommonResponse.success(data);
         return ResponseEntity.ok(response);
     }
