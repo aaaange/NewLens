@@ -23,7 +23,7 @@ const Router = () => {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/koreaAnalysis" element={<KoreaAnalysisPage />} />
         <Route
-          path="/worldDetail/:country/:category/:period/:keyword"
+          path="/worldDetail/:country/:category/:period/:keyword/:keyword_mind?"
           element={<WorldDetail />}
         />
       </Route>
