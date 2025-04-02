@@ -57,7 +57,7 @@ public class SearchService {
         try {
             // 유효성 검사
 //            Validation.validateCategoryAndPeriod(category, period);
-
+            long start = System.currentTimeMillis();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime from = now.minusDays(period);
@@ -120,6 +120,9 @@ public class SearchService {
                     .map(bucket -> bucket.key().stringValue())
                     .filter(rel -> !rel.equals(keyword)) // 자기 자신 제외
                     .collect(Collectors.toList());
+
+            long end = System.currentTimeMillis();
+            System.out.println("연관어  ====> 처리 시간: " + (end - start) + "ms");
 
             return RelatedKeywordsResponse.builder()
                     .keyword(keyword)

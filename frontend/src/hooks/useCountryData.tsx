@@ -61,10 +61,25 @@ const useCountryData = (params: CountryParams) => {
       setIsLoading(true);
       try {
         const response = await getCountryDataApi(params);
-        console.log(params);
 
-        setData(response.data.data);
+        const raw = response.data;
+
+        const converted: CountryApiData = {
+          keywords:
+            raw.wordcloud?.map((word: { name: string; count: number }) => ({
+              text: word.name,
+              value: word.count,
+            })) ?? [],
+          description: raw.description,
+          sentimentData: raw.sentiment,
+          mentions: raw.mentions,
+          articles: raw.articles,
+          videos: raw.videos,
+        };
+
+        setData(converted);
       } catch (err) {
+        console.error('❌ API 호출 중 에러 발생:', err);
         if (isAxiosError(err)) {
           setError(new Error(err.response?.data?.message || err.message));
         } else {

@@ -1,7 +1,6 @@
-import asyncio
-import json
 import hashlib
 import logging
+import asyncio
 from datetime import datetime
 
 from fastapi_app.infrastructure.external.news_providers.naver_newsapi_client import (
@@ -38,7 +37,7 @@ async def ingest_naver_news_to_hdfs():
             for article in articles:
                 title = article.get("title", "")
                 pubDate = article.get("pubDate", "")
-                link = article.get("link", "")
+                link = article.get("originallink", "")
                 # 중복검사용 해시 생성 (title + pubDate + link)
                 key_str = f"{title}-{pubDate}-{link}"
                 hash_key = hashlib.sha256(key_str.encode("utf-8")).hexdigest()
@@ -47,6 +46,7 @@ async def ingest_naver_news_to_hdfs():
                     continue  # 중복이면 건너뜀
                 else:
                     await redis_client.add_key("naver_duplicates", hash_key)
+                    article["id"] = hash_key
                     articles_to_store.append(article)
         except Exception as e:
             logger.error("Error ingesting naver news for start=%s: %s", start, e)
@@ -110,3 +110,9 @@ async def ingest_thenewsapi_to_hdfs():
             )
         except Exception as e:
             logger.error("Error writing thenewsapi news to HDFS: %s", e)
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(ingest_naver_news_to_hdfs())

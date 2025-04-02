@@ -37,7 +37,7 @@ const NewsList = ({
           <span className="text-amount-300 text-lg "> 뉴스</span>
         </p>
         <div className="ml-auto">
-          <div onClick={() => handleModalOpen(country_code)} className="p-2">
+          <div onClick={() => handleModalOpen(country_code)} className="p-2 cursor-pointer">
             + 더보기
           </div>
         </div>

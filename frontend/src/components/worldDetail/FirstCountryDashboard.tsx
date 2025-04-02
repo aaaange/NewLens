@@ -5,7 +5,7 @@ import NewsSummary from './NewsSummary';
 import StackedColumns from './StackedColumns';
 import VideoList from './VideoList';
 import WordCloud from './Wordcloud';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 import {
   words,
