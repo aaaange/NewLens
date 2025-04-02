@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -121,6 +123,17 @@ public class SearchService {
 
 	// 키워드 랭킹 집계 로직
 	public KeywordRankingResponse processKeywordRanking(List<ForeignNewsMongo> newsList, String category, int period, boolean isKorea) {
+		Set<String> stopWords = new HashSet<>(Arrays.asList(
+			"경기", "선수", "축구", "뉴스", "지역", "발표", "시작", "대통령", "경찰", "말", "세계", "리그", "대회", "팀", "클럽",
+			"시즌", "승리", "스포츠", "대표", "국가", "정부", "오늘", "사람", "제공", "시장", "영화", "시리즈", "이야기", "출시",
+			"음악", "예정", "정보", "비즈니스", "분석", "시장", "포털", "식사", "준비", "그룹", "방법", "나열", "도움", "타이틀",
+			"일상", "사용", "ru", "회사", "제공", "발표", "오후", "발생", "사이", "사용자", "업데이트", "비디오", "텍스트", "라운드",
+			"다운로드", "인터뷰", "서비스", "온라인", "진행", "계획", "영향", "박사", "기능", "개발", "기술", "포함", "도시", "업체",
+			"제품", "브랜드", "식품", "산업", "가격", "포인트", "리트", "레스", "사랑", "공개", "스마트", "기자", "제안", "모델",
+			"대학", "연구", "과학자", "관광객", "관광", "최고", "최신", "결과", "사진", "분야", "개최", "상승", "증가", "기업",
+			"리뷰", "감독", "완벽", "생산", "설명", "발견", "효과", "가지", "지침", "혁신", "시스템", "출연", "여성"
+		));
+
 		// 각 키워드의 등장 횟수를 저장할 맵
 		Map<String, Integer> keywordCounts = new HashMap<>();
 
@@ -129,6 +142,9 @@ public class SearchService {
 			List<String> keywords = news.getKeywords();
 			if (keywords != null) {
 				for (String keyword : keywords) {
+					if (stopWords.contains(keyword)) {
+						continue;
+					}
 					keywordCounts.put(keyword, keywordCounts.getOrDefault(keyword, 0) + 1);
 				}
 			}
