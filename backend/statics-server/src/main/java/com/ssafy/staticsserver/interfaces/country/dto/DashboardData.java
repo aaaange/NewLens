@@ -9,7 +9,6 @@ import lombok.Getter;
 @Builder
 public class DashboardData {
 	private List<KeywordResponse> wordcloud;
-	private String description;
 	private List<SentimentResponse> sentiment;
 	private List<MentionResponse> mentions;
 	private List<ArticleResponse> articles;
@@ -19,7 +18,6 @@ public class DashboardData {
 	public String toString() {
 		return "DashboardData{" +
 			"wordcloud=" + wordcloud +
-			", description='" + description + '\'' +
 			", sentiment=" + sentiment +
 			", mentions=" + mentions +
 			", articles=" + articles +
