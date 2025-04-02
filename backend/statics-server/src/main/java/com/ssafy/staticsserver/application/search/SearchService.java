@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -36,11 +37,12 @@ public class SearchService {
 	private final ObjectMapper objectMapper;
 	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final RedisTemplate<String, Object> redisTemplate;
+	private final Map<String, List<String>> idList = new ConcurrentHashMap<>();
 
 	private static final List<String> G20_COUNTRIES = Collections.unmodifiableList(Arrays.asList(
 		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB", "US", "EU"));
 
-	@KafkaListener(topics = "schedule_keyword_ranking")
+	@KafkaListener(topics = "keyword_ranking")
 	public void listenScheduleKeywordRanking(String message) {
 		try {
 			long start = System.currentTimeMillis();
@@ -50,17 +52,25 @@ public class SearchService {
 			int period = (int) payload.get("period");
 			boolean isKorea = Boolean.parseBoolean(payload.get("isKorea").toString());
 
-			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			log.info("스케줄링: {}개의 뉴스 처리 시작", newsList.size());
+			String requestId = payload.get("requestId").toString();
+			boolean isLastBatch = Boolean.parseBoolean(payload.get("isLastBatch").toString()); // 마지막 배치 여부
+			idList.computeIfAbsent(requestId, k -> Collections.synchronizedList(new ArrayList<>())).addAll(newsIds);
 
-			// 키워드 랭킹 계산 및 Redis 업데이트
-			KeywordRankingResponse response = processKeywordRanking(newsList, category, period, isKorea);
-			String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
-			redisTemplate.opsForValue().set(redisKey, response);
-			log.info("스케줄링: Redis 업데이트 완료, key: {}", redisKey);
 
-			long end = System.currentTimeMillis();
-			log.info("스케줄링 통계 처리 완료, 소요 시간: {}ms", (end - start));
+			if(isLastBatch) {
+				List<String> allNewsIds = idList.remove(requestId); // 가져오고 삭제
+				System.out.println(allNewsIds.size());
+				List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(allNewsIds); // 전체 뉴스 조회
+
+				// 키워드 랭킹 계산 및 Redis 업데이트
+				KeywordRankingResponse response = processKeywordRanking(newsList, category, period, isKorea);
+				String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
+				redisTemplate.opsForValue().set(redisKey, response);
+				log.info("스케줄링: Redis 업데이트 완료, key: {}", redisKey);
+
+				long end = System.currentTimeMillis();
+				log.info("스케줄링 통계 처리 완료, 소요 시간: {}ms", (end - start));
+			}
 		} catch (Exception e) {
 			log.error("스케줄링 메시지 처리 실패", e);
 		}
