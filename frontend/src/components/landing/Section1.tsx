@@ -2,8 +2,8 @@ import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import { Fade } from 'react-awesome-reveal';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import PlayGround from '../common/PlayGround';
+import classes from './Section.module.css';
 
 const Section1 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
@@ -11,10 +11,18 @@ const Section1 = forwardRef<HTMLDivElement>((_, ref) => {
       ref={ref}
       className="flex flex-col items-center pt-[120px] min-h-screen relative border-b border-gray-400 overflow-visible"
     >
-      <div className="flex flex-col items-center gap-[80px] z-20">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
+        <PlayGround />
+      </div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-[80px] z-20">
         {/* title */}
         <div className="flex flex-col items-center gap-[30px]">
-          <Fade direction="down" triggerOnce={false} duration={1000}>
+          <Fade
+            direction="down"
+            triggerOnce={false}
+            delay={200}
+            duration={1000}
+          >
             <h1 className="display-large">
               세계가 주목하는 <span className="text-amount-300">이슈</span>
             </h1>
@@ -23,7 +31,7 @@ const Section1 = forwardRef<HTMLDivElement>((_, ref) => {
             direction="down"
             triggerOnce={false}
             duration={1000}
-            delay={500}
+            delay={700}
           >
             <h2 className="display-large">
               다양한 <span className="text-amount-300">데이터</span> 분석
@@ -40,13 +48,16 @@ const Section1 = forwardRef<HTMLDivElement>((_, ref) => {
           <p className="">지금 시작하기</p>
         </Link>
       </div>
-      {/* <div className="flex justify-center items-center">
-        <img
-          src="/assets/images/earth_landing.gif"
-          alt="지구"
-          className="absolute w-[800px] z-0 overflow-x-hidden "
-        />
-      </div> */}
+      <img
+        src="/assets/images/Expand_down_2.png"
+        alt="아래 화살표"
+        className={`w-[100px] h-[80px] z-50 absolute bottom-0 animate-bounce `}
+      />
+      {/* <img
+        src="/assets/images/Expand_down_2.png"
+        alt="아래 화살표"
+        className="w-[160px] h-[120px] z-50 absolute bottom-[20px] animate-bounce"
+      /> */}
     </div>
   );
 });

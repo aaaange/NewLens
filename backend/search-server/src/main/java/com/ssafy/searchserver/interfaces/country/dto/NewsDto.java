@@ -12,6 +12,7 @@ import lombok.Getter;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class NewsDto {
+	private String newsId;
 	private String title;
 	private String url;
 	private LocalDateTime publishedAt;

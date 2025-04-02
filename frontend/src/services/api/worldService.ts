@@ -12,7 +12,7 @@ export interface WorldMapData {
   sentiment: sentimentResType;
 }
 
-export type mentionResType = { name: string; count: number }[];
+export type mentionResType = { country: string; count: number }[];
 
 export interface mentionObjType {
   [key: string]: number;
@@ -23,7 +23,7 @@ export interface countryNameType {
 }
 
 export type sentimentResType = {
-  name: string;
+  country: string;
   positive: number;
   neutral: number;
   negative: number;
@@ -53,6 +53,7 @@ export interface NewsModalReqType {
   country: string;
   page: number;
   size: number;
+  is_korea: boolean;
 }
 
 interface MindMapReqType {

@@ -13,7 +13,7 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - elasticsearch
+      # - elasticsearch
       - redis
       - kafka
       - mongodb
@@ -23,8 +23,7 @@ services:
       - TZ=Asia/Seoul
     # wait-for-it 스크립트를 사용하여 모든 의존 서비스가 준비될 때까지 대기
     command: >
-      sh -c "./wait-for-it.sh elasticsearch:9200 --timeout=60 -- \
-             ./wait-for-it.sh mongodb:27017 --timeout=60 -- \
+      sh -c "./wait-for-it.sh mongodb:27017 --timeout=60 -- \
              ./wait-for-it.sh redis:6379 --timeout=60 -- \
              ./wait-for-it.sh kafka:9092 --timeout=60 -- \
              exec your_search_server_start_command"
@@ -72,39 +71,39 @@ services:
       timeout: 10s
       retries: 3
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
-    container_name: elastic
-    environment:
-      xpack.security.enabled: ${XPACK_SECURITY_ENABLED}
-      discovery.type: zen
-      cluster.initial_master_nodes: ${CLUSTER_INITIAL_MASTER_NODES}
-    ports:
-      - "${ES_PORT}:9200"
-      - "9300:9300"
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-    networks:
-      - logging-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9200"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
+  #   container_name: elastic
+  #   environment:
+  #     xpack.security.enabled: ${XPACK_SECURITY_ENABLED}
+  #     discovery.type: zen
+  #     cluster.initial_master_nodes: ${CLUSTER_INITIAL_MASTER_NODES}
+  #   ports:
+  #     - "${ES_PORT}:9200"
+  #     - "9300:9300"
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - logging-net
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9200"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.6.1
-    container_name: kibana
-    ports:
-      - "${KIBANA_PORT}:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
-      - SERVER_HOST=0.0.0.0
-    depends_on:
-      - elasticsearch
-    networks:
-      - logging-net
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:8.6.1
+  #   container_name: kibana
+  #   ports:
+  #     - "${KIBANA_PORT}:5601"
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #     - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
+  #     - SERVER_HOST=0.0.0.0
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - logging-net
 
 
   kafka:
@@ -152,7 +151,7 @@ services:
 
 volumes:
   mongodb-data:
-  elasticsearch-data:
+  # elasticsearch-data:
   redis-data:
 
 networks:
