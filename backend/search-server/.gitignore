@@ -203,3 +203,5 @@ gradle-app.setting
 
 .env
 .env.development
+docker-compose.yml
+.idea
