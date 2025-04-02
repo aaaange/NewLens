@@ -26,9 +26,11 @@ import com.ssafy.staticsserver.interfaces.search.dto.SentimentMentionResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.SentimentResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SearchService {
 
 	private final ObjectMapper objectMapper;
@@ -38,37 +40,29 @@ public class SearchService {
 	private static final List<String> G20_COUNTRIES = Collections.unmodifiableList(Arrays.asList(
 		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB", "US", "EU"));
 
-
-	@KafkaListener(topics = "keyword_ranking")
-	public void listenKeywordRanking(String message) {
+	@KafkaListener(topics = "schedule_keyword_ranking")
+	public void listenScheduleKeywordRanking(String message) {
 		try {
 			long start = System.currentTimeMillis();
-			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
-			});
-			List<String> newsIds = (List<String>)payload.get("newsIds");
-			String callbackUrl = payload.get("callbackUrl").toString();
-			String requestId = payload.get("requestId").toString();
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
+			List<String> newsIds = (List<String>) payload.get("newsIds");
+			String category = payload.get("category").toString();
+			int period = (int) payload.get("period");
+			boolean isKorea = Boolean.parseBoolean(payload.get("isKorea").toString());
+
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
-			System.out.println("키워드 처리를 위한 뉴스 리스트 사이즈"+ newsList.size());
+			log.info("스케줄링: {}개의 뉴스 처리 시작", newsList.size());
 
+			// 키워드 랭킹 계산 및 Redis 업데이트
+			KeywordRankingResponse response = processKeywordRanking(newsList, category, period, isKorea);
+			String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
+			redisTemplate.opsForValue().set(redisKey, response);
+			log.info("스케줄링: Redis 업데이트 완료, key: {}", redisKey);
 
-			KeywordRankingResponse response = processKeywordRanking(newsList);
-			String responseJson = objectMapper.writeValueAsString(response);
-
-			HttpClient httpClient = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
-				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
-				.header("Content-Type", "application/json")
-				.build();
-
-			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 			long end = System.currentTimeMillis();
-			int size = newsIds.size();
-			System.out.println("뉴스 " + size + "개 ====> 통계 시간: " + (end - start) + "ms");
-
+			log.info("스케줄링 통계 처리 완료, 소요 시간: {}ms", (end - start));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("스케줄링 메시지 처리 실패", e);
 		}
 	}
 
@@ -116,14 +110,14 @@ public class SearchService {
 	}
 
 	// 키워드 랭킹 집계 로직
-	public KeywordRankingResponse processKeywordRanking(List<ForeignNewsMongo> newsList) {
-		// 각 키워드의 등장 횟수를 저장할 맵 생성
+	public KeywordRankingResponse processKeywordRanking(List<ForeignNewsMongo> newsList, String category, int period, boolean isKorea) {
+		// 각 키워드의 등장 횟수를 저장할 맵
 		Map<String, Integer> keywordCounts = new HashMap<>();
 
 		// 뉴스 리스트를 순회하면서 각 뉴스의 keywords를 추출
 		for (ForeignNewsMongo news : newsList) {
 			List<String> keywords = news.getKeywords();
-			if (keywords != null) {  // null 체크
+			if (keywords != null) {
 				for (String keyword : keywords) {
 					keywordCounts.put(keyword, keywordCounts.getOrDefault(keyword, 0) + 1);
 				}
@@ -137,51 +131,44 @@ public class SearchService {
 				.thenComparing(Map.Entry.comparingByKey()))
 			.toList();
 
-		// 5. Redis에서 기존(이전) 키워드 랭킹 정보 조회
-		// Redis에 저장된 랭킹은 "keyword_ranking"이라는 해시(Hash) 자료형에 저장되어 있다고 가정
-		Map<Object, Object> previousRankingMap = redisTemplate.opsForHash().entries("keyword_ranking");
-
-		// 6. 키워드별 state 결정 및 결과 DTO 리스트 생성 (최대 10개)
-		List<KeywordRankingDto> resultList = new ArrayList<>();
+		List<KeywordRankingDto> rankingList = new ArrayList<>();
 		int limit = Math.min(10, sortedKeywordCounts.size());
+
+		// Redis에서 동일한 키로 저장된 이전 랭킹 데이터 불러오기
+		String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
+		// KeywordRankingResponse previousResponse = (KeywordRankingResponse) redisTemplate.opsForValue().get(redisKey);
+		Object rawPrevious = redisTemplate.opsForValue().get(redisKey);
+		KeywordRankingResponse previousResponse = null;
+		if (rawPrevious != null) {
+			previousResponse = objectMapper.convertValue(rawPrevious, KeywordRankingResponse.class);
+		}
+
+		// 이전 랭킹 데이터를 Map 형태로 변환 (keyword : count)
+		Map<String, Integer> previousRanking = new HashMap<>();
+		if (previousResponse != null && previousResponse.getKeywords() != null) {
+			for (KeywordRankingDto dto : previousResponse.getKeywords()) {
+				previousRanking.put(dto.getName(), dto.getCount());
+			}
+		}
+
+		// 상위 limit 개의 키워드를 대상으로 state 결정
 		for (int i = 0; i < limit; i++) {
 			Map.Entry<String, Integer> entry = sortedKeywordCounts.get(i);
 			String keyword = entry.getKey();
 			int newCount = entry.getValue();
 			String state = "";
-
-			if (!previousRankingMap.containsKey(keyword)) {
-				// Redis에 기존 정보가 없다면 신규 키워드로 "new"
+			if (!previousRanking.containsKey(keyword)) {
 				state = "new";
 			} else {
-				// 기존 빈도수와 비교하여 증가폭에 따라 "hot" 판단
-				int oldCount = Integer.parseInt(previousRankingMap.get(keyword).toString());
-				// 예시 조건: 이전 빈도가 있고, 새 빈도가 이전의 1.5배 이상 증가했다면 "hot"
+				int oldCount = previousRanking.get(keyword);
 				if (oldCount > 0 && newCount >= 1.5 * oldCount) {
 					state = "hot";
 				}
 			}
-
-			// KeywordRankingDto의 name 필드에는 키워드를, state에는 결정된 상태 값을 넣음
-			resultList.add(new KeywordRankingDto(keyword, state));
+			rankingList.add(new KeywordRankingDto(keyword, newCount, state));
 		}
 
-		// 7. Redis에 새로운 키워드 랭킹 업데이트 (전체 랭킹 갱신)
-		// redisTemplate.opsForHash().putAll("keyword_ranking", keywordCounts);
-
-		// 결과 출력: 키워드 랭킹
-		System.out.println("키워드 랭킹 결과:");
-		for (int i = 0; i < limit; i++) {
-			Map.Entry<String, Integer> entry = sortedKeywordCounts.get(i);
-			KeywordRankingDto dto = resultList.get(i);
-			System.out.println(entry.getKey() + " : " + entry.getValue()
-				+ " (state=" + dto.getState() + ")");
-		}
-
-		// 8. 최종 결과를 KeywordRankingResponse로 구성하여 반환
-		return KeywordRankingResponse.builder()
-			.keywords(resultList)
-			.build();
+		return KeywordRankingResponse.builder().keywords(rankingList).build();
 	}
 
 	// 세계지도 집계 로직
