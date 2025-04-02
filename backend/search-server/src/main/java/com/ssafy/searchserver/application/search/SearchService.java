@@ -9,6 +9,7 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.searchserver.interfaces.search.dto.KeywordRankingData;
+import com.ssafy.searchserver.interfaces.search.dto.KeywordResponse;
 import com.ssafy.searchserver.interfaces.search.dto.RelatedKeywordsResponse;
 import com.ssafy.searchserver.domain.search.model.ForeignNewsElastic;
 import com.ssafy.searchserver.interfaces.search.dto.SentimentMentionData;
@@ -56,6 +57,15 @@ public class SearchService {
 
 	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
 		try {
+			// 프론트 첫 메인 화면 진입 시 키워드 1위 반영
+			// 람다에서는 final 만 들어갈 수 있어서 따로 뺌
+			String tempKeyword = keyword;
+			if (tempKeyword.isEmpty()) {
+				String firstKeyword = getFirstKeyword(period, category, isKorea);
+				tempKeyword = firstKeyword;
+			}
+
+			String searchKeyword = tempKeyword;
 			// 유효성 검사
 			//            Validation.validateCategoryAndPeriod(category, period);
 			long start = System.currentTimeMillis();
@@ -72,7 +82,7 @@ public class SearchService {
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
 					.field("keywords")
-					.value(FieldValue.of(keyword))
+					.value(FieldValue.of(searchKeyword))
 				)));
 				if (!category.equalsIgnoreCase("all")) {
 					mustQueries.add(Query.of(m -> m.term(t -> t
@@ -118,14 +128,14 @@ public class SearchService {
 			// 연관 키워드 리스트 반환
 			List<String> relatedKeywords = aggregation.buckets().array().stream()
 				.map(bucket -> bucket.key().stringValue())
-				.filter(rel -> !rel.equals(keyword)) // 자기 자신 제외
+				.filter(rel -> !rel.equals(searchKeyword)) // 자기 자신 제외
 				.collect(Collectors.toList());
 
 			long end = System.currentTimeMillis();
 			System.out.println("연관어  ====> 처리 시간: " + (end - start) + "ms");
 
 			return RelatedKeywordsResponse.builder()
-				.keyword(keyword)
+				.keyword(searchKeyword)
 				.relatedKeywords(relatedKeywords)
 				.build();
 
@@ -161,6 +171,15 @@ public class SearchService {
 			// 유효성 검사
 			//            Validation.validateCategoryAndPeriod(category, period);
 
+			String tempKeyword = keyword;
+			if (tempKeyword.isEmpty()) {
+				boolean isKorea = false;
+				String firstKeyword = getFirstKeyword(period, category, isKorea);
+				tempKeyword = firstKeyword;
+			}
+
+			String searchKeyword = tempKeyword;
+
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime from = now.minusDays(period);
@@ -175,7 +194,7 @@ public class SearchService {
 
 				mustQueries.add(Query.of(m -> m.term(t -> t
 					.field("keywords")
-					.value(FieldValue.of(keyword))
+					.value(FieldValue.of(searchKeyword))
 				)));
 
 				if (!keywordMind.isEmpty()) {
@@ -206,7 +225,7 @@ public class SearchService {
 
 			// idList와 keyword를 함께 담을 수 있는 Map을 만듦
 			Map<String, Object> payload = new HashMap<>();
-			payload.put("keyword", keyword);
+			payload.put("keyword", searchKeyword);
 			payload.put("keyword_mind", keywordMind);
 			payload.put("ids", idList);
 			payload.put("requestId", requestId);
@@ -329,7 +348,8 @@ public class SearchService {
 			String index = isKorea ? "domestic_news" : "foreign_news";
 			// ES에서 뉴스 ID 목록 조회 (slice scroll 방식)
 			String requestId = UUID.randomUUID().toString();
-			sliceScrollSendPartition(boolQuery, requestId, "/api/search/keyword_ranking_callback", index, category, isKorea,
+			sliceScrollSendPartition(boolQuery, requestId, "/api/search/keyword_ranking_callback", index, category,
+				isKorea,
 				period);
 
 		} catch (Exception e) {
@@ -338,8 +358,8 @@ public class SearchService {
 		}
 	}
 
-
-	public void sliceScrollSendPartition(Query query, String requestId, String callBackPath, String index, String category,
+	public void sliceScrollSendPartition(Query query, String requestId, String callBackPath, String index,
+		String category,
 		boolean isKorea, int period) {
 		long start = System.currentTimeMillis();
 
@@ -451,6 +471,23 @@ public class SearchService {
 		} catch (Exception e) {
 			log.error("Kafka 전송 실패 - requestId: {}", requestId, e);
 		}
+	}
+
+	public String getFirstKeyword(int period, String category, boolean isKorea) {
+		String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
+		// Redis에서 해당 키의 값을 Object로 불러오기
+
+		Object obj = redisTemplate.opsForValue().get(redisKey);
+		String firstKeyword = "";
+		ObjectMapper objectMapper = new ObjectMapper();
+		KeywordRankingData keywordRankingData = objectMapper.convertValue(obj, KeywordRankingData.class);
+
+		if (keywordRankingData.getKeywords() != null && !keywordRankingData.getKeywords().isEmpty()) {
+			KeywordResponse first = keywordRankingData.getKeywords().get(0);
+			firstKeyword = first.getName();
+			System.out.println(firstKeyword);
+		}
+		return firstKeyword;
 	}
 
 }
