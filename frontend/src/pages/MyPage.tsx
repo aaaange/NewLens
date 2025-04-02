@@ -1,11 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import ClippingNews from '../components/mypage/ClippingNews';
 import MyActivities from '../components/mypage/MyActivities';
 import RecommendedArticle from '../components/mypage/RecommendedArticle';
 
 const MyPage = () => {
-  const [selectedTab, setSelectedTab] = useState('activities');
+  const [selectedTab, setSelectedTab] = useState(() => {
+    return sessionStorage.getItem('selectedTab') || 'activities';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('selectedTab', selectedTab);
+  }, [selectedTab]);
+
+  useEffect(() => {
+    return () => {
+      // unmount 시(즉, 페이지 벗어날 때) 실행
+      sessionStorage.removeItem('selectedTab');
+    };
+  }, []);
 
   return (
     <div className="flex p-15 gap-10">
