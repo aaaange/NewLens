@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { notify } from './Toast';
 
 interface propsType {
@@ -7,13 +8,29 @@ interface propsType {
 }
 
 const SearchInput = ({ onChange, onSearch, value }: propsType) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
+  const [inputValue, setInputValue] = useState(value);
 
-    if (inputValue.includes(' ')) {
+  useEffect(() => {
+    // 부모 컴포넌트로부터 전달된 value가 변경될 때 상태를 업데이트
+    setInputValue(value);
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+
+    // 영어 필터링 및 공백 체크 로직 추가
+    if (/[a-zA-Z]/.test(newValue)) {
+      notify({ type: 'warning', text: '영어는 입력할 수 없습니다.' });
+      return;
+    }
+
+    if (newValue.includes(' ')) {
       notify({ type: 'warning', text: '단어 하나만 입력해 주세요.' });
       return;
     }
+
+    // 상태 업데이트
+    setInputValue(newValue);
     onChange(e);
   };
 

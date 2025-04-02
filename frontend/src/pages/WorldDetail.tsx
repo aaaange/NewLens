@@ -12,17 +12,13 @@ import { getCountryName } from '../utils/countryUtils';
 import useCompareInfo from '../hooks/useCompareInfo';
 import NewsModal from '../components/common/NewsModal';
 
-const description =
-  "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
-
-const analysis = '한줄 비교 요약본 from gpt';
-
 const WorldDetail = () => {
   const {
     country,
     category: initialCategory,
     period: initialPeriod,
     keyword: initialKeyword,
+    keyword_mind: initialKeywordMind,
   } = useParams();
   const upperCaseCountry = (country ?? '').toUpperCase();
 
@@ -39,7 +35,7 @@ const WorldDetail = () => {
     initialPeriod ? parseInt(initialPeriod) : 1
   );
   const [keyword, setKeyword] = useState(initialKeyword ?? '');
-  const [keyword_mind, setKeywordMind] = useState('');
+  const [keyword_mind, setKeywordMind] = useState(initialKeywordMind ?? '');
   const [keyword_cloud, setKeywordCloud] = useState('');
 
   const shouldCallCompare =
@@ -70,7 +66,6 @@ const WorldDetail = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setKeyword(e.target.value);
-    console.log(e.target.value);
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
@@ -131,6 +126,7 @@ const WorldDetail = () => {
           category={category}
           period={period}
           mainKeyword={keyword}
+          keyword_mind={keyword_mind}
           isKorea={firstCountry === 'KR'}
         />
         <KeywordRanking

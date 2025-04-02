@@ -72,6 +72,7 @@ const FirstCountryBoard = ({
     <div className="flex flex-col gap-5">
       <WordCloud
         handleWordCloudChange={handleWordCloudChange}
+        handleModalOpen={handleModalOpen}
         keyword={keyword}
         keywords={safeData.keywords}
         width={410}

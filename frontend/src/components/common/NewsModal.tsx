@@ -10,6 +10,7 @@ import Flag from 'react-world-flags';
 import { getNewsListForModalApi } from '../../services/api/worldService';
 import { getCountryName } from '../../utils/countryUtils';
 import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../../utils/formatDateUtils';
 
 interface itemPropsType {
   date: string;
@@ -60,7 +61,9 @@ const NewsItem = ({
     <div className="flex items-start md:items-center mb-2 hover:bg-gray-50 p-2 rounded transition-colors">
       <img className="w-20 h-14 mr-4 object-fit" src={image} alt={title} />
       <div className="flex-grow">
-        <p className="text-slate-400 text-xs mb-1">{date}</p>
+        <p className="text-slate-400 text-xs mb-1">
+          {formatDate(date, 'full')}
+        </p>
         <h3 className="text-black text-sm caption-medium w-8/9 mb-2">
           {title}
         </h3>
@@ -289,10 +292,14 @@ const NewsModal = ({
     currentPage,
   ]);
 
+  const headerString = [keyword, keyword_mind, keyword_cloud]
+    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
+    .join(' > '); // ' > '로 연결
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 흐려진 배경 */}
-      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-black opacity-80 bg-opacity-50 backdrop-blur-sm"></div>
 
       {/* 모달 콘텐츠 */}
       <div className="relative p-4 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto z-10">
@@ -316,14 +323,14 @@ const NewsModal = ({
           </div>
 
           {/* 제목 */}
-          <div className="mb-4">
-            <span className="text-amber-300 text-lg md:text-xl font-semibold">
-              {keyword}
+          <div className="mb-4 mt-2">
+            <span className="text-amount-400 headline-medium md:text-xl font-semibold">
+              {headerString}
             </span>
             <span className="text-black text-base md:text-lg font-semibold">
               에 대한{' '}
             </span>
-            <span className="text-amber-300 text-base md:text-lg font-semibold">
+            <span className="text-amount-400 text-base md:text-lg font-semibold">
               뉴스
             </span>
             <span className="text-black text-base md:text-lg font-semibold">

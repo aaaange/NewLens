@@ -32,7 +32,7 @@ export const notify = ({ type, text }: Props) => {
 const Toast = () => {
   return (
     <ToastContainer
-      position="top-center"
+      position="top-left"
       autoClose={autoClose}
       hideProgressBar={false}
       newestOnTop={false}

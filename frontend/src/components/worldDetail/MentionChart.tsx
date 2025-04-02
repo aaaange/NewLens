@@ -1,6 +1,7 @@
 import Chart from 'react-apexcharts';
 import Flag from 'react-world-flags';
 import { ApexOptions } from 'apexcharts';
+import { formatDate } from '../../utils/formatDateUtils';
 
 interface MentionData {
   published_at: string;
@@ -25,7 +26,7 @@ const MentionChart = ({
   country_code,
 }: MentionChartProps) => {
   // x축과 y축 데이터를 변환
-  const categories = data.map((item) => item.published_at);
+  const categories = data.map((item) => formatDate(item.published_at, ''));
   const seriesData = data.map((item) => item.count);
   const FixedFlag = Flag as any;
   const options: ApexOptions = {
