@@ -8,7 +8,7 @@ const MyPage = () => {
   const [selectedTab, setSelectedTab] = useState('activities');
 
   return (
-    <div className="flex m-15 gap-10">
+    <div className="flex p-15 gap-10">
       <div className="flex flex-col border-r-1 border-gray-300 w-1/4 gap-20">
         <h1 className="text-5xl">마이페이지</h1>
         <div className="flex flex-col text-2xl gap-5">
@@ -50,7 +50,7 @@ const MyPage = () => {
           </div>
         </div>
       </div>
-      <div className="">
+      <div className="w-3/4">
         {selectedTab === 'activities' && <MyActivities />}
         {selectedTab === 'recommended' && <RecommendedArticle />}
         {selectedTab === 'clipping' && <ClippingNews />}
