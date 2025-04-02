@@ -20,9 +20,17 @@ interface WorldMapProps {
   period: number;
   keyword: string;
   mapData?: WorldMapData;
+  keyword_mind: string;
 }
 
-const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
+const Map = ({
+  tabId,
+  category,
+  period,
+  keyword,
+  mapData,
+  keyword_mind,
+}: WorldMapProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<am5.Root | null>(null);
   const [mentionData, setMentionData] = useState<mentionObjType | null>(null);
@@ -184,7 +192,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
           }
           setTimeout(() => {
             navigate(
-              `/worldDetail/${shortName}/${category}/${period}/${keyword}`
+              `/worldDetail/${shortName}/${category}/${period}/${keyword}/${keyword_mind}`
             );
             window.scrollTo(0, 0);
           }, 1000);

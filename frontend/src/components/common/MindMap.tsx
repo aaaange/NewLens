@@ -47,7 +47,7 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
         justifyContent: 'center',
         textAlign: 'center',
         padding: '5px',
-        fontSize: '14px',
+        fontSize: data.isSelected ? '20px' : '14px',
         fontWeight: 'bold',
         borderRadius: '20px',
         width: data.isSelected ? 90 : 70,
@@ -92,6 +92,7 @@ interface MindMapProps {
   period: number;
   mainKeyword: string;
   isKorea: boolean;
+  keyword_mind: string;
 }
 
 const MindMap = ({
@@ -100,6 +101,7 @@ const MindMap = ({
   period,
   mainKeyword,
   isKorea,
+  keyword_mind,
 }: MindMapProps) => {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -113,6 +115,15 @@ const MindMap = ({
       ),
     [setEdges]
   );
+  useEffect(() => {
+    if (keyword_mind) {
+      const targetNode = nodes.find((node) => node.data.label === keyword_mind);
+      if (targetNode) {
+        setSelectedNodeId(targetNode.id); // 노드 ID 업데이트
+        setKeyword(keyword_mind); // 키워드 상태도 동기화
+      }
+    }
+  }, [keyword_mind, nodes]); // nodes 배열 변경시에도 재검색
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
