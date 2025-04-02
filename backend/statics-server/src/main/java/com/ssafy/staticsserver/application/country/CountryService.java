@@ -52,20 +52,20 @@ public class CountryService {
 			String keywordMind = (String)payload.get("keyword_mind");
 			String country = (String)payload.get("country");
 			List<KeywordResponse> wordCloud = (List<KeywordResponse>)payload.get("wordCloud");
-			String callbackUrl = payload.get("callbackUrl").toString();
+			String callbackUrlDashboard = payload.get("callbackUrlDashboard").toString();
+			String callbackUrlGpt = payload.get("callbackUrlGpt").toString();
 			String requestId = payload.get("requestId").toString();
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 			newsList.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
 
-
 			// description
-			String description;
-			if (newsList.size() >= GptNewsSize) {
-				String prompt = makeDescription(keyword, keywordMind, newsList, country);
-				description = gptClient.ask(prompt);
-			} else
-				description = "관련된 뉴스가 없습니다.";
+			// String description;
+			// if (newsList.size() >= GptNewsSize) {
+			// 	String prompt = makeDescription(keyword, keywordMind, newsList, country);
+			// 	description = gptClient.ask(prompt);
+			// } else
+			// 	description = "관련된 뉴스가 없습니다.";
 
 			// sentiment & mentions
 			List<SentimentResponse> sentiment;
@@ -96,7 +96,7 @@ public class CountryService {
 
 			DashboardData response = DashboardData.builder()
 				.wordcloud(wordCloud)
-				.description(description)
+				// .description(description)
 				.sentiment(sentiment)
 				.mentions(mentions)
 				.articles(articles)
@@ -108,10 +108,11 @@ public class CountryService {
 			// 콜백 요청 전송
 			HttpClient httpClient = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(callbackUrl + "?requestId=" + requestId))
+				.uri(URI.create(callbackUrlDashboard + "?requestId=" + requestId))
 				.POST(HttpRequest.BodyPublishers.ofString(responseJson))
 				.header("Content-Type", "application/json")
 				.build();
+			getDashboardGPT(keyword, keywordMind, newsList,	country, callbackUrlGpt, requestId);
 
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 			long end = System.currentTimeMillis();
@@ -178,7 +179,6 @@ public class CountryService {
 
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 
-
 			NewsModalResponse response = processNews(newsList, page, size);
 			String responseJson = objectMapper.writeValueAsString(response);
 
@@ -199,8 +199,46 @@ public class CountryService {
 		}
 	}
 
-	// 국가별 대시보드 집계 로직
-	public void processDashboard(List<ForeignNewsMongo> newsList) {
+	// dashboard_gpt
+	private void getDashboardGPT(
+		String keyword,
+		String keywordMind,
+		List<ForeignNewsMongo> newsList,
+		String country,
+		String callbackUrlGpt,
+		String requestId
+	) {
+		try {
+			if (newsList.size() < GptNewsSize) {
+				System.out.println("해당 뉴스가 없습니다.");
+				return;
+			}
+
+			// 프롬프트 생성 → GPT 호출
+			String prompt = makeDescription(keyword, keywordMind, newsList, country);
+			String summary = gptClient.ask(prompt);
+
+			// 분석 데이터 응답 생성
+			AnalysisData analysisData = AnalysisData.builder()
+				.analysis(summary)
+				.build();
+
+			String gptJson = objectMapper.writeValueAsString(analysisData);
+
+			// 콜백 요청 전송
+			HttpRequest gptRequest = HttpRequest.newBuilder()
+				.uri(URI.create(callbackUrlGpt + "?requestId=" + requestId))
+				.POST(HttpRequest.BodyPublishers.ofString(gptJson))
+				.header("Content-Type", "application/json")
+				.build();
+
+			HttpClient.newHttpClient().send(gptRequest, HttpResponse.BodyHandlers.ofString());
+
+			System.out.println("GPT 요약 콜백 전송 완료");
+		} catch (Exception e) {
+			System.err.println("GPT 요약 처리 실패:");
+			e.printStackTrace();
+		}
 	}
 
 	// 언론 반응 요약
@@ -222,8 +260,11 @@ public class CountryService {
 			prompt.append("- ").append(news.getDescription()).append("\n\n");
 		}
 
-		prompt.append("위 뉴스를 참고하여, ").append(country)
-			.append("을 국가명으로 바꿔주고 ex) US -> 미국 ").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+		prompt.append("위 뉴스를 참고하여, ")
+			.append(country)
+			.append("을 국가명으로 바꿔주고 ex) US -> 미국 ")
+			.append(keyword)
+			.append("에 대해 어떤 시각/전략/관점을 가지고 있는지 세 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
 
 		return prompt.toString();
 	}
@@ -476,8 +517,13 @@ public class CountryService {
 			prompt.append("- ").append(news.getDescription()).append("\n\n");
 		}
 
-		prompt.append("위 뉴스를 참고하여, ").append(country1).append("과 ").append(country2)
-                .append("국가명으로 바꿔주고 ex) US -> 미국, 각 국가에서의 여론").append(keyword).append("에 대해 어떤 시각/전략/관점을 가지고 있는지 한 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+		prompt.append("위 뉴스를 참고하여, ")
+			.append(country1)
+			.append("과 ")
+			.append(country2)
+			.append("국가명으로 바꿔주고 ex) US -> 미국, 각 국가에서의 여론")
+			.append(keyword)
+			.append("에 대해 어떤 시각/전략/관점을 가지고 있는지 한 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
 
 		return prompt.toString();
 	}
@@ -510,20 +556,19 @@ public class CountryService {
 				List<String> subKeywords = item.getKeywords();
 				int length = Math.min(5, subKeywords.size());
 				if (subKeywords != null) {
-					for(int i = 0; i < length; i++){
+					for (int i = 0; i < length; i++) {
 						keywords.add(subKeywords.get(i));
 					}
 				}
 
-
 				return NewsDto.builder()
 					.newsId(item.getId())
-						.title(item.getTitle())
-						.url(item.getUrl())
-						.publishedAt(item.getPublishedAt())
-						.imageUrl(item.getImageUrl())
-						.keywords(keywords)
-						.build();
+					.title(item.getTitle())
+					.url(item.getUrl())
+					.publishedAt(item.getPublishedAt())
+					.imageUrl(item.getImageUrl())
+					.keywords(keywords)
+					.build();
 			})
 			.collect(Collectors.toList());
 

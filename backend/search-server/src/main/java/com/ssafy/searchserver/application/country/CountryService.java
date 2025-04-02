@@ -165,28 +165,28 @@ public class CountryService {
 		}
 	}
 
-	// public AnalysisData getGptDescription() {
-	// 	try {
-	// 		String requestId = UUID.randomUUID().toString();
-	// 		CompletableFuture<String> future = new CompletableFuture<>();
-	// 		pendingCompareResults.put(requestId, future);
-	//
-	// 		Map<String, Object> payload = new HashMap<>();
-	// 		payload.put("requestId", requestId);
-	// 		payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard_gpt_callback");
-	//
-	//
-	// 		String json = objectMapper.writeValueAsString(requestId);
-	// 		kafkaTemplate.send("gpt_description", json);
-	//
-	// 		// 15초 대기
-	// 		String gptResult = future.get(timeout, TimeUnit.SECONDS);
-	//
-	// 		return AnalysisData.builder().analysis(gptResult).build();
-	// 	} catch (Exception e) {
-	// 		throw new RuntimeException("GPT 요약 요청 실패", e);
-	// 	}
-	// }
+	public AnalysisData getGptDescription() {
+		try {
+			String requestId = UUID.randomUUID().toString();
+			CompletableFuture<String> future = new CompletableFuture<>();
+			pendingCompareResults.put(requestId, future);
+
+			Map<String, Object> payload = new HashMap<>();
+			payload.put("requestId", requestId);
+			payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard_gpt_callback");
+
+
+			String json = objectMapper.writeValueAsString(requestId);
+			kafkaTemplate.send("gpt_description", json);
+
+			// 15초 대기
+			String gptResult = future.get(timeout, TimeUnit.SECONDS);
+
+			return AnalysisData.builder().analysis(gptResult).build();
+		} catch (Exception e) {
+			throw new RuntimeException("GPT 요약 요청 실패", e);
+		}
+	}
 
 	public AnalysisData getCompareInfo(String category, int period, String keyword, String keywordMind,
 		String country1, String country2) {
