@@ -50,11 +50,11 @@ const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
         fontSize: '14px',
         fontWeight: 'bold',
         borderRadius: '20px',
-        width: data.width || 70,
-        height: data.height || 40,
+        width: data.isSelected ? 90 : 70,
+        height: data.isSelected ? 50 : 40,
         position: 'relative',
         cursor: 'pointer',
-        border: data.isSelected ? '6px solid #FFEA00' : '2px solid #ccc', // 선택되지 않은 노드는 연한 테두리
+        border: '2px solid #ccc', // 선택되지 않은 노드는 연한 테두리
         boxShadow: data.isSelected ? '0 0 10px rgba(0, 0, 0, 0.2)' : 'none', // 선택된 노드만 그림자 효과
         opacity: data.isSelected ? 1 : 0.8, // 선택되지 않은 노드는 투명도 낮춤
         transition: 'all 0.1s ease', // 부드러운 전환 효과

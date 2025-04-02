@@ -43,16 +43,20 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
       mention: mentionResType;
       sentiment: sentimentResType;
     } = mapData;
+    // console.log('mention', mention);
+    // console.log('sentiment', sentiment);
 
     // 언급량 데이터 가공: 배열 -> 객체로 변환
     const mentionObj: { [key: string]: number } = {};
-    mention.forEach((item: { name: string; count: number }) => {
-      mentionObj[item.name] = item.count;
+    mention.forEach((item: { country: string; count: number }) => {
+      mentionObj[item.country] = item.count;
     });
     setMentionData(mentionObj);
+    console.log('mentionObj', mentionObj);
 
     // 긍부정 데이터 가공
     const sentimentObj: sentimentObjType = {};
+    console.log('sentimentObj', sentimentObj);
 
     // primarySentiment 판별 함수
     const getPrimarySentiment = (
@@ -67,12 +71,12 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
 
     sentiment.forEach(
       ({
-        name,
+        country,
         positive,
         neutral,
         negative,
       }: {
-        name: string;
+        country: string;
         positive: number;
         neutral: number;
         negative: number;
@@ -82,7 +86,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
           neutral,
           negative
         );
-        sentimentObj[name] = {
+        sentimentObj[country] = {
           positive,
           neutral,
           negative,
@@ -113,10 +117,10 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
       India: 'IN',
       Russia: 'RU',
       Mexico: 'MX',
-      Turkey: 'TR',
+      // Turkey: 'TR',
       'South Africa': 'ZA',
       'Saudi Arabia': 'SA',
-      Indonesia: 'ID',
+      // Indonesia: 'ID',
       Argentina: 'AR',
     };
     //===========================================================================
@@ -171,7 +175,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
         const shortName = dataContext?.shortName;
 
         if (shortName) {
-          if (shortName === 'ru') {
+          if (shortName === 'RU') {
             chart.zoomToGeoPoint({ latitude: 60, longitude: 90 }, 3, true);
           } else {
             polygonSeries.zoomToDataItem(
@@ -266,11 +270,11 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
 
     // 언급량에 따른 색상 설정 함수
     const getColorByMention = (count: number): string => {
-      if (count <= 90) return '#FFF9EB'; // 매우 낮음(50)
-      if (count <= 110) return '#FFEEC6'; // 낮음(100)
-      if (count <= 120) return '#FFC34A'; // 보통(300)
-      if (count <= 130) return '#FFAA20'; // 높음(400)
-      if (count > 130) return '#F98607'; // 매우 높음(500)
+      if (count <= 100) return '#FFF9EB'; // 매우 낮음(50)
+      if (count <= 250) return '#FFEEC6'; // 낮음(100)
+      if (count <= 400) return '#FFC34A'; // 보통(300)
+      if (count <= 500) return '#FFAA20'; // 높음(400)
+      if (count > 500) return '#F98607'; // 매우 높음(500)
       return '#E0E0E0'; // 기본 설정(그레이)
     };
 
@@ -329,7 +333,7 @@ const Map = ({ tabId, category, period, keyword, mapData }: WorldMapProps) => {
           polygon.set('fill', am5.color(getColorByMention(mentionCount)));
           polygon.set(
             'tooltipText',
-            mentionCount
+            mentionCount >= 0
               ? `${fullName}\n(언급량: {mentionCount})`
               : `${fullName}`
           );

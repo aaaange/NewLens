@@ -7,8 +7,8 @@ export interface CompareParams {
   period: number;
   keyword: string;
   keyword_mind: string;
-  country1: string; // 꼭 2개
-  country2: string; // 꼭 2개
+  country1: string;
+  country2: string;
 }
 
 interface CompareResponse {
@@ -24,12 +24,11 @@ const useCompareInfo = (params: CompareParams | null) => {
     const fetchData = async () => {
       if (
         !params ||
-        params.country1 === '' ||
-        params.country2 === '' ||
-        params.category === '' ||
+        !params.country1 ||
+        !params.country2 ||
+        !params.category ||
         !params.period ||
-        params.keyword === '' ||
-        params.keyword_mind === ''
+        !params.keyword
       ) {
         return;
       }
@@ -40,7 +39,7 @@ const useCompareInfo = (params: CompareParams | null) => {
           throw new Error('params 확인필요');
         }
         const response = await getCompareInfoApi(params);
-        setData(response.data.analysis);
+        setData({ analysis: response.data.analysis });
       } catch (err) {
         if (isAxiosError(err)) {
           setError(new Error(err.response?.data?.message || err.message));

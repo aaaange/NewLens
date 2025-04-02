@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import Flag from 'react-world-flags';
 import { getNewsListForModalApi } from '../../services/api/worldService';
+import { getCountryName } from '../../utils/countryUtils';
+import { useNavigate } from 'react-router-dom';
 
 interface itemPropsType {
   date: string;
@@ -29,24 +31,28 @@ const NewsItem = ({
   onToggleBookmark,
 }: itemPropsType) => {
   const getSentimentStyle = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return 'bg-positive text-white';
-      case 'negative':
-        return 'bg-negative text-white';
-      default:
-        return 'bg-neutral';
+    const sentimentValue = parseInt(sentiment, 10); // 문자열을 숫자로 변환
+    if (sentimentValue >= 0 && sentimentValue <= 33) {
+      return 'bg-negative text-white'; // 부정적 스타일
+    } else if (sentimentValue >= 34 && sentimentValue <= 66) {
+      return 'bg-neutral text-white'; // 중립적 스타일
+    } else if (sentimentValue >= 67 && sentimentValue <= 100) {
+      return 'bg-positive text-white'; // 긍정적 스타일
+    } else {
+      return 'bg-gray-500 text-white'; // 예외 처리 스타일
     }
   };
 
   const getSentimentText = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return '긍정적';
-      case 'negative':
-        return '부정적';
-      default:
-        return '중립적';
+    const sentimentValue = parseInt(sentiment, 10); // 문자열을 숫자로 변환
+    if (sentimentValue >= 0 && sentimentValue <= 33) {
+      return '부정적';
+    } else if (sentimentValue >= 34 && sentimentValue <= 66) {
+      return '중립적';
+    } else if (sentimentValue >= 67 && sentimentValue <= 100) {
+      return '긍정적';
+    } else {
+      return '알 수 없음'; // 예외 처리
     }
   };
 
@@ -55,7 +61,9 @@ const NewsItem = ({
       <img className="w-20 h-14 mr-4 object-fit" src={image} alt={title} />
       <div className="flex-grow">
         <p className="text-slate-400 text-xs mb-1">{date}</p>
-        <h3 className="text-black text-sm font-medium mb-2">{title}</h3>
+        <h3 className="text-black text-sm caption-medium w-8/9 mb-2">
+          {title}
+        </h3>
         <div className="flex flex-wrap gap-2">
           <span
             className={`px-2 py-1 rounded-full text-xs ${getSentimentStyle(sentiment)}`}
@@ -205,55 +213,51 @@ const NewsModal = ({
   country,
   handleModalClose,
 }: propsType) => {
-  const allNewsItems = [
-    {
-      id: 1,
-      date: '2025년 1월 13일',
-      title: `제주 중증환자 골든타임 지킴이…'하늘 위 응급실' 닥터헬기[영상]`,
-      image: '/api/placeholder/80/56',
-      sentiment: 'positive',
-      tags: ['중증외상센터', '골든타임'],
-    },
-    {
-      id: 2,
-      date: '2025년 1월 12일',
-      title: `의료진 부족에 허덕이는 지방 병원, 응급 상황 대처 어려움 커져`,
-      image: '/api/placeholder/80/56',
-      sentiment: 'negative',
-      tags: ['의료진부족', '지방병원'],
-    },
-    {
-      id: 3,
-      date: '2025년 1월 11일',
-      title: `새로운 응급 의료 시스템 도입... "골든타임 확보율 15% 향상"`,
-      image: '/api/placeholder/80/56',
-      sentiment: 'positive',
-      tags: ['응급의료', '골든타임'],
-    },
-    {
-      id: 4,
-      date: '2025년 1월 10일',
-      title: `제주도, 농어촌 지역 응급 의료 서비스 확대 계획 발표`,
-      image: '/api/placeholder/80/56',
-      sentiment: 'neutral',
-      tags: ['제주도', '농어촌의료'],
-    },
-    {
-      id: 5,
-      date: '2025년 1월 9일',
-      title: `응급 상황 대처 능력 향상을 위한 의료인 교육 프로그램 확대`,
-      image: '/api/placeholder/80/56',
-      sentiment: 'positive',
-      tags: ['의료교육', '응급상황'],
-    },
-  ];
-
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  interface NewsItemType {
+    news_id: string;
+    published_at: string;
+    title: string;
+    image_url: string;
+    keywords: string[];
+    url: string;
+  }
+
+  const [newsItems, setNewsItems] = useState<NewsItemType[]>([]);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
   const itemsPerPage = 5;
-  const totalElements = allNewsItems.length;
-  const totalPages = Math.ceil(totalElements / itemsPerPage);
-  const hasNext = currentPage < totalPages;
-  const hasPrevious = currentPage > 1;
+
+  const fetchNewsList = async () => {
+    try {
+      const params = {
+        category: category,
+        period: period,
+        keyword: keyword,
+        keyword_mind: keyword_mind,
+        keyword_cloud: keyword_cloud,
+        country: country,
+        page: currentPage,
+        size: itemsPerPage,
+        is_korea: false,
+      };
+      const response = await getNewsListForModalApi(params);
+      console.log(response.data);
+      setNewsItems(response.data.news);
+      setCurrentPage(response.data.page);
+      setTotalPages(response.data.totalPages);
+      setTotalElements(response.data.totalElements);
+      setHasNext(response.data.hasNext);
+      setHasPrevious(response.data.hasPrevious);
+    } catch (error) {
+      console.error('뉴스 목록 가져오기 실패:', error);
+    }
+  };
+
+  console.log('뉴스 목록:', newsItems);
+
   const [bookmarks, setBookmarks] = useState<{ [key: number]: boolean }>({});
 
   const handlePageChange = (page: number) => {
@@ -266,11 +270,24 @@ const NewsModal = ({
       [newsId]: !prev[newsId],
     }));
   };
-
-  const handleNewsClick = (newsId: any) => {
-    console.log(`뉴스 ID ${newsId} 클릭됨`);
-    // 뉴스 상세 페이지 이동 로직 추가 가능
+  const handleNewsClick = (newsUrl: string) => {
+    window.open(newsUrl, '_blank'); // 새 탭에서 URL 열기
+    console.log(`새 탭에서 뉴스 URL ${newsUrl} 열림`);
   };
+
+  const Flags = Flag as any;
+
+  useEffect(() => {
+    fetchNewsList();
+  }, [
+    category,
+    period,
+    keyword,
+    keyword_mind,
+    keyword_cloud,
+    country,
+    currentPage,
+  ]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -278,15 +295,17 @@ const NewsModal = ({
       <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
 
       {/* 모달 콘텐츠 */}
-      <div className="relative p-12 w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden z-10">
+      <div className="relative p-4 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto z-10">
         <div className="md:p-6">
           {/* 헤더 */}
           <div className="flex items-start justify-between">
             <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2 flex">
               <div>
-                <Flag code="US" width="50" />
+                <Flags code={country} width="40" />
               </div>
-              <div className="text-black ml-4">미국</div>
+              <div className="text-black ml-4 headline-medium">
+                {getCountryName(country)}
+              </div>
             </h2>
             <img
               onClick={handleModalClose}
@@ -299,7 +318,7 @@ const NewsModal = ({
           {/* 제목 */}
           <div className="mb-4">
             <span className="text-amber-300 text-lg md:text-xl font-semibold">
-              속초도련님
+              {keyword}
             </span>
             <span className="text-black text-base md:text-lg font-semibold">
               에 대한{' '}
@@ -316,16 +335,20 @@ const NewsModal = ({
           {/* 뉴스 리스트 */}
           <p className="text-slate-400 text-xs mb-2">총 {totalElements}건</p>
           <div className="space-y-4">
-            {allNewsItems.map((item) => (
+            {newsItems.map((item, index) => (
               <div
-                key={item.id}
-                onClick={() => handleNewsClick(item.id)}
+                key={index}
+                onClick={() => handleNewsClick(item.url)}
                 className="cursor-pointer"
               >
                 <NewsItem
-                  {...item}
-                  bookmarked={!!bookmarks[item.id]}
-                  onToggleBookmark={async () => toggleBookmark(item.id)}
+                  date={item.published_at}
+                  title={item.title}
+                  image={item.image_url}
+                  sentiment={item.keywords[0]}
+                  tags={item.keywords.slice(1)}
+                  bookmarked={false}
+                  onToggleBookmark={() => toggleBookmark(index)}
                 />
               </div>
             ))}
