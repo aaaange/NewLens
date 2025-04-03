@@ -113,6 +113,19 @@ const WorldDetail = () => {
     setIsModal(false);
   };
 
+  const [openMenu, setOpenMenu] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleMenuOpen = () => {
+    if (!openMenu) {
+      setIsVisible(true); // 먼저 보여주고
+      setOpenMenu(true); // 슬라이드 인
+    } else {
+      setOpenMenu(false); // 슬라이드 아웃
+      setTimeout(() => setIsVisible(false), 300); // 트랜지션 끝나고 DOM 제거
+    }
+  };
+
   return (
     <div className="mt-5 flex gap-10 justify-center">
       <div className="flex flex-col gap-5">
@@ -126,7 +139,6 @@ const WorldDetail = () => {
           category={category}
           period={period}
           mainKeyword={keyword}
-          keyword_mind={keyword_mind}
           isKorea={firstCountry === 'KR'}
         />
         <KeywordRanking

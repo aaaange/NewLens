@@ -25,6 +25,6 @@ WORKDIR /app
 # 빌드 단계에서 생성된 실행 가능한 jar 파일 복사
 COPY --from=builder /app/build/libs/*SNAPSHOT.jar app.jar
 
-EXPOSE 9003
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
