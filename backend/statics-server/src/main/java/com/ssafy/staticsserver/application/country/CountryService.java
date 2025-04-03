@@ -43,7 +43,7 @@ public class CountryService {
     private static List<ForeignNewsMongo> newsDashboard = new ArrayList<>();
     private final ForeignNewsRepositoryImpl foreignRepo;
     private final DomesticNewsRepositoryImpl domesticRepo;
-    //
+    // 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
     private NewsMongoDBRepository repository(boolean isKorea) {
         return isKorea ? domesticRepo : foreignRepo;
     }
