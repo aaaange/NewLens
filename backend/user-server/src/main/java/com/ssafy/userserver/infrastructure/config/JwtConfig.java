@@ -1,4 +1,4 @@
-package com.ssafy.userserver.infrastructure.jwt;
+package com.ssafy.userserver.infrastructure.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
