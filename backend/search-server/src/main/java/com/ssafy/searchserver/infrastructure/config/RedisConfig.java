@@ -3,6 +3,7 @@ package com.ssafy.searchserver.infrastructure.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,18 +23,18 @@ public class RedisConfig {
 	@Value("${redis.port}")
 	private int redisPort;
 
-	// // 비밀번호가 없으면 빈 문자열이 주입될 수 있습니다.
-	// @Value("${redis.password:}")
-	// private String redisPassword;
+	// 비밀번호가 없으면 빈 문자열이 주입될 수 있습니다.
+	@Value("${redis.password:}")
+	private String redisPassword;
 
 	@Bean
 	public LettuceConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
 		config.setHostName(redisHost);
 		config.setPort(redisPort);
-		// if (redisPassword != null && !redisPassword.isEmpty()) {
-		// 	config.setPassword(redisPassword);
-		// }
+		if (redisPassword != null && !redisPassword.isEmpty()) {
+			config.setPassword(RedisPassword.of(redisPassword));
+		}
 		return new LettuceConnectionFactory(config);
 	}
 

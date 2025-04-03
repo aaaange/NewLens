@@ -1,16 +1,16 @@
 server:
-  port: 8081
+  port: 9003
 
 spring:
   data:
     mongodb:
-      uri: mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
+      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin
       database: ${MONGODB_DATABASE}
 
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-
+      password: ${REDIS_PASSWORD}
 
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
