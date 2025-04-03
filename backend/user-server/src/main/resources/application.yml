@@ -20,9 +20,12 @@ spring:
       client:
         registration:
           google: # 이게 registrationId 로서 역할
+            client-name: google
             client-id: ${GOOGLE_CLIENT}
             client-secret: ${GOOGLE_SECRET}
-            scope: # google API의 범위 값
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            authorization-grant-type: authorization_code
+            scope:
               - profile
               - email
 
@@ -48,5 +51,6 @@ spring:
 
 jwt:
   secret-key: ${JWT_SECRETKEY}
+#  secret-key: h6V8nVOjFJoCECqLEMk/53LfE0VvCNTuSaRAQiilRBg=
   access-expiration: 3600000   # 10시간 (access Token 만료 시간)
   refresh-expiration: 604800000  # 7일 (Refresh Token 만료 시간)
