@@ -99,13 +99,13 @@ public class SearchService {
 						.value(FieldValue.of(category))
 					)));
 				}
-				// mustQueries.add(Query.of(m -> m.range(r -> r
-				// 	.date(d -> d
-				// 		.field("published_at")
-				// 		.gte(gte)
-				// 		.lte(lte)
-				// 	)
-				// )));
+				 mustQueries.add(Query.of(m -> m.range(r -> r
+				 	.date(d -> d
+				 		.field("published_at")
+				 		.gte(gte)
+				 		.lte(lte)
+				 	)
+				 )));
 				return b.must(mustQueries);
 			}));
 
