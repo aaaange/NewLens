@@ -291,7 +291,7 @@ public class CountryService {
         try {
             // 유효성 검사
             //            Validation.validateCountryPeriodCategory(country, period, category);
-
+            String index = selectNews(isKorea);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime from = now.minusDays(period);
@@ -345,7 +345,7 @@ public class CountryService {
                 return b.must(mustQueries);
             }));
 
-            List<String> idList = sliceScroll(boolQuery);
+            List<String> idList = sliceScroll(boolQuery, index);
 
             // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
             Map<String, Object> payload = new HashMap<>();
