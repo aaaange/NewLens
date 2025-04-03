@@ -65,6 +65,7 @@ public class SearchService {
 			// 프론트 첫 메인 화면 진입 시 키워드 1위 반영
 			// 람다에서는 final 만 들어갈 수 있어서 따로 뺌
 			String index = selectNews(isKorea);
+			System.out.println("index: " + index);
 
 
 			String tempKeyword = keyword;
@@ -98,13 +99,13 @@ public class SearchService {
 						.value(FieldValue.of(category))
 					)));
 				}
-				mustQueries.add(Query.of(m -> m.range(r -> r
-					.date(d -> d
-						.field("published_at")
-						.gte(gte)
-						.lte(lte)
-					)
-				)));
+				// mustQueries.add(Query.of(m -> m.range(r -> r
+				// 	.date(d -> d
+				// 		.field("published_at")
+				// 		.gte(gte)
+				// 		.lte(lte)
+				// 	)
+				// )));
 				return b.must(mustQueries);
 			}));
 
