@@ -38,6 +38,8 @@ const KoreaVideoList = ({
 }: KoreaVideoListProps) => {
   const videoChunks = chunkArray(videos, 3);
 
+  const Flags = Flag as any;
+
   return (
     <>
       <div
@@ -48,7 +50,7 @@ const KoreaVideoList = ({
         }}
       >
         <p className="flex items-center flex-wrap">
-          <Flag code={country_code} width="24" height="12" /> &nbsp;
+          <Flags code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
           <span className="text-amount-300 text-lg ">{keyword}</span>의
           관련&nbsp;
