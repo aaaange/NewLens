@@ -91,9 +91,9 @@ const Landing = () => {
           <button
             key={i}
             onClick={() => scrollToSection(i)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            className={`w-[8px] h-[8px] rounded-full transition-all duration-300 ${
               currentSectionIndex === i
-                ? 'bg-amber-300 scale-130'
+                ? 'bg-amount-300 scale-130'
                 : 'bg-gray-300'
             }`}
           />

@@ -1,15 +1,19 @@
 import { forwardRef } from 'react';
+import { Fade } from 'react-awesome-reveal';
 const Section4 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className="h-screen border-b border-gray-400 p-[20px]">
-      <div className="flex flex-col justify-center items-center gap-[40px] mt-[50px]">
-        <p className="display-small">
-          다양한 <span className="text-amount-300">글로벌 이슈</span>에 대한{' '}
-          <span className="text-amount-300">G20</span> 국가의 반응은?
-        </p>
+    <div
+      ref={ref}
+      className="h-screen flex flex-col justify-center items-center gap-[80px] border-b border-gray-400 p-[20px]"
+    >
+      <p className="display-small">
+        다양한 <span className="text-amount-300">글로벌 이슈</span>에 대한{' '}
+        <span className="text-amount-300">G20</span> 국가의 반응은?
+      </p>
 
-        <div className="flex gap-[100px]">
-          {/* 왼쪽 */}
+      <div className="flex gap-[100px]">
+        {/* 왼쪽 */}
+        <Fade direction="left" triggerOnce={false} duration={300} delay={200}>
           <div className="flex flex-col items-center">
             <div className="flex headline-small gap-[5px]">
               <img
@@ -62,7 +66,14 @@ const Section4 = forwardRef<HTMLDivElement>((_, ref) => {
               className="w-[330px] h-[180px]"
             />
           </div>
-          {/* 오른쪽 */}
+        </Fade>
+        <div className="flex items-center display-xlarge">
+          <Fade direction="up" triggerOnce={false} duration={300} delay={500}>
+            <p>VS</p>
+          </Fade>
+        </div>
+        {/* 오른쪽 */}
+        <Fade direction="right" triggerOnce={false} duration={300} delay={1000}>
           <div className="flex flex-col items-center">
             <div className="flex headline-small gap-[5px]">
               <img
@@ -115,7 +126,7 @@ const Section4 = forwardRef<HTMLDivElement>((_, ref) => {
               className="w-[330px] h-[180px]"
             />
           </div>
-        </div>
+        </Fade>
       </div>
     </div>
   );
