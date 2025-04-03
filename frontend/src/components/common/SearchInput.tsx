@@ -34,6 +34,14 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
     onChange(e);
   };
 
+  const handleSearch = () => {
+    if (inputValue.length < 2) {
+      notify({ type: 'warning', text: '두 글자 이상 입력해 주세요.' });
+      return;
+    }
+    onSearch(''); // 한 글자가 아닌 경우에만 검색 실행
+  };
+
   return (
     <div>
       <div
@@ -47,12 +55,12 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
           onChange={handleChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onSearch('');
+              handleSearch();
             }
           }}
         />
         <button
-          onClick={() => onSearch('')}
+          onClick={() => handleSearch()}
           className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
         >
           <svg
