@@ -26,8 +26,6 @@ const g20Countries = [
   { code: 'MX', name: '멕시코' },
   { code: 'ZA', name: '남아프리카공화국' },
   { code: 'SA', name: '사우디아라비아' },
-  { code: 'TR', name: '터키' },
-  { code: 'ID', name: '인도네시아' },
   { code: 'AR', name: '아르헨티나' },
 ];
 
