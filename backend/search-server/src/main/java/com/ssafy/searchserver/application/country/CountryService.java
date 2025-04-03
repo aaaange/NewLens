@@ -51,9 +51,14 @@ public class CountryService {
     private String callBackUrl;
     private final int timeout = 60;
 
+    public String selectNews(boolean isKorea) {
+        return isKorea ? "domestic_news" : "foreign_news";
+    }
+
     public DashboardData getDashboard(String category, int period, String keyword, String keywordMind, String country,
                                       boolean isKorea) {
         try {
+            String index = selectNews(isKorea);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
@@ -110,13 +115,13 @@ public class CountryService {
             );
 
             SearchRequest aggregationRequest = SearchRequest.of(s -> s
-                    .index("foreign_news")
+                    .index(index)
                     .query(boolQuery)
                     .size(0)
                     .aggregations("word_cloud", agg)
             );
 
-            // ES에서 조회
+            // ES에서 조회 두 개 다 데이터 구조가 같아서 클래스타입은 아무거나 써도 상관 없음
             var aggResponse = esClient.search(aggregationRequest, ForeignNewsElastic.class);
 
             // Aggregation 처리
@@ -135,7 +140,7 @@ public class CountryService {
                             .build())
                     .toList();
 
-            List<String> idList = sliceScroll(boolQuery);
+            List<String> idList = sliceScroll(boolQuery, index);
 
             // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
             Map<String, Object> payload = new HashMap<>();
@@ -367,7 +372,7 @@ public class CountryService {
         }
     }
 
-    public List<String> sliceScroll(Query query) {
+    public List<String> sliceScroll(Query query, String index) {
         long start = System.currentTimeMillis();
 
         int pageSize = 10000; // 한 페이지에 처리할 개수 일단 1,000, 10,000 거의 비슷함
@@ -384,7 +389,7 @@ public class CountryService {
                 try {
                     String scrollId = null;
                     var response = esClient.search(s -> s
-                                    .index("foreign_news")
+                                    .index(index)
                                     .scroll(t -> t.time("2m"))
                                     .size(10000)
                                     .query(query)
