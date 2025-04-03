@@ -26,8 +26,6 @@ const g20Countries = [
   { code: 'MX', name: '멕시코' },
   { code: 'ZA', name: '남아프리카공화국' },
   { code: 'SA', name: '사우디아라비아' },
-  { code: 'TR', name: '터키' },
-  { code: 'ID', name: '인도네시아' },
   { code: 'AR', name: '아르헨티나' },
 ];
 
@@ -64,6 +62,8 @@ const CountryDropdown = ({
     }
   };
 
+  const FixedFlag = Flag as any;
+
   return (
     <Select
       value={selectedCountry}
@@ -92,9 +92,14 @@ const CountryDropdown = ({
         }
 
         const country = g20Countries.find((c) => c.code === selected);
+
+        if (!country) {
+          return null; // 혹은 에러 메시지를 출력하거나 fallback 처리
+        }
+
         return (
           <div className="flex items-center gap-2">
-            <Flag
+            <FixedFlag
               code={country.code}
               fallback={<span>🏳️</span>}
               className="h-6 w-6"
@@ -114,7 +119,7 @@ const CountryDropdown = ({
           className="!bg-transparent"
         >
           <ListItemIcon className="mr-2 w-9">
-            <Flag
+            <FixedFlag
               code={country.code}
               fallback={<span>🏳️</span>}
               className="h-6 w-6"
