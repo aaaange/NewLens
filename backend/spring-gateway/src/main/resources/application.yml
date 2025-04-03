@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: spring-gateway
+  main:
+    web-application-type: reactive
 
 logging:
   level:

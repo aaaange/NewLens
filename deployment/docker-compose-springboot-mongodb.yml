@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  spring-gateway:
+    image: kimsangouk/spring-gateway:latest
+    container_name: spring-gateway
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - logging-net
+    environment:
+      - TZ=Asia/Seoul
+      
   search-server:
     image: kimsangouk/search-server:latest
     # build:
