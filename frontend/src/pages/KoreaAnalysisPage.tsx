@@ -15,7 +15,7 @@ const KoreaAnalysisPage = () => {
 
   return (
     <div className="mt-5 flex gap-10 justify-center">
-      <div className="flex flex-col gap-5">
+      {/* <div className="flex flex-col gap-5">
         <SearchInput />
         <MindMap />
         <KeywordRanking />
@@ -29,7 +29,7 @@ const KoreaAnalysisPage = () => {
           category={category ?? ''}
           period={category ?? ''}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
