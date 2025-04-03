@@ -3,7 +3,7 @@ import { notify } from './Toast';
 
 interface propsType {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSearch: () => void;
+  onSearch: (keyword: string) => void;
   value: string;
 }
 
@@ -47,12 +47,12 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
           onChange={handleChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onSearch();
+              onSearch('');
             }
           }}
         />
         <button
-          onClick={() => onSearch()}
+          onClick={() => onSearch('')}
           className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
         >
           <svg
