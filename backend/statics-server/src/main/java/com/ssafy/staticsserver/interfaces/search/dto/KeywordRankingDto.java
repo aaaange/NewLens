@@ -11,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class KeywordRankingDto {
 	private String name;
+	private int count;
 	private String state;
 }

@@ -102,7 +102,7 @@ const KeywordRanking = ({
         {/* 헤더 */}
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-black mb-1">
-            실시간 인기 검색어
+            실시간 인기 키워드
           </h2>
           <div className="flex justify-between items-center">
             <p className="caption-small text-tetiary-500">

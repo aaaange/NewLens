@@ -3,11 +3,15 @@ package com.ssafy.searchserver.interfaces.search.dto;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "키워드 랭킹 데이터")
 public class KeywordRankingData {
 	@Schema(description = "키워드 리스트")

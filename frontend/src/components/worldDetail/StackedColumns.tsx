@@ -1,6 +1,7 @@
 import Chart from 'react-apexcharts';
 import Flag from 'react-world-flags';
 import { ApexOptions } from 'apexcharts';
+import { formatDate } from '../../utils/formatDateUtils';
 
 interface SentimentData {
   published_at: string;
@@ -46,7 +47,7 @@ const StackedColumns = ({
           fontWeight: 500,
         },
       },
-      categories: data.map((item) => item.published_at),
+      categories: data.map((item) => formatDate(item.published_at, '')),
     },
     yaxis: {
       labels: {
@@ -63,7 +64,7 @@ const StackedColumns = ({
       theme: 'dark', // 툴팁 테마 변경 (light, dark)
       style: {
         fontSize: '14px',
-        fontWeight: 'bold',
+        // fontWeight: 'bold',
         // colors: ['#F1C40F'], // 툴팁 글씨 색상 (예: 노란색)
       },
       marker: {
@@ -86,10 +87,12 @@ const StackedColumns = ({
     { name: 'Negative', data: data.map((item) => item.negative * 100) },
   ];
 
+  const Flags = Flag as any;
+
   return (
     <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
       <p className="flex items-center flex-wrap">
-        <Flag code={country_code} width="24" height="12" /> &nbsp;
+        <Flags code={country_code} width="24" height="12" /> &nbsp;
         {country_name}에서 본&nbsp;
         <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
         <span className="text-amount-300 text-lg ">감정 분석</span>
