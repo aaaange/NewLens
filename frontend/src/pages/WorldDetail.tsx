@@ -12,17 +12,13 @@ import { getCountryName } from '../utils/countryUtils';
 import useCompareInfo from '../hooks/useCompareInfo';
 import NewsModal from '../components/common/NewsModal';
 
-const description =
-  "봄꽃이 개화하는 시기에 국내 여행객들이 가장 많이 찾는 여행지가 '제주도'라는 조사 결과가 나왔다. 12일 글로벌 여행 플랫폼 트립닷컴은 오는 25일~다음 달 30일 국내 여행객의 여행 추이를 공개했다. 제주시와 서귀포시가 1, 2위에 올랐다 지난해는 반대로 서귀포시가 1위, 제주시가 2위였다. 다음으로는 서울과 부산이 뒤를 이었다.";
-
-const analysis = '한줄 비교 요약본 from gpt';
-
 const WorldDetail = () => {
   const {
     country,
     category: initialCategory,
     period: initialPeriod,
     keyword: initialKeyword,
+    keyword_mind: initialKeywordMind,
   } = useParams();
   const upperCaseCountry = (country ?? '').toUpperCase();
 
@@ -39,7 +35,7 @@ const WorldDetail = () => {
     initialPeriod ? parseInt(initialPeriod) : 1
   );
   const [keyword, setKeyword] = useState(initialKeyword ?? '');
-  const [keyword_mind, setKeywordMind] = useState('');
+  const [keyword_mind, setKeywordMind] = useState(initialKeywordMind ?? '');
   const [keyword_cloud, setKeywordCloud] = useState('');
 
   const shouldCallCompare =
@@ -70,7 +66,6 @@ const WorldDetail = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setKeyword(e.target.value);
-    console.log(e.target.value);
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
@@ -132,67 +127,28 @@ const WorldDetail = () => {
   };
 
   return (
-    <div className="mt-5 flex gap-10 justify-center relative">
-      {/* 사이드바 영역 */}
-      {!openMenu && (
-        <img
-          onClick={handleMenuOpen}
-          src="/assets/images/side_bar_button.png"
-          alt="open"
-          className="w-12 h-12 cursor-pointer absolute left-[120px] top-0 z-10"
+    <div className="mt-5 flex gap-10 justify-center">
+      <div className="flex flex-col gap-5">
+        <SearchInput
+          value={keyword}
+          onChange={keywordInputChangeHandler}
+          onSearch={() => console.log('Search triggered')}
         />
-      )}
-
-      <div
-        className={`left-[120px] w-[320px] transition-transform duration-300 transform ${
-          openMenu ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
-        }`}
-      >
-        {isVisible && (
-          // <div
-          //   className={` ${!openMenu ? 'bg-blue-200' : 'flex flex-col gap-5 bg-purple-200'} `}
-          // >
-          <div className="flex flex-col gap-5">
-            <div className="flex">
-              <SearchInput
-                value={keyword}
-                onChange={keywordInputChangeHandler}
-                onSearch={() => console.log('Search triggered')}
-              />
-              <img
-                onClick={() => handleMenuOpen()}
-                src="/assets/images/Close_round.png"
-                alt="close"
-                className="w-[32px] h-[32px] cursor-pointer"
-              />
-            </div>
-
-            <MindMap
-              onKeywordChange={handleMindMapKeywordChange}
-              category={category}
-              period={period}
-              mainKeyword={keyword}
-              isKorea={firstCountry === 'KR'}
-            />
-            <KeywordRanking
-              category={category}
-              period={period}
-              is_korea={firstCountry === 'KR'}
-              onKeywordChange={handleRankingKeywordChange}
-            />
-          </div>
-        )}
+        <MindMap
+          onKeywordChange={handleMindMapKeywordChange}
+          category={category}
+          period={period}
+          mainKeyword={keyword}
+          isKorea={firstCountry === 'KR'}
+        />
+        <KeywordRanking
+          category={category}
+          period={period}
+          is_korea={firstCountry === 'KR'}
+          onKeywordChange={handleRankingKeywordChange}
+        />
       </div>
-
-      {/* 메인 영역 */}
-      <div
-        // className="flex flex-col items-center gap-3"
-        className={`flex flex-col items-center gap-3 transition-all duration-300  ${
-          openMenu
-            ? 'ml-[12px]'
-            : 'absolute left-1/2  transform -translate-x-1/2'
-        }`}
-      >
+      <div className="flex flex-col items-center gap-3">
         <Category
           isCategory={category}
           isPeriod={period}

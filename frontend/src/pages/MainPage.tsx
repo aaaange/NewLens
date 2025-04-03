@@ -27,24 +27,21 @@ const MainPage = () => {
   //==============================================
   const [category, setCategory] = useState('all');
   const [period, setPeriod] = useState(30);
-  const [keyword, setKeyword] = useState('it');
+  const [keyword, setKeyword] = useState('');
   const [keyword_mind, setKeywordMind] = useState('');
   const [mapData, setMapData] = useState(null);
 
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
-    console.log(category);
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
-    console.log(period);
   };
 
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setKeyword(e.target.value);
-    console.log(e.target.value);
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
@@ -64,26 +61,16 @@ const MainPage = () => {
       };
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
+      setKeyword(response.data.keyword);
       console.log('reponse', response.data);
     } catch (error) {
       console.error('검색 실패:', error);
     }
   };
-  const [json, setJson] = useState();
-  // const fetchWorldData = async () => {
-  //   try {
-  //     const response = await fetch('/worldData.json');
-  //     const jsonData = await response.json();
-  //     setJson(jsonData.data);
-  //     console.log(jsonData);
-  //   } catch (error) {
-  //     console.error('검색 실패:', error);
-  //   }
-  // };
 
   useEffect(() => {
     fetchWorldData();
-  }, [keyword]);
+  }, [keyword, keyword_mind, category, period]);
 
   return (
     <div className="mt-5 flex gap-20 justify-center overflow-hidden">
@@ -131,10 +118,10 @@ const MainPage = () => {
           <Map
             tabId={activeTab}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             category={category}
             period={period}
             mapData={mapData || undefined}
-            // mapData={json}
           />
         </div>
       </div>

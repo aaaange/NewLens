@@ -55,7 +55,6 @@ public class CountryService {
                                       boolean isKorea) {
         try {
 
-
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime from = now.minusDays(period);
@@ -152,7 +151,7 @@ public class CountryService {
             CompletableFuture<DashboardData> future = new CompletableFuture<>();
             pendingCompareResults.put(requestId, future);
 
-            // Map을 JSON 문자열로 변환 & kafka로 전송
+
             String json = objectMapper.writeValueAsString(payload);
             kafkaTemplate.send("dashboard", json);
 
@@ -165,14 +164,40 @@ public class CountryService {
         }
     }
 
+    public AnalysisData getGptDescription(String keyword, String keywordMind, String country) {
+        try {
+            String requestId = UUID.randomUUID().toString();
+            CompletableFuture<String> future = new CompletableFuture<>();
+            pendingCompareResults.put(requestId, future);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("requestId", requestId);
+            payload.put("keyword", keyword);
+            payload.put("keyword_mind", keywordMind);
+            payload.put("country", country);
+            payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard_gpt_callback");
+
+
+            String json = objectMapper.writeValueAsString(payload);
+            kafkaTemplate.send("dashboard_gpt", json);
+
+            // 15초 대기
+            String gptResult = future.get(timeout, TimeUnit.SECONDS);
+
+            return AnalysisData.builder().analysis(gptResult).build();
+        } catch (Exception e) {
+            throw new RuntimeException("GPT 요약 요청 실패", e);
+        }
+    }
+
     public AnalysisData getCompareInfo(String category, int period, String keyword, String keywordMind,
                                        String country1, String country2) {
         try {
             // 유효성 검사
             List<String> country1NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country1);
-//            Validation.validateCountryPeriodCategory(country1, period, category);
+            //            Validation.validateCountryPeriodCategory(country1, period, category);
             List<String> country2NewsIds = getNewsByCountry(category, period, keyword, keywordMind, country2);
-//            Validation.validateCountryPeriodCategory(country2, period, category);
+            //            Validation.validateCountryPeriodCategory(country2, period, category);
             String requestId = UUID.randomUUID().toString();
 
             CountryNewsMessage message = CountryNewsMessage.builder()
@@ -260,7 +285,7 @@ public class CountryService {
                                           boolean isKorea) {
         try {
             // 유효성 검사
-//            Validation.validateCountryPeriodCategory(country, period, category);
+            //            Validation.validateCountryPeriodCategory(country, period, category);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
