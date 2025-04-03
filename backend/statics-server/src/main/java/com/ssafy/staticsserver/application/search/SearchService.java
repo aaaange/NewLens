@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.ssafy.staticsserver.domain.news.repository.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
-import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
-import com.ssafy.staticsserver.domain.news.repository.KeywordsOnly;
 import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingDto;
 import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.MentionResponse;
@@ -38,9 +37,14 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchService {
 
 	private final ObjectMapper objectMapper;
-	private final ForeignNewsMongoDBRepository mongoDBRepository;
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final Map<String, Integer> aggregateCounts = new ConcurrentHashMap<>();
+	private final ForeignNewsRepositoryImpl foreignRepo;
+	private final DomesticNewsRepositoryImpl domesticRepo;
+	// 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
+	private NewsMongoDBRepository repository(boolean isKorea) {
+		return isKorea ? domesticRepo : foreignRepo;
+	}
 
 	private static final List<String> G20_COUNTRIES = Collections.unmodifiableList(Arrays.asList(
 		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB",
@@ -53,11 +57,11 @@ public class SearchService {
 			List<String> newsIds = (List<String>) payload.get("newsIds");
 			String category = payload.get("category").toString();
 			int period = (int) payload.get("period");
-			boolean isKorea = Boolean.parseBoolean(payload.get("isKorea").toString());
+			boolean isKorea = (Boolean) payload.get("isKorea");
 			boolean isLastBatch = Boolean.parseBoolean(payload.get("isLastBatch").toString());
-
 			// 해당 배치의 뉴스 데이터 조회
-			List<KeywordsOnly> batchNewsList = mongoDBRepository.findKeywordsOnly(newsIds);
+			List<KeywordsOnly> batchNewsList = repository(isKorea).findKeywordsOnly(newsIds);
+			System.out.println("뉴스사이즈: "+ batchNewsList.size() +"period: " + period + "isKorea: " + isKorea + "category: " + category);
 			// 배치별 집계 업데이트
 			processKeywordRankingBatch(batchNewsList);
 
@@ -165,7 +169,7 @@ public class SearchService {
 			String requestId = payload.get("requestId").toString();
 
 			// MongoDB에서 해당 id에 해당하는 뉴스 조회
-			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
+			List<ForeignNewsMongo> newsList = repository(false).findByIdIn(newsIds);
 
 			SentimentMentionResponse response = processWorldwide(keyword, keywordMind, newsList);
 			String responseJson = objectMapper.writeValueAsString(response);

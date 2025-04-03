@@ -387,7 +387,7 @@ public class SearchService {
 					var response = esClient.search(s -> s
 							.index(index)
 							.scroll(t -> t.time("2m"))
-							.size(10000)
+							.size(pageSize)
 							.query(query)
 							.slice(sl -> sl
 								.field("_id") // id를 기준으로 데이터를 나누고 sliceId에 해당하는 데이터만 가져옴
