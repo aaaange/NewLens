@@ -55,6 +55,10 @@ const MainPage = () => {
 
   const fetchWorldData = async (mind: string) => {
     try {
+      if (debouncedKeyword.length == 1) {
+        setDebouncedKeyword('');
+        return;
+      }
       const params = {
         category: category,
         period: period,
