@@ -85,7 +85,7 @@ public class CountryService {
                             .value(FieldValue.of(keywordMind))
                     )));
                 }
-                if(!country.isEmpty()) {
+                if (!country.isEmpty()) {
                     mustQueries.add(Query.of(m -> m.term(t -> t
                             .field("country.keyword")
                             .value(FieldValue.of(country))
@@ -332,11 +332,12 @@ public class CountryService {
                             .value(FieldValue.of(category))
                     )));
                 }
-
-                mustQueries.add(Query.of(m -> m.term(t -> t
-                        .field("country.keyword")
-                        .value(FieldValue.of(country))
-                )));
+                if (!country.isEmpty()) {
+                    mustQueries.add(Query.of(m -> m.term(t -> t
+                            .field("country.keyword")
+                            .value(FieldValue.of(country))
+                    )));
+                }
 
                 mustQueries.add(Query.of(m -> m.range(r -> r
                         .date(d -> d
@@ -356,6 +357,7 @@ public class CountryService {
             payload.put("page", page);
             payload.put("size", size);
             payload.put("requestId", requestId);
+            payload.put("isKorea", isKorea);
             payload.put("callbackUrl", callBackUrl + "/api/search/country/news_modal_callback");
 
             CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
