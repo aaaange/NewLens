@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
+import com.ssafy.staticsserver.domain.news.repository.KeywordsOnly;
 import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingDto;
 import com.ssafy.staticsserver.interfaces.search.dto.KeywordRankingResponse;
 import com.ssafy.staticsserver.interfaces.search.dto.MentionResponse;
@@ -42,27 +43,29 @@ public class SearchService {
 	private final Map<String, List<String>> idList = new ConcurrentHashMap<>();
 
 	private static final List<String> G20_COUNTRIES = Collections.unmodifiableList(Arrays.asList(
-		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB", "US", "EU"));
+		"AR", "AU", "BR", "CA", "CN", "FR", "DE", "IN", "ID", "IT", "JP", "MX", "RU", "SA", "ZA", "KR", "TR", "GB",
+		"US", "EU"));
 
 	@KafkaListener(topics = "keyword_ranking")
 	public void listenScheduleKeywordRanking(String message) {
 		try {
 			long start = System.currentTimeMillis();
-			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {});
-			List<String> newsIds = (List<String>) payload.get("newsIds");
+			Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
+			});
+			List<String> newsIds = (List<String>)payload.get("newsIds");
 			String category = payload.get("category").toString();
-			int period = (int) payload.get("period");
+			int period = (int)payload.get("period");
 			boolean isKorea = Boolean.parseBoolean(payload.get("isKorea").toString());
 
 			String requestId = payload.get("requestId").toString();
 			boolean isLastBatch = Boolean.parseBoolean(payload.get("isLastBatch").toString()); // 마지막 배치 여부
 			idList.computeIfAbsent(requestId, k -> Collections.synchronizedList(new ArrayList<>())).addAll(newsIds);
 
-
-			if(isLastBatch) {
+			if (isLastBatch) {
 				List<String> allNewsIds = idList.remove(requestId); // 가져오고 삭제
 				System.out.println(allNewsIds.size());
-				List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(allNewsIds); // 전체 뉴스 조회
+				// List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(allNewsIds); // 전체 뉴스 조회
+				List<KeywordsOnly> newsList = mongoDBRepository.findKeywordsOnly(allNewsIds); // 키워드만 조회
 
 				// 키워드 랭킹 계산 및 Redis 업데이트
 				KeywordRankingResponse response = processKeywordRanking(newsList, category, period, isKorea);
@@ -96,7 +99,6 @@ public class SearchService {
 			// MongoDB에서 해당 id에 해당하는 뉴스 조회
 			List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
 
-
 			SentimentMentionResponse response = processWorldwide(keyword, keywordMind, newsList);
 			String responseJson = objectMapper.writeValueAsString(response);
 
@@ -122,7 +124,8 @@ public class SearchService {
 	}
 
 	// 키워드 랭킹 집계 로직
-	public KeywordRankingResponse processKeywordRanking(List<ForeignNewsMongo> newsList, String category, int period, boolean isKorea) {
+	public KeywordRankingResponse processKeywordRanking(List<KeywordsOnly> newsList, String category, int period,
+		boolean isKorea) {
 		Set<String> stopWords = new HashSet<>(Arrays.asList(
 			"경기", "선수", "축구", "뉴스", "지역", "발표", "시작", "대통령", "경찰", "말", "세계", "리그", "대회", "팀", "클럽",
 			"시즌", "승리", "스포츠", "대표", "국가", "정부", "오늘", "사람", "제공", "시장", "영화", "시리즈", "이야기", "출시",
@@ -138,8 +141,8 @@ public class SearchService {
 		Map<String, Integer> keywordCounts = new HashMap<>();
 
 		// 뉴스 리스트를 순회하면서 각 뉴스의 keywords를 추출
-		for (ForeignNewsMongo news : newsList) {
-			List<String> keywords = news.getKeywords();
+		for (KeywordsOnly dto : newsList) {
+			List<String> keywords = dto.getKeywords();
 			if (keywords != null) {
 				for (String keyword : keywords) {
 					if (stopWords.contains(keyword)) {
