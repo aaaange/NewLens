@@ -118,29 +118,81 @@ const WorldDetail = () => {
     setIsModal(false);
   };
 
+  const [openMenu, setOpenMenu] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleMenuOpen = () => {
+    if (!openMenu) {
+      setIsVisible(true); // 먼저 보여주고
+      setOpenMenu(true); // 슬라이드 인
+    } else {
+      setOpenMenu(false); // 슬라이드 아웃
+      setTimeout(() => setIsVisible(false), 300); // 트랜지션 끝나고 DOM 제거
+    }
+  };
+
   return (
-    <div className="mt-5 flex gap-10 justify-center">
-      <div className="flex flex-col gap-5">
-        <SearchInput
-          value={keyword}
-          onChange={keywordInputChangeHandler}
-          onSearch={() => console.log('Search triggered')}
+    <div className="mt-5 flex gap-10 justify-center relative">
+      {/* 사이드바 영역 */}
+      {!openMenu && (
+        <img
+          onClick={handleMenuOpen}
+          src="/assets/images/side_bar_button.png"
+          alt="open"
+          className="w-12 h-12 cursor-pointer absolute left-[120px] top-0 z-10"
         />
-        <MindMap
-          onKeywordChange={handleMindMapKeywordChange}
-          category={category}
-          period={period}
-          mainKeyword={keyword}
-          isKorea={firstCountry === 'KR'}
-        />
-        <KeywordRanking
-          category={category}
-          period={period}
-          is_korea={firstCountry === 'KR'}
-          onKeywordChange={handleRankingKeywordChange}
-        />
+      )}
+
+      <div
+        className={`left-[120px] w-[320px] transition-transform duration-300 transform ${
+          openMenu ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
+        }`}
+      >
+        {isVisible && (
+          // <div
+          //   className={` ${!openMenu ? 'bg-blue-200' : 'flex flex-col gap-5 bg-purple-200'} `}
+          // >
+          <div className="flex flex-col gap-5">
+            <div className="flex">
+              <SearchInput
+                value={keyword}
+                onChange={keywordInputChangeHandler}
+                onSearch={() => console.log('Search triggered')}
+              />
+              <img
+                onClick={() => handleMenuOpen()}
+                src="/assets/images/Close_round.png"
+                alt="close"
+                className="w-[32px] h-[32px] cursor-pointer"
+              />
+            </div>
+
+            <MindMap
+              onKeywordChange={handleMindMapKeywordChange}
+              category={category}
+              period={period}
+              mainKeyword={keyword}
+              isKorea={firstCountry === 'KR'}
+            />
+            <KeywordRanking
+              category={category}
+              period={period}
+              is_korea={firstCountry === 'KR'}
+              onKeywordChange={handleRankingKeywordChange}
+            />
+          </div>
+        )}
       </div>
-      <div className="flex flex-col items-center gap-3">
+
+      {/* 메인 영역 */}
+      <div
+        // className="flex flex-col items-center gap-3"
+        className={`flex flex-col items-center gap-3 transition-all duration-300  ${
+          openMenu
+            ? 'ml-[12px]'
+            : 'absolute left-1/2  transform -translate-x-1/2'
+        }`}
+      >
         <Category
           isCategory={category}
           isPeriod={period}
