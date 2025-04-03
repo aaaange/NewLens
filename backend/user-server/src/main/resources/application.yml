@@ -51,6 +51,5 @@ spring:
 
 jwt:
   secret-key: ${JWT_SECRETKEY}
-#  secret-key: h6V8nVOjFJoCECqLEMk/53LfE0VvCNTuSaRAQiilRBg=
   access-expiration: 3600000   # 10시간 (access Token 만료 시간)
   refresh-expiration: 604800000  # 7일 (Refresh Token 만료 시간)
