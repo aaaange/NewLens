@@ -55,10 +55,18 @@ public class SearchService {
 	private String callBackUrl;
 	private final int timeout = 60;
 
+	public String selectNews(boolean isKorea) {
+		return isKorea ? "domestic_news" : "foreign_news";
+	}
+
+
 	public RelatedKeywordsResponse getRelatedKeywords(String keyword, String category, int period, boolean isKorea) {
 		try {
 			// 프론트 첫 메인 화면 진입 시 키워드 1위 반영
 			// 람다에서는 final 만 들어갈 수 있어서 따로 뺌
+			String index = selectNews(isKorea);
+
+
 			String tempKeyword = keyword;
 			if (tempKeyword.isEmpty()) {
 				String firstKeyword = getFirstKeyword(period, category, isKorea);
@@ -111,7 +119,7 @@ public class SearchService {
 
 			// 검색 요청 생성
 			SearchRequest searchRequest = SearchRequest.of(s -> s
-				.index("foreign_news")
+				.index(index)
 				.query(boolQuery)
 				.size(0) // doc 자체는 필요 없으므로 size 0
 				.aggregations("related_keywords", agg)
