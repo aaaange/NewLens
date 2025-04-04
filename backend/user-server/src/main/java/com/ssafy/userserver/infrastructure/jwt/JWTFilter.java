@@ -14,8 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import com.ssafy.userserver.domain.dto.CustomOAuth2User;
 import com.ssafy.userserver.domain.dto.UserDTO;
+import com.ssafy.userserver.infrastructure.security.CustomOAuth2User;
 
 @RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
@@ -25,49 +25,31 @@ public class JWTFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-		String authorization = null;
-		Cookie[] cookies = request.getCookies();
-		for (Cookie cookie : cookies) {
+		String authorization = request.getHeader("Authorization");
 
-			if (cookie.getName().equals("Authorization")) {
-
-				authorization = cookie.getValue();
-			}
-		}
-
-		//Authorization 헤더 검증
-		if (authorization == null) {
+		if (authorization == null || !authorization.startsWith("Bearer ")) {
 			System.out.println("token null");
 			filterChain.doFilter(request, response);
-
-			//조건이 해당되면 메소드 종료 (필수)
 			return;
 		}
 
-		//토큰
-		String token = authorization;
+		String token = authorization.substring(7);
 
 		if (jwtUtil.isExpired(token)) {
-
 			System.out.println("token expired");
 			filterChain.doFilter(request, response);
-
-			//조건이 해당되면 메소드 종료 (필수)
 			return;
 		}
 
-		//토큰에서 username과 role 획득
 		String email = jwtUtil.getEmail(token);
 		String nickname = jwtUtil.getNickname(token);
 
-		//userDTO를 생성하여 값 set
 		UserDTO userDTO = new UserDTO();
 		userDTO.setNickname(nickname);
 		userDTO.setEmail(email);
 
 		//UserDetails에 회원 정보 객체 담기
 		CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
-
 		//스프링 시큐리티 인증 토큰 생성
 		Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
 		//세션에 사용자 등록
