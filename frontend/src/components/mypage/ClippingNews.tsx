@@ -10,7 +10,7 @@ import {
   description,
   videos,
 } from '../worldDetail/MockData';
-import { useScrapNews } from '../../hooks/useScrapNews';
+import { useScrapNews } from '../../hooks/useMypageNews';
 
 const safeData = {
   keywords: words,
@@ -24,7 +24,7 @@ const safeData = {
 const ClippingNews = () => {
   const [clippedArticles, setClippedArticles] = useState(safeData.articles);
 
-  const { newsList, loading, fetchScrapNews, removeScrapNews } = useScrapNews();
+  const { scrapNewsList, loading, fetchScrapNews, removeScrapNews } = useScrapNews();
 
   // ~~~~~~~~~ 목 데이터 ~~~~~~~~~~
   // const deleteArticle = (index: number) => {
@@ -53,7 +53,7 @@ const ClippingNews = () => {
       <h2 className="text-2xl">스크랩 NEWS</h2>
       <div className="rounded-lg">
         {/* {clippedArticles.map((item, index) => ( */}
-        {newsList.map((item, index) => (
+        {scrapNewsList.map((item, index) => (
           <div key={index} className="flex items-center gap-4">
             {/* 삭제 버튼 */}
             <button

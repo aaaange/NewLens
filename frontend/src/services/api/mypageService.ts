@@ -1,8 +1,8 @@
-// scrap에 관련한 api 작성하는 곳
+// scrap에 관련한 api
 import {
   ScrapNewsActionParams,
   ScrapNewsGetParams,
-} from '../../hooks/useScrapNews';
+} from '../../hooks/useMypageNews';
 import { api } from './Api';
 
 export const getScrapNewsApi = async (params: ScrapNewsGetParams) => {
@@ -17,5 +17,17 @@ export const postScrapNewsApi = async (data: ScrapNewsActionParams) => {
 
 export const deleteScrapNewsApi = async (data: ScrapNewsActionParams) => {
   const response = await api.delete('scrap/news', { data });
+  return response.data;
+};
+
+// recommend 관련 api
+export const getRecommendNewsApi = async () => {
+  const response = await api.get('recommend/news');
+  return response.data;
+};
+
+// log 관련 api
+export const getNewslogApi = async () => {
+  const response = await api.get('log/news');
   return response.data;
 };
