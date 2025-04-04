@@ -16,7 +16,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ssafy.staticsserver.domain.news.repository.DomesticNewsMongoDBRepository;
+import com.ssafy.staticsserver.domain.news.repository.DomesticNewsRepositoryImpl;
+import com.ssafy.staticsserver.domain.news.repository.ForeignNewsRepositoryImpl;
+import com.ssafy.staticsserver.domain.news.repository.NewsMongoDBRepository;
 import com.ssafy.staticsserver.infrastructure.client.GptClient;
 import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
 import com.ssafy.staticsserver.interfaces.country.dto.*;
@@ -27,7 +30,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
-import com.ssafy.staticsserver.domain.news.repository.ForeignNewsMongoDBRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,15 +37,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CountryService {
     private final ObjectMapper objectMapper;
-    private final ForeignNewsMongoDBRepository mongoDBRepository;
     private final GptClient gptClient;
     private final YouTubeClient youTubeClient;
     private final int GptNewsSize = 3;
     private static List<ForeignNewsMongo> newsDashboard = new ArrayList<>();
+    private final ForeignNewsRepositoryImpl foreignRepo;
+    private final DomesticNewsRepositoryImpl domesticRepo;
+    // 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
+    private NewsMongoDBRepository repository(boolean isKorea) {
+        return isKorea ? domesticRepo : foreignRepo;
+    }
 
     @KafkaListener(topics = "dashboard")
     public void listenDashboard(String message) {
         try {
+
             long start = System.currentTimeMillis();
             Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
             });
@@ -52,12 +60,14 @@ public class CountryService {
             int period = (Integer) payload.get("period");
             String keyword = (String) payload.get("keyword");
             String keywordMind = (String) payload.get("keyword_mind");
+            boolean isKorea = (Boolean) payload.get("isKorea");
             String country = (String) payload.get("country");
+            if (country.isEmpty()) country = "한국";
             List<KeywordResponse> wordCloud = (List<KeywordResponse>) payload.get("wordCloud");
             String callbackUrl = payload.get("callbackUrl").toString();
             String requestId = payload.get("requestId").toString();
 
-            newsDashboard = mongoDBRepository.findByIdIn(newsIds);
+            newsDashboard = repository(isKorea).findByIdIn(newsIds);
             newsDashboard.sort((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()));
 
 
@@ -82,18 +92,18 @@ public class CountryService {
             List<ArticleResponse> articles = processArticles(newsDashboard);
 
             // videos
-            List<VideoResponse> videos;
-            if (!newsDashboard.isEmpty()) {
-                videos = processVideos(keyword, keywordMind, country);
-            } else
-                videos = new ArrayList<>();
+//            List<VideoResponse> videos;
+//            if (!newsDashboard.isEmpty()) {
+//                videos = processVideos(keyword, keywordMind, country);
+//            } else
+//                videos = new ArrayList<>();
 
             DashboardData response = DashboardData.builder()
                     .wordcloud(wordCloud)
                     .sentiment(sentiment)
                     .mentions(mentions)
                     .articles(articles)
-                    .videos(videos)
+//                    .videos(videos)
                     .build();
 
             String responseJson = objectMapper.writeValueAsString(response);
@@ -147,7 +157,7 @@ public class CountryService {
                 description = gptClient.ask(prompt);
             } else
                 description = "관련된 뉴스가 없습니다.";
-
+            newsDashboard = new ArrayList<>(); // 초기화
             HttpClient httpClient = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(callbackUrl + "?requestId=" + requestId))
@@ -175,8 +185,8 @@ public class CountryService {
             String country2 = msg.getCountry2();
             String requestId = msg.getRequestId();
             String callbackUrl = msg.getCallbackUrl();
-            List<ForeignNewsMongo> newsList1 = mongoDBRepository.findByIdIn(msg.getCountry1NewsIds());
-            List<ForeignNewsMongo> newsList2 = mongoDBRepository.findByIdIn(msg.getCountry2NewsIds());
+            List<ForeignNewsMongo> newsList1 = repository(false).findByIdIn(msg.getCountry1NewsIds());
+            List<ForeignNewsMongo> newsList2 = repository(false).findByIdIn(msg.getCountry2NewsIds());
 
             String prompt = buildComparePrompt(
                     keyword, keywordMind,
@@ -216,8 +226,9 @@ public class CountryService {
             int size = (Integer) payload.get("size");
             String callbackUrl = payload.get("callbackUrl").toString();
             String requestId = payload.get("requestId").toString();
+            boolean isKorea = (Boolean) payload.get("isKorea");
 
-            List<ForeignNewsMongo> newsList = mongoDBRepository.findByIdIn(newsIds);
+            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
 
             NewsModalResponse response = processNews(newsList, page, size);
             String responseJson = objectMapper.writeValueAsString(response);
