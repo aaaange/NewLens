@@ -6,7 +6,6 @@ import {
   ListItemText,
   SelectProps,
 } from '@mui/material';
-import { ExpandMore } from '@mui/icons-material'; // 아이콘 변경용
 import Flag from 'react-world-flags';
 
 const g20Countries = [
@@ -67,21 +66,21 @@ const CountryDropdown = ({
   return (
     <Select
       value={selectedCountry}
-      // onChange={(e) => setSelectedCountry(e.target.value)}
       onChange={handleChange}
       displayEmpty
       className="bg-transparent text-white border-0 border-b border-white !rounded-none"
       sx={{
         width,
         height,
-        borderRadius: '0px !important', // 라운딩 강제 제거
+        borderRadius: '0px !important',
+        border: 'none',
+        borderBottom: '2px solid white',
+        backgroundColor: 'transparent',
+        color: 'white',
         '& .MuiSelect-icon': {
-          color: 'white', // 드롭다운 아이콘 흰색으로 변경
+          color: 'white', // 드롭다운 아이콘 흰색으로
         },
       }}
-      IconComponent={(props) => (
-        <ExpandMore {...props} className="text-white" />
-      )} // 흰색 아이콘 적용
       renderValue={(selected) => {
         if (!selected) {
           return (
