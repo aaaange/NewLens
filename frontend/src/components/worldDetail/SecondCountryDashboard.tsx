@@ -72,59 +72,76 @@ const SecondCountryBoard = ({
     articles: newsData,
     videos: videos,
   };
-  const description = gpt_data ?? 'GPT 요약을 불러오는 중입니다...';
+  const description = gpt_data || '뉴스 요약을 불러오는 중입니다...🔥';
 
+  // 모든 데이터가 비어있는지 확인하는 조건
+  const isAllDataEmpty =
+    safeData.keywords?.length === 0 &&
+    safeData.sentimentData?.length === 0 &&
+    safeData.mentions?.length === 0 &&
+    safeData.articles?.length === 0 &&
+    safeData.videos?.length === 0;
 
   return (
     <div className="flex flex-col gap-5">
-      <WordCloud
-        handleWordCloudChange={handleWordCloudChange}
-        keyword={keyword}
-        keywords={safeData.keywords}
-        width={410}
-        height={200}
-        country_name={country_name}
-        country_code={country}
-      />
-      <NewsSummary
-        description={description}
-        width={410}
-        height={150}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country}
-      />
-      <StackedColumns
-        data={safeData.sentimentData}
-        width={410}
-        height={200}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country}
-      />
-      <MentionChart
-        data={safeData.mentions}
-        width={410}
-        height={200}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country}
-      />
-      <NewsList
-        handleModalOpen={handleModalOpen}
-        news={safeData.articles}
-        width={410}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country}
-      />
-      <VideoList
-        videos={safeData.videos}
-        width={410}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={country}
-      />
+      {isAllDataEmpty ? (
+        // 키워드에 대한 뉴스가 0건일 경우 안내
+        <div className="text-center flex flex-col gap-2">
+          <div className="headline-xlarge">😢</div>
+          <div>현재 선택한 키워드에 대한 뉴스가 없습니다.</div>
+        </div>
+      ) : (
+        <>
+          <WordCloud
+            handleWordCloudChange={handleWordCloudChange}
+            keyword={keyword}
+            keywords={safeData.keywords}
+            width={410}
+            height={200}
+            country_name={country_name}
+            country_code={country}
+          />
+          <NewsSummary
+            description={description}
+            width={410}
+            height={150}
+            keyword={keyword}
+            country_name={country_name}
+            country_code={country}
+          />
+          <StackedColumns
+            data={safeData.sentimentData}
+            width={410}
+            height={200}
+            keyword={keyword}
+            country_name={country_name}
+            country_code={country}
+          />
+          <MentionChart
+            data={safeData.mentions}
+            width={410}
+            height={200}
+            keyword={keyword}
+            country_name={country_name}
+            country_code={country}
+          />
+          <NewsList
+            handleModalOpen={handleModalOpen}
+            news={safeData.articles}
+            width={410}
+            keyword={keyword}
+            country_name={country_name}
+            country_code={country}
+          />
+          <VideoList
+            videos={safeData.videos}
+            width={410}
+            keyword={keyword}
+            country_name={country_name}
+            country_code={country}
+          />
+        </>
+      )}
     </div>
   );
 };
