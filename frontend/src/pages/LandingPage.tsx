@@ -12,7 +12,7 @@ import {
   WheelEvent as ReactWheelEvent,
 } from 'react';
 
-const Landing = () => {
+const LandingPage = () => {
   const sectionRefs: RefObject<HTMLDivElement>[] = [
     useRef(null),
     useRef(null),
@@ -33,7 +33,7 @@ const Landing = () => {
       isScrolling.current = false;
     }, 400);
 
-    if (e.deltaY > 0) {
+    if (e.deltaY > 50) {
       // 스크롤 강도에 따라 다음 섹션으로 이동
       scrollToNextSection();
       return;
@@ -68,7 +68,7 @@ const Landing = () => {
 
   return (
     <div onWheel={handleWheel} className="bg-background overflow-hidden">
-      <Section1 ref={sectionRefs[0]} />
+      <Section1 ref={sectionRefs[0]} onArrowClick={() => scrollToSection(1)} />
       <Section2 ref={sectionRefs[1]} />
       <Section3 ref={sectionRefs[2]} />
       <Section4 ref={sectionRefs[3]} />
@@ -91,7 +91,7 @@ const Landing = () => {
           <button
             key={i}
             onClick={() => scrollToSection(i)}
-            className={`w-[8px] h-[8px] rounded-full transition-all duration-300 ${
+            className={`w-[8px] h-[8px] rounded-full cursor-pointer transition-all duration-300 ${
               currentSectionIndex === i
                 ? 'bg-amount-300 scale-130'
                 : 'bg-gray-300'
@@ -103,4 +103,4 @@ const Landing = () => {
   );
 };
 
-export default Landing;
+export default LandingPage;
