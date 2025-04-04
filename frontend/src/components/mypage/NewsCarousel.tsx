@@ -1,10 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import 'keen-slider/keen-slider.min.css';
 import { useKeenSlider } from 'keen-slider/react';
 import { newsData } from '../worldDetail/MockData';
 import { ArrowLeft, ArrowRight, Bookmark } from 'lucide-react';
+import { useScrapNews } from '../../hooks/useMypageNews';
 
 export default function NewsCarousel() {
+  const {
+    logNewsList,
+    loading,
+    error,
+    scrapNews,
+    removeScrapNews,
+    fetchNewsLog,
+  } = useScrapNews();
+
   // 슬라이더 ref, 인스턴스 참조 가져오기
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     slides: {
@@ -15,16 +25,25 @@ export default function NewsCarousel() {
     loop: false,
   });
 
-  const [bookmarks, setBookmarks] = useState<number[]>([]);
-
-  const toggleBookmark = (index: number) => {
-    setBookmarks(
-      (prev) =>
-        prev.includes(index)
-          ? prev.filter((i) => i !== index) // 제거
-          : [...prev, index] // 추가
-    );
+  // 뉴스 스크랩
+  const toggleScrap = async (newsId: string, isScrap: boolean) => {
+    try {
+      if (isScrap) {
+        await removeScrapNews(newsId);
+      } else {
+        await scrapNews(newsId);
+      }
+      await fetchNewsLog(); // 상태 갱신
+    } catch (err) {
+      console.error('스크랩 상태 변경 실패:', err);
+    }
   };
+
+  useEffect(() => {
+    fetchNewsLog();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="relative max-w-5xl mx-auto px-4">
@@ -38,25 +57,25 @@ export default function NewsCarousel() {
 
       {/* 슬라이더 본체 */}
       <div ref={sliderRef} className="keen-slider">
-        {newsData.map((news, i) => (
-          <div
-            key={i}
-            className="keen-slider__slide rounded overflow-hidden shadow bg-white"
-          >
+        {logNewsList.map((news) => (
+          <div className="keen-slider__slide rounded overflow-hidden shadow bg-white">
             <a href={news.url} target="_blank" rel="noopener noreferrer">
               <div className="relative">
                 {/* 북마크 버튼 */}
                 <button
                   className="absolute z-10 m-2 bg-white hover:bg-gray-200 text-gray-800 rounded-full p-2 shadow cursor-pointer"
                   onClick={(e) => {
-                    e.preventDefault(); // 링크 클릭 막기
-                    console.log(`북마크 클릭: ${news.title}`);
-                    toggleBookmark(i);
+                    e.preventDefault();
+                    toggleScrap(news.news_id, !!news.is_scrap); // 실제 API 호출
                   }}
                 >
                   <Bookmark
                     size={20}
-                    className={`transition-colors ${bookmarks.includes(i) ? 'fill-amount-300 text-amount-300' : 'text-gray-300'}`}
+                    className={`transition-colors duration-200 ${
+                      news.is_scrap
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-gray-300'
+                    }`}
                   />
                 </button>
 
@@ -73,9 +92,7 @@ export default function NewsCarousel() {
                 <h3 className="text-base font-semibold line-clamp-2 text-primary-900">
                   {news.title}
                 </h3>
-                <p className="text-xs text-gray-500 mt-2">
-                  {news.published_at}
-                </p>
+                <p className="text-xs text-gray-500 mt-2">{news.public_at}</p>
               </div>
             </a>
           </div>
