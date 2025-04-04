@@ -17,7 +17,7 @@ const Section1 = forwardRef<HTMLDivElement, Section1Props>(
     return (
       <div
         ref={ref}
-        className=" flex flex-col items-center pt-10 h-screen border-b border-gray-400 overflow-visible"
+        className=" flex flex-col items-center pt-10 h-screen overflow-visible"
       >
         <div className="flex-1 relative z-0 translate-x-[18vw] -translate-y-[5vh]">
           <PlayGround />
