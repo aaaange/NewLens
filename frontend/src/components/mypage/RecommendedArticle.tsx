@@ -23,7 +23,7 @@ const safeData = {
 };
 
 const RecommendedArticle = () => {
-  const [readItems, setReadItems] = useState<string[]>([]);
+  // const [readItems, setReadItems] = useState<string[]>([]);
 
   const {
     recommendNewsList,
@@ -55,9 +55,9 @@ const RecommendedArticle = () => {
   if (loading) return <p>Loading...</p>;
 
   // 읽음 표시
-  const markAsRead = (newsId: string) => {
-    setReadItems((prev) => (prev.includes(newsId) ? prev : [...prev, newsId]));
-  };
+  // const markAsRead = (newsId: string) => {
+  //   setReadItems((prev) => (prev.includes(newsId) ? prev : [...prev, newsId]));
+  // };
 
   // 날짜별로 그룹
   const groupedArticles = recommendNewsList.reduce(
@@ -99,7 +99,7 @@ const RecommendedArticle = () => {
                 {/* 뉴스 아이템 */}
                 <div
                   className="w-full cursor-pointer"
-                  onClick={() => markAsRead(item.news_id)}
+                  // onClick={() => markAsRead(item.news_id)}
                 >
                   <NewsItem
                     title={item.title}
@@ -111,7 +111,12 @@ const RecommendedArticle = () => {
 
                 {/* 읽음 여부 */}
                 <div>
-                  {readItems.includes(item.news_id) ? (
+                  {/* {readItems.includes(item.news_id) ? (
+                    <MailOpen size={20} className="text-blue-500" />
+                  ) : (
+                    <Mail size={20} className="text-gray-400" />
+                  )} */}
+                  {item.visited_at && item.visited_at !== '' ? (
                     <MailOpen size={20} className="text-blue-500" />
                   ) : (
                     <Mail size={20} className="text-gray-400" />
