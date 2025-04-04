@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NewsItem from '../worldDetail/NewsItem';
 import { Bookmark, Mail, MailOpen } from 'lucide-react';
 import { formatDate } from '../../utils/formatDateUtils';
@@ -11,6 +11,7 @@ import {
   description,
   videos,
 } from '../worldDetail/MockData';
+import { useScrapNews } from '../../hooks/useMypageNews';
 
 const safeData = {
   keywords: words,
@@ -22,28 +23,46 @@ const safeData = {
 };
 
 const RecommendedArticle = () => {
-  const [bookmarks, setBookmarks] = useState<number[]>([]);
-  const [readItems, setReadItems] = useState<number[]>([]);
+  // const [readItems, setReadItems] = useState<string[]>([]);
 
-  // 북마크 토글
-  const toggleBookmark = (index: number) => {
-    setBookmarks(
-      (prev) =>
-        prev.includes(index)
-          ? prev.filter((i) => i !== index) // 제거
-          : [...prev, index] // 추가
-    );
+  const {
+    recommendNewsList,
+    loading,
+    error,
+    scrapNews,
+    fetchRecommendNews,
+    removeScrapNews,
+  } = useScrapNews();
+
+  // 뉴스 스크랩
+  const toggleScrap = async (newsId: string, isScrap: boolean) => {
+    try {
+      if (isScrap) {
+        await removeScrapNews(newsId);
+      } else {
+        await scrapNews(newsId);
+      }
+      await fetchRecommendNews(); // 상태 갱신
+    } catch (err) {
+      console.error('스크랩 상태 변경 실패:', err);
+    }
   };
+
+  useEffect(() => {
+    fetchRecommendNews();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
 
   // 읽음 표시
-  const markAsRead = (index: number) => {
-    setReadItems((prev) => (prev.includes(index) ? prev : [...prev, index]));
-  };
+  // const markAsRead = (newsId: string) => {
+  //   setReadItems((prev) => (prev.includes(newsId) ? prev : [...prev, newsId]));
+  // };
 
   // 날짜별로 그룹
-  const groupedArticles = safeData.articles.reduce(
+  const groupedArticles = recommendNewsList.reduce(
     (acc: Record<string, any[]>, article, index) => {
-      const date = formatDate(article.published_at, 'day');
+      const date = formatDate(article.public_at, 'day');
       if (!acc[date]) acc[date] = [];
       acc[date].push({ ...article, _index: index });
       return acc;
@@ -61,16 +80,16 @@ const RecommendedArticle = () => {
 
             {/* 해당 날짜의 기사들 */}
             {articles.map((item) => (
-              <div key={item._index} className="flex items-center gap-4 mb-3">
+              <div key={item.news_id} className="flex items-center gap-4 mb-3">
                 {/* 북마크 버튼 */}
                 <button
-                  onClick={() => toggleBookmark(item._index)}
+                  onClick={() => toggleScrap(item.news_id, item.is_scrap)}
                   className="cursor-pointer"
                 >
                   <Bookmark
                     size={20}
-                    className={`transition-colors ${
-                      bookmarks.includes(item._index)
+                    className={`transition-colors duration-200 ${
+                      item.is_scrap
                         ? 'fill-yellow-400 text-yellow-400'
                         : 'text-gray-300'
                     }`}
@@ -80,7 +99,7 @@ const RecommendedArticle = () => {
                 {/* 뉴스 아이템 */}
                 <div
                   className="w-full cursor-pointer"
-                  onClick={() => markAsRead(item._index)}
+                  // onClick={() => markAsRead(item.news_id)}
                 >
                   <NewsItem
                     title={item.title}
@@ -92,7 +111,12 @@ const RecommendedArticle = () => {
 
                 {/* 읽음 여부 */}
                 <div>
-                  {readItems.includes(item._index) ? (
+                  {/* {readItems.includes(item.news_id) ? (
+                    <MailOpen size={20} className="text-blue-500" />
+                  ) : (
+                    <Mail size={20} className="text-gray-400" />
+                  )} */}
+                  {item.visited_at && item.visited_at !== '' ? (
                     <MailOpen size={20} className="text-blue-500" />
                   ) : (
                     <Mail size={20} className="text-gray-400" />

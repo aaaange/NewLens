@@ -16,12 +16,16 @@ COPY ../frontend .
 # React 빌드 (create-react-app의 경우 기본적으로 build 폴더에 결과물이 생성됨)
 RUN yarn build
 
+# 2단계: NGINX로 정적 파일 서빙
+FROM nginx:alpine
+
 # NGINX 설정 파일 복사 (docker build context에 nginx.conf가 있어야 함)
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-# 정적 파일이 있다면 복사 (예: /usr/share/nginx/html)
-COPY static/ /usr/share/nginx/html/static/
+# 빌드된 React 결과물을 NGINX의 정적 파일 디렉토리로 복사
+COPY --from=build /app/dist /usr/share/nginx/html
 
+# NGINX가 80번 포트를 사용
 EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]

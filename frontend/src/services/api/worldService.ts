@@ -3,6 +3,7 @@ import { keyword } from './../../components/worldDetail/MockData';
 import { CountryParams } from '../../hooks/useCountryData';
 import { CompareParams } from '../../hooks/useCompareInfo';
 import { api } from './Api';
+import { DescriptionParams } from '../../hooks/useDescription';
 
 //==============================================
 // 인터페이스 정의
@@ -115,4 +116,9 @@ export const getCountryDataApi = async (params: CountryParams) => {
 export const getCompareInfoApi = async (params: CompareParams) => {
   const response = await api.get('search/country/compare_info', { params });
   return response.data;
+};
+
+export const getDescriptionApi = async (params: DescriptionParams) => {
+  const response = await api.get('search/country/dashboard_gpt', { params });
+  return response.data.data;
 };

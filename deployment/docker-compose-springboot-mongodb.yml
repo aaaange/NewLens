@@ -1,6 +1,32 @@
 version: '3.8'
 
 services:
+  nginx:
+    image: kimsangouk/nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - spring-gateway
+    networks:
+      - backend-net
+
+  spring-gateway:
+    image: kimsangouk/spring-gateway:latest
+    container_name: spring-gateway
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - backend-net
+    environment:
+      - TZ=Asia/Seoul
+      
   search-server:
     image: kimsangouk/search-server:latest
     # build:
@@ -18,7 +44,7 @@ services:
       - kafka
       - mongodb
     networks:
-      - logging-net
+      - backend-net
     environment:
       - TZ=Asia/Seoul
     # wait-for-it 스크립트를 사용하여 모든 의존 서비스가 준비될 때까지 대기
@@ -44,7 +70,7 @@ services:
       - redis
       - kafka
     networks:
-      - logging-net
+      - backend-net
     environment:
       - TZ=Asia/Seoul
     command: >
@@ -62,7 +88,7 @@ services:
     volumes:
       - mongodb-data:/data/db
     networks:
-      - logging-net
+      - backend-net
     environment:
       - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
@@ -86,7 +112,7 @@ services:
   #   volumes:
   #     - elasticsearch-data:/usr/share/elasticsearch/data
   #   networks:
-  #     - logging-net
+  #     - backend-net
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:9200"]
   #     interval: 30s
@@ -105,7 +131,7 @@ services:
   #   depends_on:
   #     - elasticsearch
   #   networks:
-  #     - logging-net
+  #     - backend-net
 
 
   kafka:
@@ -128,7 +154,7 @@ services:
       - "${KAFKA_PORT}:9092"
       - "9093:9093"
     networks:
-      - logging-net
+      - backend-net
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "9092"]
       interval: 30s
@@ -145,7 +171,7 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - logging-net
+      - backend-net
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -158,5 +184,5 @@ volumes:
   redis-data:
 
 networks:
-  logging-net:
+  backend-net:
     driver: bridge

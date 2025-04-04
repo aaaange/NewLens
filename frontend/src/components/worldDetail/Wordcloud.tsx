@@ -55,6 +55,21 @@ const WordCloud = ({
     handleModalOpen?.(country_code);
   };
 
+  const minFontSize = 14; // 최소 글자 크기
+  const maxFontSize = 48; // 최대 글자 크기
+
+  // value의 최소/최대값 찾기
+  const values = keywords.map((w) => w.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+
+  // 정규화된 fontSize 함수
+  const getFontSize = (word: WordType) => {
+    if (max === min) return (minFontSize + maxFontSize) / 2; // 모든 값이 같을 때 중간값
+    const normalized = (word.value - min) / (max - min);
+    return minFontSize + normalized * (maxFontSize - minFontSize);
+  };
+
   const Flags = Flag as any;
   return (
     <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
@@ -65,11 +80,11 @@ const WordCloud = ({
         키워드
       </p>
       <svg width={width} height={height}>
-        <Wordcloud
+        {/* <Wordcloud
           words={keywords}
           width={width}
           height={height}
-          fontSize={(word) => Math.sqrt(word.value) * 5}
+          fontSize={getFontSize}
           padding={1}
           rotate={0}
         >
@@ -79,7 +94,7 @@ const WordCloud = ({
               handleWordClick={handleWordClick}
             />
           )}
-        </Wordcloud>
+        </Wordcloud> */}
       </svg>
     </div>
   );
