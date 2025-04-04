@@ -136,24 +136,31 @@ public class CountryService {
             String callbackUrl = payload.get("callbackUrl").toString();
             String keywordMind = (String) payload.get("keyword_mind");
             String country = (String) payload.get("country");
+            List<String> newsIds = (List<String>) payload.get("newsIds");
+            boolean isKorea = (Boolean) payload.get("isKorea");
 
-            int waitTimeMs = 10000;
-            int waited = 0;
-            // 지금 API가 대시보드랑 지피티가 동시에 호출 대시보드에서 아직 뉴스를 안넣은 경우
-            // 지피티호출을 안함 밑에 코드에 적용
-            // 그래서 강제로 뉴스가 들어올 때까지 대기
-            while (waited < waitTimeMs) {
-                if (!newsDashboard.isEmpty()) break;
+            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
 
-                Thread.sleep(10);
-                waited += 10;
-            }
+            // int waitTimeMs = 10000;
+            // int waited = 0;
+            // // 지금 API가 대시보드랑 지피티가 동시에 호출 대시보드에서 아직 뉴스를 안넣은 경우
+            // // 지피티호출을 안함 밑에 코드에 적용
+            // // 그래서 강제로 뉴스가 들어올 때까지 대기
+            // while (waited < waitTimeMs) {
+            //     if (!newsDashboard.isEmpty()) break;
+            //
+            //     Thread.sleep(10);
+            //     waited += 10;
+            // }
 
             // description
             String description;
-            System.out.println(newsDashboard.size());
-            if (newsDashboard.size() >= GptNewsSize) {
-                String prompt = makeDescription(keyword, keywordMind, newsDashboard, country);
+            System.out.println(newsIds.size());
+            if (newsIds.size() >= GptNewsSize) {
+                // for(ForeignNewsMongo foreign : newsDashboard) {
+                //     System.out.println(foreign);
+                // }
+                String prompt = makeDescription(keyword, keywordMind, newsList, country);
                 description = gptClient.ask(prompt);
             } else
                 description = "관련된 뉴스가 없습니다.";
@@ -266,6 +273,7 @@ public class CountryService {
         prompt.append("[").append(country).append(" 뉴스]").append("\n");
         for (int i = 0; i < GptNewsSize; i++) {
             ForeignNewsMongo news = newsList.get(i);
+            System.out.println(news);
             prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
             prompt.append("- ").append(news.getDescription()).append("\n\n");
         }
