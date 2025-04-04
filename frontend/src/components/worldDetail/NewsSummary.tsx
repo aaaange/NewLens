@@ -25,10 +25,7 @@ const NewsSummary = ({
           <span className="text-amount-300 text-lg ">{keyword}</span>에
           대한&nbsp;
           <Flags code={country_code} width="24" height="12" /> &nbsp;
-          <span className="text-lg text-amount-300 text-lg">
-            {' '}
-            {country_name}
-          </span>
+          <span className="text-lg text-amount-300"> {country_name}</span>
           &nbsp;언론의 반응은?
         </p>
       </div>
@@ -45,7 +42,7 @@ const NewsSummary = ({
           }}
         >
           {/* 실제 내용 */}
-          <div className='body-medium'>{description}</div>
+          <div className="body-medium">{description}</div>
         </div>
       </div>
     </div>
