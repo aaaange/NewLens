@@ -67,7 +67,7 @@ const MainPage = () => {
       };
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
-      setKeyword(response.data.keyword); // 조건 없으면 무한 루프
+      setKeyword(response.data.keyword);
       console.log('reponse', response.data);
     } catch (error) {
       console.error('검색 실패:', error);
@@ -77,9 +77,9 @@ const MainPage = () => {
   useEffect(() => {
     const handler = debounce(() => {
       setDebouncedKeyword(keyword);
-    }, 500); // 500ms 딜레이 설정
+    }, 500);
     handler();
-    return () => handler.cancel(); // cleanup
+    return () => handler.cancel();
   }, [keyword]);
 
   // debouncedKeyword가 변경될 때만 fetchWorldData 호출
@@ -94,8 +94,8 @@ const MainPage = () => {
   }, [debouncedKeyword, category, period]);
 
   const headerString = [keyword, keyword_mind]
-    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
-    .join(' > '); // ' > '로 연결
+    .filter((item) => item && item.trim() !== '')
+    .join(' > ');
 
   return (
     <div className="mt-5 flex gap-20 justify-center overflow-hidden pb-[32px]">
