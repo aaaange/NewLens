@@ -1,5 +1,4 @@
-import { forwardRef, useEffect } from 'react';
-import { Fade, Zoom } from 'react-awesome-reveal';
+import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
@@ -27,48 +26,83 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
     },
   ];
 
+  // 공통 애니메이션 variants
+  const fadeLeftVariant = {
+    hidden: { opacity: 0, x: -50 },
+    visible: (custom: number) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        delay: custom * 0.4,
+        duration: 0.6,
+        ease: 'easeOut',
+      },
+    }),
+  };
+
+  const zoomInVariant = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        delay: 1.6,
+        duration: 0.8,
+        ease: 'easeOut',
+      },
+    },
+  };
+
   return (
     <div
       ref={ref}
-      className="h-screen border-b border-gray-400 p-[40px] flex flex-col items-center justify-center gap-[100px]"
+      className="h-screen border-b border-gray-400 p-[4vw] flex flex-col items-center justify-center gap-[6vh]"
     >
       {/* 상단 */}
-      <div className="flex justify-center gap-[100px]">
+      <div className="flex justify-center gap-[6vw] -mt-[5vh]">
         {fadeSections.map((section, index) => (
-          <Fade direction={'left'} delay={index * 400} triggerOnce={false}>
-            {/* 국가별 반응 분석 */}
-
-            <div className="flex flex-col items-center h-[500px] w-fit">
-              <div className="flex flex-col gap-[20px]">
-                <div className="flex flex-col items-center">
-                  <p className="headline-small">{section.title}</p>
-                  <p className="caption-small text-tetiary-600">
-                    {section.subtitle}
-                  </p>
-                </div>
-                <img
-                  src={section.image}
-                  alt="로고"
-                  className={section.imgStyle}
-                />
-              </div>
-
-              <div className="flex items-end h-full">
-                <p className="headline-xlarge justify-baseline">
-                  {section.bottomText}
+          <motion.div
+            key={index}
+            className="flex flex-col items-center h-[500px] w-fit"
+            variants={fadeLeftVariant}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.3 }}
+            custom={index}
+          >
+            <div className="flex flex-col gap-[2.5vh]">
+              <div className="flex flex-col items-center">
+                <p className="headline-small">{section.title}</p>
+                <p className="caption-small text-tetiary-600">
+                  {section.subtitle}
                 </p>
               </div>
+              <img
+                src={section.image}
+                alt="로고"
+                className={section.imgStyle}
+              />
             </div>
-          </Fade>
+
+            <div className="flex items-end h-full">
+              <p className="headline-large justify-baseline">
+                {section.bottomText}
+              </p>
+            </div>
+          </motion.div>
         ))}
       </div>
 
       {/* 하단 */}
-      <Zoom triggerOnce={false} duration={1000} delay={1600}>
-        <div className="display-small">
-          글로벌 <span className="text-amount-300">뉴스 흐름</span>을 한눈에!
-        </div>
-      </Zoom>
+      <motion.div
+        className="display-medium"
+        variants={zoomInVariant}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: false, amount: 0.3 }}
+      >
+        글로벌 <span className="text-amount-300">뉴스 흐름</span>을 한눈에!
+      </motion.div>
     </div>
   );
 });
