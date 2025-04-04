@@ -22,6 +22,7 @@ import com.ssafy.staticsserver.domain.news.repository.DomesticNewsRepositoryImpl
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsRepositoryImpl;
 import com.ssafy.staticsserver.domain.news.repository.NewsMongoDBRepository;
 import com.ssafy.staticsserver.infrastructure.client.GptClient;
+import com.ssafy.staticsserver.infrastructure.client.KakaoClient;
 import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
 import com.ssafy.staticsserver.interfaces.country.dto.*;
 
@@ -41,9 +42,9 @@ public class CountryService {
 	private final GptClient gptClient;
 	private final YouTubeClient youTubeClient;
 	private final int GptNewsSize = 3;
-	// private static  = new ArrayList<>();
 	private final ForeignNewsRepositoryImpl foreignRepo;
 	private final DomesticNewsRepositoryImpl domesticRepo;
+	private final KakaoClient kakaoClient;
 
 	// 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
 	private NewsMongoDBRepository repository(boolean isKorea) {
@@ -470,12 +471,19 @@ public class CountryService {
 		return newsList.stream()
 			.filter(news -> news.getTitle() != null && news.getUrl() != null)
 			.limit(5)
-			.map(news -> ArticleResponse.builder()
-				.title(news.getTitle())
-				.url(news.getUrl())
-				.publishedAt(news.getPublishedAt())
-				.imageUrl(news.getImageUrl())
-				.build())
+			.map(news -> {
+				String imageUrl = news.getImageUrl();
+				List<String> keywords = news.getKeywords();
+				// 이미지 URL이 비어있으면 키워드 기반으로 카카오 이미지 검색
+				imageUrl = getKakaoImage(imageUrl, keywords);
+
+				return ArticleResponse.builder()
+					.title(news.getTitle())
+					.url(news.getUrl())
+					.publishedAt(news.getPublishedAt())
+					.imageUrl(imageUrl)
+					.build();
+			})
 			.collect(Collectors.toList());
 	}
 
@@ -543,13 +551,15 @@ public class CountryService {
 						keywords.add(subKeywords.get(i));
 					}
 				}
+				String imageUrl = item.getImageUrl();
+				imageUrl = getKakaoImage(imageUrl, keywords);
 
 				return NewsDto.builder()
 					.newsId(item.getId())
 					.title(item.getTitle())
 					.url(item.getUrl())
 					.publishedAt(item.getPublishedAt())
-					.imageUrl(item.getImageUrl())
+					.imageUrl(imageUrl)
 					.keywords(keywords)
 					.build();
 			})
@@ -569,6 +579,19 @@ public class CountryService {
 			.hasNext(hasNext)
 			.hasPrevious(hasPrevious)
 			.build();
+	}
+
+	public String getKakaoImage(String imageUrl, List<String> keywords) {
+		if (imageUrl.isEmpty()) {
+			if (keywords != null && !keywords.isEmpty()) {
+				// 키워드 2개까지만 사용해서 검색어 구성
+				String query = keywords.stream()
+					.limit(2)
+					.collect(Collectors.joining(" "));
+				imageUrl = kakaoClient.searchImageUrl(query);
+			}
+		}
+		return imageUrl;
 	}
 
 }
