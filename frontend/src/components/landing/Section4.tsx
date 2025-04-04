@@ -50,7 +50,7 @@ const Section4 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div
       ref={ref}
-      className="h-screen flex flex-col justify-center items-center gap-[6vh] border-b border-gray-400 p-[4vw]"
+      className="h-screen flex flex-col justify-center items-center gap-[6vh] p-[4vw]"
     >
       <motion.p
         className="display-medium text-center"
@@ -71,51 +71,62 @@ const Section4 = forwardRef<HTMLDivElement>((_, ref) => {
           whileInView="visible"
           viewport={{ once: false, amount: 0.3 }}
         >
-          <div className="flex headline-small gap-[0.4vw]">
+          <div className="flex flex-col items-center gap-[1vw]">
+            <div className="flex headline-small gap-[0.4vw]">
+              <img
+                src="https://flagcdn.com/us.svg"
+                width={24}
+                height={12}
+                alt="US Flag"
+              />
+              <p>
+                <span className="headline-medium">미국</span>에서 본
+                <span className="headline-medium text-amount-300">
+                  {' '}
+                  인공지능
+                </span>
+                에 대한
+                <span className="headline-medium text-amount-300">
+                  {' '}
+                  감정
+                </span>{' '}
+                분석
+              </p>
+            </div>
             <img
-              src="https://flagcdn.com/us.svg"
-              width={24}
-              height={12}
-              alt="US Flag"
+              src="/assets/images/us-columns.png"
+              alt="미국 감정 분석"
+              className="w-[250px] h-[150px]"
             />
-            <p>
-              <span className="headline-medium">미국</span>에서 본
-              <span className="headline-medium text-amount-300"> 인공지능</span>
-              에 대한
-              <span className="headline-medium text-amount-300">
-                {' '}
-                감정 분석
-              </span>
-            </p>
           </div>
-          <img
-            src="/assets/images/us-columns.png"
-            alt="미국 감정 분석"
-            className="w-[250px] h-[150px]"
-          />
-
-          <div className="flex headline-small gap-[0.4vw] mt-[5vh]">
+          <div className="flex flex-col items-center gap-[1vw]">
+            <div className="flex headline-small gap-[0.4vw] mt-[5vh]">
+              <img
+                src="https://flagcdn.com/us.svg"
+                width={24}
+                height={12}
+                alt="US Flag"
+              />
+              <p>
+                <span className="headline-medium">미국</span>에서 본
+                <span className="headline-medium text-amount-300">
+                  {' '}
+                  인공지능
+                </span>
+                에 대한
+                <span className="headline-medium text-amount-300">
+                  {' '}
+                  언급량
+                </span>{' '}
+                변화
+              </p>
+            </div>
             <img
-              src="https://flagcdn.com/us.svg"
-              width={24}
-              height={12}
-              alt="US Flag"
+              src="/assets/images/us-mention.png"
+              alt="미국 언급량 변화"
+              className="w-[250px] h-[150px]"
             />
-            <p>
-              <span className="headline-medium">미국</span>에서 본
-              <span className="headline-medium text-amount-300"> 인공지능</span>
-              에 대한
-              <span className="headline-medium text-amount-300">
-                {' '}
-                언급량 변화
-              </span>
-            </p>
           </div>
-          <img
-            src="/assets/images/us-mention.png"
-            alt="미국 언급량 변화"
-            className="w-[250px] h-[150px]"
-          />
         </motion.div>
 
         <motion.div
@@ -135,51 +146,59 @@ const Section4 = forwardRef<HTMLDivElement>((_, ref) => {
           whileInView="visible"
           viewport={{ once: false, amount: 0.3 }}
         >
-          <div className="flex headline-small gap-[0.4vw]">
+          <div className="flex flex-col items-center gap-[1vw]">
+            <div className="flex headline-small gap-[0.4vw]">
+              <img
+                src="https://flagcdn.com/kr.svg"
+                width={24}
+                height={12}
+                alt="KR Flag"
+              />
+              <p>
+                <span className="headline-medium">한국</span>에서 본
+                <span className="headline-medium text-amount-300">
+                  {' '}
+                  인공지능
+                </span>
+                에 대한
+                <span className="headline-medium text-amount-300"> 감정 </span>
+                분석
+              </p>
+            </div>
             <img
-              src="https://flagcdn.com/kr.svg"
-              width={24}
-              height={12}
-              alt="KR Flag"
+              src="/assets/images/kr-columns.png"
+              alt="한국 감정 분석"
+              className="w-[250px] h-[150px]"
             />
-            <p>
-              <span className="headline-medium">한국</span>에서 본
-              <span className="headline-medium text-amount-300"> 인공지능</span>
-              에 대한
-              <span className="headline-medium text-amount-300">
-                {' '}
-                감정 분석
-              </span>
-            </p>
           </div>
-          <img
-            src="/assets/images/kr-columns.png"
-            alt="한국 감정 분석"
-            className="w-[250px] h-[150px]"
-          />
-
-          <div className="flex headline-small gap-[0.4vw] mt-[5vh]">
+          <div className="flex flex-col items-center gap-[1vw]">
+            <div className="flex headline-small gap-[0.4vw] mt-[5vh]">
+              <img
+                src="https://flagcdn.com/kr.svg"
+                width={24}
+                height={12}
+                alt="KR Flag"
+              />
+              <p>
+                <span className="headline-medium">한국</span>에서 본
+                <span className="headline-medium text-amount-300">
+                  {' '}
+                  인공지능
+                </span>
+                에 대한
+                <span className="headline-medium text-amount-300">
+                  {' '}
+                  언급량
+                </span>{' '}
+                변화
+              </p>
+            </div>
             <img
-              src="https://flagcdn.com/kr.svg"
-              width={24}
-              height={12}
-              alt="KR Flag"
+              src="/assets/images/kr-mention.png"
+              alt="한국 언급량 변화"
+              className="w-[250px] h-[150px]"
             />
-            <p>
-              <span className="headline-medium">한국</span>에서 본
-              <span className="headline-medium text-amount-300"> 인공지능</span>
-              에 대한
-              <span className="headline-medium text-amount-300">
-                {' '}
-                언급량 변화
-              </span>
-            </p>
           </div>
-          <img
-            src="/assets/images/kr-mention.png"
-            alt="한국 언급량 변화"
-            className="w-[250px] h-[150px]"
-          />
         </motion.div>
       </div>
     </div>

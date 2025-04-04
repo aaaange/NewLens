@@ -9,7 +9,7 @@ const Section2 = forwardRef<HTMLDivElement>((_, ref) => {
       opacity: 1,
       x: 0,
       scale: 1,
-      transition: { delay: i * 0.8, duration: 0.8, ease: 'easeOut' },
+      transition: { delay: i * 0.4, duration: 0.8, ease: 'easeOut' },
     }),
   };
 
@@ -20,7 +20,7 @@ const Section2 = forwardRef<HTMLDivElement>((_, ref) => {
       opacity: 1,
       x: 0,
       scale: 1,
-      transition: { delay: i * 0.8, duration: 0.8, ease: 'easeOut' },
+      transition: { delay: i * 0.4, duration: 0.8, ease: 'easeOut' },
     }),
   };
 
@@ -31,14 +31,14 @@ const Section2 = forwardRef<HTMLDivElement>((_, ref) => {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { delay: 3.6, duration: 0.8, ease: 'easeOut' },
+      transition: { delay: 2, duration: 0.8, ease: 'easeOut' },
     },
   };
 
   return (
     <div
       ref={ref}
-      className="relative flex flex-col justify-start items-center h-screen border-b border-gray-400 p-[2vw]"
+      className="relative flex flex-col justify-start items-center h-screen p-[2vw]"
     >
       <div className="z-10 flex flex-col items-center gap-[4vh] mt-[10vh] text-center">
         <motion.p
