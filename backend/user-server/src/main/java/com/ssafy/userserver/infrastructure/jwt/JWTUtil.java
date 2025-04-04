@@ -1,10 +1,6 @@
 package com.ssafy.userserver.infrastructure.jwt;
 
-import com.ssafy.userserver.domain.entity.User;
-import com.ssafy.userserver.infrastructure.config.JwtConfig;
-
 import io.jsonwebtoken.*;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
