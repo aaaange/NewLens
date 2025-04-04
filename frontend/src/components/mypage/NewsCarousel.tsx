@@ -51,7 +51,7 @@ export default function NewsCarousel() {
                   onClick={(e) => {
                     e.preventDefault(); // 링크 클릭 막기
                     console.log(`북마크 클릭: ${news.title}`);
-                    toggleBookmark(i)
+                    toggleBookmark(i);
                   }}
                 >
                   <Bookmark
