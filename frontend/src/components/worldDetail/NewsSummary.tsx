@@ -45,7 +45,7 @@ const NewsSummary = ({
           }}
         >
           {/* 실제 내용 */}
-          <div>{description}</div>
+          <div className='body-medium'>{description}</div>
         </div>
       </div>
     </div>
