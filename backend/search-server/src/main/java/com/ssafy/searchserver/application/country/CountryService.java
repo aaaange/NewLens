@@ -172,17 +172,22 @@ public class CountryService {
         }
     }
 
-    public AnalysisData getGptDescription(String keyword, String keywordMind, String country) {
+    public AnalysisData getGptDescription(String category, int period, String keyword, String keywordMind, String country, boolean isKorea) {
         try {
             String requestId = UUID.randomUUID().toString();
             CompletableFuture<String> future = new CompletableFuture<>();
             pendingCompareResults.put(requestId, future);
 
+
+            List<String> idList = getNewsByCountry(category, period, keyword, keywordMind, country);
+
             Map<String, Object> payload = new HashMap<>();
             payload.put("requestId", requestId);
             payload.put("keyword", keyword);
+            payload.put("newsIds", idList);
             payload.put("keyword_mind", keywordMind);
             payload.put("country", country);
+            payload.put("isKorea", isKorea);
             payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard_gpt_callback");
 
 
