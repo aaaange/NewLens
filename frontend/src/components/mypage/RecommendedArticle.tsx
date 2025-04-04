@@ -23,19 +23,28 @@ const safeData = {
 };
 
 const RecommendedArticle = () => {
-  const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [readItems, setReadItems] = useState<string[]>([]);
 
-  const { recommendNewsList, loading, error, scrapNews, fetchRecommendNews } =
-    useScrapNews();
+  const {
+    recommendNewsList,
+    loading,
+    error,
+    scrapNews,
+    fetchRecommendNews,
+    removeScrapNews,
+  } = useScrapNews();
 
   // 뉴스 스크랩
-  const BookmarkedNews = async (newsId: string) => {
+  const toggleScrap = async (newsId: string, isScrap: boolean) => {
     try {
-      await scrapNews(newsId);
-      await fetchRecommendNews();
+      if (isScrap) {
+        await removeScrapNews(newsId);
+      } else {
+        await scrapNews(newsId);
+      }
+      await fetchRecommendNews(); // 상태 갱신
     } catch (err) {
-      console.error('뉴스 스크랩 실패:', err);
+      console.error('스크랩 상태 변경 실패:', err);
     }
   };
 
@@ -45,14 +54,6 @@ const RecommendedArticle = () => {
 
   if (loading) return <p>Loading...</p>;
 
-  // 북마크 토글
-  const toggleBookmark = (newsId: string) => {
-    setBookmarks((prev) =>
-      prev.includes(newsId)
-        ? prev.filter((id) => id !== newsId)
-        : [...prev, newsId]
-    );
-  };
   // 읽음 표시
   const markAsRead = (newsId: string) => {
     setReadItems((prev) => (prev.includes(newsId) ? prev : [...prev, newsId]));
@@ -82,13 +83,13 @@ const RecommendedArticle = () => {
               <div key={item.news_id} className="flex items-center gap-4 mb-3">
                 {/* 북마크 버튼 */}
                 <button
-                  onClick={() => toggleBookmark(item.news_id)}
+                  onClick={() => toggleScrap(item.news_id, item.is_scrap)}
                   className="cursor-pointer"
                 >
                   <Bookmark
                     size={20}
-                    className={`transition-colors ${
-                      bookmarks.includes(item.news_id)
+                    className={`transition-colors duration-200 ${
+                      item.is_scrap
                         ? 'fill-yellow-400 text-yellow-400'
                         : 'text-gray-300'
                     }`}
