@@ -149,7 +149,7 @@ public class CountryService {
 			String country = (String)payload.get("country");
 			List<String> newsIds = (List<String>)payload.get("newsIds");
 			boolean isKorea = (Boolean)payload.get("isKorea");
-			String countryName = G20_COUNTRIES.get(country);
+			String countryName = G20_COUNTRIES.getOrDefault(country, "한국");
 
 			List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
 
@@ -186,13 +186,10 @@ public class CountryService {
 			String country2 = G20_COUNTRIES.get(msg.getCountry2());
 			String requestId = msg.getRequestId();
 			String callbackUrl = msg.getCallbackUrl();
-			List<ForeignNewsMongo> newsList1 = repository(false).findByIdIn(msg.getCountry1NewsIds());
-			List<ForeignNewsMongo> newsList2 = repository(false).findByIdIn(msg.getCountry2NewsIds());
 
 			String prompt = buildComparePrompt(
 				keyword, keywordMind,
-				country1, newsList1,
-				country2, newsList2
+				country1, country2
 			);
 			String summary = gptClient.ask(prompt);
 			// String summary = "결과";
@@ -262,21 +259,10 @@ public class CountryService {
 			prompt.append("와 ").append(keywordMind);
 		}
 		prompt.append("\" 키워드와 관련된 ").append(countryName);
-		// .append("의 뉴스입니다.\n\n");
-
-		// prompt.append("[").append(country).append(" 뉴스]").append("\n");
-		// for (int i = 0; i < GptNewsSize; i++) {
-		//     ForeignNewsMongo news = newsList.get(i);
-		//     System.out.println(news);
-		//     prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
-		//     prompt.append("- ").append(news.getDescription()).append("\n\n");
-		// }
-
 		prompt.append(" 뉴스를 참고하여, ")
 			.append(countryName).append("에서 ")
 			.append(keyword)
 			.append("에 대해 어떤 여론이 나타나는지 세 문장으로 간략히 요약해 주세요.(1,2,3 이렇게 말고 그냥 한번에) 한국어로 작성해 주세요.");
-		System.out.println(prompt.toString());
 		return prompt.toString();
 	}
 
@@ -502,38 +488,25 @@ public class CountryService {
 	//  GPT 한줄 요약
 	public String buildComparePrompt(
 		String keyword, String keywordMind,
-		String country1, List<ForeignNewsMongo> news1,
-		String country2, List<ForeignNewsMongo> news2
+		String country1, String country2
 	) {
 		StringBuilder prompt = new StringBuilder();
 
-		prompt.append("[국가 비교 뉴스 여론 분석 요청]\n\n");
-		prompt.append("다음은 \"").append(keyword);
+		prompt.append("[국가별 뉴스 여론 비교 요약 요청]\n\n");
+
+		prompt.append("아래는 \"").append(keyword);
 		if (keywordMind != null && !keywordMind.isBlank()) {
-			prompt.append("와").append(keywordMind).append("");
+			prompt.append("\"와 \"").append(keywordMind);
 		}
-		prompt.append("\" 키워드와 관련된 ").append(country1).append("과 ").append(country2).append("의 뉴스입니다.\n\n");
+		prompt.append("\" 키워드에 대한 ").append(country1).append("와 ").append(country2).append("의 뉴스 여론 비교 요청입니다.\n");
 
-		prompt.append("[").append(country1).append(" 뉴스]").append("\n");
-		for (int i = 0; i < news1.size(); i++) {
-			ForeignNewsMongo news = news1.get(i);
-			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
-			prompt.append("- ").append(news.getDescription()).append("\n\n");
-		}
+		prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 유추하여,\n");
+		prompt.append("두 국가의 입장을 각각 나열하지 말고 비교된 내용을 한 문장으로 통합해서 요약해 주세요.\n\n");
 
-		prompt.append("[").append(country2).append(" 뉴스]").append("\n");
-		for (int i = 0; i < news2.size(); i++) {
-			ForeignNewsMongo news = news2.get(i);
-			prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
-			prompt.append("- ").append(news.getDescription()).append("\n\n");
-		}
-
-		prompt.append("위 뉴스를 참고하여, ")
-			.append(country1)
-			.append("과 ")
-			.append(country2)
-			.append(keyword)
-			.append("에 대해 어떤 시각/전략/관점을 가지고 있는지 한 문장으로 비교 요약해 주세요. 한국어로 작성해 주세요.");
+		prompt.append("출력 조건:\n");
+		prompt.append("- 반드시 **한국어로 작성**해 주세요.\n");
+		prompt.append("- **한 문장**으로 간결하게 정리해 주세요.\n");
+		prompt.append("- 문장은 중립적이고 비교 중심으로 구성해 주세요.\n");
 
 		return prompt.toString();
 	}
