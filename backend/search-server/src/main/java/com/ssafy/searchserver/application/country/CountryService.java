@@ -179,12 +179,12 @@ public class CountryService {
             pendingCompareResults.put(requestId, future);
 
 
-            List<String> idList = getNewsByCountry(category, period, keyword, keywordMind, country);
+            // List<String> idList = getNewsByCountry(category, period, keyword, keywordMind, country);
 
             Map<String, Object> payload = new HashMap<>();
             payload.put("requestId", requestId);
             payload.put("keyword", keyword);
-            payload.put("newsIds", idList);
+            // payload.put("newsIds", idList);
             payload.put("keyword_mind", keywordMind);
             payload.put("country", country);
             payload.put("isKorea", isKorea);
