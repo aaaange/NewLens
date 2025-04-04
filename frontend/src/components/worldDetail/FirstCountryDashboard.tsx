@@ -1,4 +1,5 @@
 import useCountryData from '../../hooks/useCountryData';
+import useDescription from '../../hooks/useDescription';
 import MentionChart from './MentionChart';
 import NewsList from './NewsList';
 import NewsSummary from './NewsSummary';
@@ -12,7 +13,6 @@ import {
   sentimentData,
   mentionData,
   newsData,
-  description,
   videos,
 } from './MockData';
 
@@ -51,9 +51,14 @@ const FirstCountryBoard = ({
   );
 
   const { data, isLoading, error } = useCountryData(memoizedParams);
+  const {
+    data: gpt_data,
+    isLoading: isLoading_GPT,
+    error: error_GPT,
+  } = useDescription(memoizedParams);
 
   if (isLoading) return <div>Loading...</div>;
-  // if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
+  if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
   // if (!data) return <div>No Data</div>;
 
   // const country_name: string = '미국';
@@ -61,12 +66,14 @@ const FirstCountryBoard = ({
   // 서버 응답 없을 경우 목데이터로 대체
   const safeData = data ?? {
     keywords: words.map((word) => ({ text: word.text, value: word.value })),
-    description: description,
+    // description: description,
     sentimentData: sentimentData,
     mentions: mentionData,
     articles: newsData,
     videos: videos,
   };
+
+  const description = gpt_data ?? 'GPT 요약을 불러오는 중입니다...';
 
   return (
     <div className="flex flex-col gap-5">
@@ -81,7 +88,7 @@ const FirstCountryBoard = ({
         country_code={country}
       />
       <NewsSummary
-        description={safeData.description}
+        description={description}
         width={410}
         height={150}
         keyword={keyword}

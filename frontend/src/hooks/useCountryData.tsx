@@ -35,7 +35,7 @@ export interface VideoData {
 
 export interface CountryApiData {
   keywords: KeywordData[];
-  description: string;
+  // description: string;
   sentimentData: SentimentData[];
   mentions: MentionData[];
   articles: ArticleData[];
@@ -70,7 +70,7 @@ const useCountryData = (params: CountryParams) => {
               text: word.name,
               value: word.count,
             })) ?? [],
-          description: raw.description,
+          // description: raw.description,
           sentimentData: raw.sentiment,
           mentions: raw.mentions,
           articles: raw.articles,

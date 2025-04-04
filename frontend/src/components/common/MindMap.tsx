@@ -93,6 +93,7 @@ interface MindMapProps {
   mainKeyword: string;
   isKorea: boolean;
   keyword_mind: string;
+  fetchWorldData: (keyword: string) => void; // 추가된 prop
 }
 
 const MindMap = ({
@@ -102,6 +103,7 @@ const MindMap = ({
   mainKeyword,
   isKorea,
   keyword_mind,
+  fetchWorldData,
 }: MindMapProps) => {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -131,6 +133,7 @@ const MindMap = ({
       setKeyword(node.data.label);
       setSelectedNodeId(node.id);
       onKeywordChange(node.data.label);
+      fetchWorldData(node.data.label); // 클릭한 노드의 키워드로 API 호출
     },
     [onKeywordChange]
   );
