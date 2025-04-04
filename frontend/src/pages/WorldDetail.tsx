@@ -180,7 +180,7 @@ const WorldDetail = () => {
           />
         </div>
         <GptSummary
-          description={data?.analysis ?? 'GPT 요약 정보가 없습니다.'}
+          description={data?.analysis ?? '비교할 나라를 선택해보세요! 양 측의 입장을 한 줄로 요약해요✨'}
           width={880}
           height={125}
           keyword={keyword}
