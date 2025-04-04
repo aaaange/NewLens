@@ -80,7 +80,7 @@ const WordCloud = ({
         키워드
       </p>
       <svg width={width} height={height}>
-        <Wordcloud
+        {/* <Wordcloud
           words={keywords}
           width={width}
           height={height}
@@ -94,7 +94,7 @@ const WordCloud = ({
               handleWordClick={handleWordClick}
             />
           )}
-        </Wordcloud>
+        </Wordcloud> */}
       </svg>
     </div>
   );

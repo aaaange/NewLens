@@ -135,6 +135,8 @@ const WorldDetail = () => {
           onSearch={() => console.log('Search triggered')}
         />
         <MindMap
+          keyword_mind={keyword_mind}
+          fetchWorldData={() => {}}
           onKeywordChange={handleMindMapKeywordChange}
           category={category}
           period={period}
@@ -146,6 +148,7 @@ const WorldDetail = () => {
           period={period}
           is_korea={firstCountry === 'KR'}
           onKeywordChange={handleRankingKeywordChange}
+          handleMindMapKeywordChange={handleMindMapKeywordChange}
         />
       </div>
       <div className="flex flex-col items-center gap-3">

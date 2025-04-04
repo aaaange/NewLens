@@ -13,6 +13,7 @@ interface PropsType {
   period: number;
   is_korea: boolean;
   onKeywordChange: (keyword: string) => void;
+  handleMindMapKeywordChange: (keyword: string) => void;
 }
 
 const KeywordRanking = ({
@@ -20,6 +21,7 @@ const KeywordRanking = ({
   period,
   is_korea,
   onKeywordChange,
+  handleMindMapKeywordChange,
 }: PropsType) => {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [currentTime] = useState(() => {
@@ -37,7 +39,7 @@ const KeywordRanking = ({
 
   const handleKeywordClick = (keyword: string) => {
     onKeywordChange(keyword);
-    console.log(`검색어 클릭: ${keyword}`);
+    handleMindMapKeywordChange('');
   };
 
   const fetchKeywordRanking = async () => {
