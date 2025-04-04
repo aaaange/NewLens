@@ -131,12 +131,12 @@ public class CountryController {
     @GetMapping("/dashboard")
     public ResponseEntity<CommonResponse<DashboardData>> extractDashboard(
             @RequestHeader(name = "Authorization", required = false) String authorization,
-            @Parameter(description = "카테고리", example = "sports") @RequestParam String category,
-            @Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7") @RequestParam int period,
-            @Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword,
-            @Parameter(description = "마인드맵 키워드", example = "관세") @RequestParam(name = "keyword_mind") String keywordMind,
-            @Parameter(description = "국가", example = "ko") @RequestParam String country,
-            @Parameter(description = "한국 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
+        @Parameter(description = "카테고리", example = "sports") @RequestParam String category,
+        @Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7") @RequestParam int period,
+        @Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword,
+        @Parameter(description = "마인드맵 키워드", example = "관세") @RequestParam(name = "keyword_mind") String keywordMind,
+        @Parameter(description = "국가", example = "ko") @RequestParam String country,
+        @Parameter(description = "한국 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
     ) {
         DashboardData data = countryService.getDashboard(category, period, keyword, keywordMind, country, isKorea);
         CommonResponse<DashboardData> response = CommonResponse.success(data);
@@ -146,12 +146,14 @@ public class CountryController {
     @GetMapping("/dashboard_gpt")
     public ResponseEntity<CommonResponse<AnalysisData>> getGptDescription(
         @RequestHeader(name = "Authorization", required = false) String authorization,
+        @Parameter(description = "카테고리", example = "sports") @RequestParam String category,
+        @Parameter(description = "기간 (현재일 기준 며칠 전인지 ex) 1, 7, 30)", example = "7") @RequestParam int period,
         @Parameter(description = "검색 키워드", example = "트럼프") @RequestParam String keyword,
         @Parameter(description = "마인드맵 키워드", example = "관세") @RequestParam(name = "keyword_mind") String keywordMind,
         @Parameter(description = "국가", example = "ko") @RequestParam String country,
         @Parameter(description = "한국 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
     ) {
-        AnalysisData data = countryService.getGptDescription(keyword, keywordMind, country);
+        AnalysisData data = countryService.getGptDescription(category, period, keyword, keywordMind, country, isKorea);
         CommonResponse<AnalysisData> response = CommonResponse.success(data);
         return ResponseEntity.ok(response);
     }
