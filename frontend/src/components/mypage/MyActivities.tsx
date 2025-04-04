@@ -10,6 +10,7 @@ import {
   description,
   videos,
 } from '../worldDetail/MockData';
+import NewsCarousel from './NewsCarousel';
 
 const safeData = {
   keywords: words,
@@ -68,6 +69,7 @@ const MyActivities = () => {
       </div>
       <div>
         <h2 className="text-2xl">최근 본 NEWS</h2>
+        <NewsCarousel />
         <div className=" rounded-lg">
           {safeData.articles.map((item, index) => (
             <div key={index} className="flex items-center gap-4">
