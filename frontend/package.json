@@ -27,8 +27,13 @@
     "apexcharts": "^4.5.0",
     "axios": "^1.7.9",
     "event-source-polyfill": "^1.0.31",
+<<<<<<< HEAD
     "framer-motion": "^12.6.2",
     "keen-slider": "^6.8.6",
+=======
+    "framer-motion": "^12.6.3",
+    "lodash": "^4.17.21",
+>>>>>>> 9a8767073681dffeb3e9bab7148521c31d77b335
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.475.0",
     "pretendard": "^1.3.9",
@@ -51,6 +56,7 @@
     "@eslint/js": "^9.19.0",
     "@tanstack/react-query-devtools": "^5.67.3",
     "@types/aos": "^3.0.7",
+    "@types/lodash": "^4.17.16",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@types/react-router-dom": "^5.3.3",

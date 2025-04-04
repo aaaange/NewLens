@@ -12,7 +12,7 @@ export interface DescriptionParams {
 }
 
 const useDescription = (params: DescriptionParams) => {
-  const [data, setData] = useState<string>(null);
+  const [data, setData] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
