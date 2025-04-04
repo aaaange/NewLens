@@ -473,18 +473,9 @@ public class CountryService {
 			.limit(5)
 			.map(news -> {
 				String imageUrl = news.getImageUrl();
-
+				List<String> keywords = news.getKeywords();
 				// 이미지 URL이 비어있으면 키워드 기반으로 카카오 이미지 검색
-				if (imageUrl.isEmpty()) {
-					List<String> keywords = news.getKeywords();
-					if (keywords != null && !keywords.isEmpty()) {
-						// 키워드 2개까지만 사용해서 검색어 구성
-						String query = keywords.stream()
-							.limit(2)
-							.collect(Collectors.joining(" "));
-						imageUrl = kakaoClient.searchImageUrl(query);
-					}
-				}
+				imageUrl = getKakaoImage(imageUrl, keywords);
 
 				return ArticleResponse.builder()
 					.title(news.getTitle())
@@ -560,13 +551,15 @@ public class CountryService {
 						keywords.add(subKeywords.get(i));
 					}
 				}
+				String imageUrl = item.getImageUrl();
+				imageUrl = getKakaoImage(imageUrl, keywords);
 
 				return NewsDto.builder()
 					.newsId(item.getId())
 					.title(item.getTitle())
 					.url(item.getUrl())
 					.publishedAt(item.getPublishedAt())
-					.imageUrl(item.getImageUrl())
+					.imageUrl(imageUrl)
 					.keywords(keywords)
 					.build();
 			})
@@ -586,6 +579,19 @@ public class CountryService {
 			.hasNext(hasNext)
 			.hasPrevious(hasPrevious)
 			.build();
+	}
+
+	public String getKakaoImage(String imageUrl, List<String> keywords) {
+		if (imageUrl.isEmpty()) {
+			if (keywords != null && !keywords.isEmpty()) {
+				// 키워드 2개까지만 사용해서 검색어 구성
+				String query = keywords.stream()
+					.limit(2)
+					.collect(Collectors.joining(" "));
+				imageUrl = kakaoClient.searchImageUrl(query);
+			}
+		}
+		return imageUrl;
 	}
 
 }
