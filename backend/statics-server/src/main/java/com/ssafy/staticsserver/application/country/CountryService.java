@@ -8,6 +8,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -47,6 +48,13 @@ public class CountryService {
     private NewsMongoDBRepository repository(boolean isKorea) {
         return isKorea ? domesticRepo : foreignRepo;
     }
+    private static final Map<String, String> G20_COUNTRIES = Map.ofEntries(
+        Map.entry("AR", "아르헨티나"), Map.entry("AU", "호주"),Map.entry("BR", "브라질"),Map.entry("CA", "캐나다"),Map.entry("CN", "중국"),Map.entry("FR", "프랑스"),
+        Map.entry("DE", "독일"),Map.entry("IN", "인도"),Map.entry("ID", "인도네시아"),Map.entry("IT", "이탈리아"),Map.entry("JP", "일본"),Map.entry("MX", "멕시코"),
+        Map.entry("RU", "러시아"),Map.entry("SA", "사우디아라비아"),Map.entry("ZA", "남아프리카공화국"),Map.entry("KR", "한국"),Map.entry("TR", "터키"),Map.entry("GB", "영국"),
+        Map.entry("US", "미국"),Map.entry("EU", "유럽연합"));
+
+
 
     @KafkaListener(topics = "dashboard")
     public void listenDashboard(String message) {
@@ -136,10 +144,12 @@ public class CountryService {
             String callbackUrl = payload.get("callbackUrl").toString();
             String keywordMind = (String) payload.get("keyword_mind");
             String country = (String) payload.get("country");
-            List<String> newsIds = (List<String>) payload.get("newsIds");
+            // List<String> newsIds = (List<String>) payload.get("newsIds");
             boolean isKorea = (Boolean) payload.get("isKorea");
+            String countryName = G20_COUNTRIES.getOrDefault(country, country); // 못 찾으면 원래 코드 그대로
 
-            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
+
+            // List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
 
             // int waitTimeMs = 10000;
             // int waited = 0;
@@ -155,15 +165,17 @@ public class CountryService {
 
             // description
             String description;
-            System.out.println(newsIds.size());
-            if (newsIds.size() >= GptNewsSize) {
-                // for(ForeignNewsMongo foreign : newsDashboard) {
-                //     System.out.println(foreign);
-                // }
-                String prompt = makeDescription(keyword, keywordMind, newsList, country);
+            // System.out.println(newsIds.size());
+            // if (newsIds.size() >= GptNewsSize) {
+            //     // for(ForeignNewsMongo foreign : newsDashboard) {
+            //     //     System.out.println(foreign);
+            //     // }
+                String prompt = makeDescription(keyword, keywordMind, countryName);
+            System.out.println("keyword: " + keyword +"keyword_mind: " + keywordMind +"country: " + country);
                 description = gptClient.ask(prompt);
-            } else
-                description = "관련된 뉴스가 없습니다.";
+            // }
+        // else
+        //         description = "관련된 뉴스가 없습니다.";
             newsDashboard = new ArrayList<>(); // 초기화
             HttpClient httpClient = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -259,31 +271,31 @@ public class CountryService {
 
 
     // 언론 반응 요약
-    private String makeDescription(String keyword, String keywordMind, List<ForeignNewsMongo> newsList,
-                                   String country) {
+    private String makeDescription(String keyword, String keywordMind,
+                                   String countryName) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("[국가 뉴스 여론 분석 요청]\n\n");
         prompt.append("다음은 \"").append(keyword);
         if (keywordMind != null && !keywordMind.isBlank()) {
-            prompt.append(" (").append(keywordMind).append(")");
+            prompt.append("와 ").append(keywordMind);
         }
-        prompt.append("\" 키워드와 관련된 ").append(country).append("의 뉴스입니다.\n\n");
+        prompt.append("\" 키워드와 관련된 ").append(countryName);
+            // .append("의 뉴스입니다.\n\n");
 
-        prompt.append("[").append(country).append(" 뉴스]").append("\n");
-        for (int i = 0; i < GptNewsSize; i++) {
-            ForeignNewsMongo news = newsList.get(i);
-            System.out.println(news);
-            prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
-            prompt.append("- ").append(news.getDescription()).append("\n\n");
-        }
+        // prompt.append("[").append(country).append(" 뉴스]").append("\n");
+        // for (int i = 0; i < GptNewsSize; i++) {
+        //     ForeignNewsMongo news = newsList.get(i);
+        //     System.out.println(news);
+        //     prompt.append(i + 1).append(". ").append(news.getTitle()).append("\n");
+        //     prompt.append("- ").append(news.getDescription()).append("\n\n");
+        // }
 
-        prompt.append("위 뉴스를 참고하여, ")
-                .append(country)
-                .append("을 국가명으로 바꿔주고 ex) US -> 미국 ")
+        prompt.append(" 뉴스를 참고하여, ")
+            .append(countryName).append("에서 ")
                 .append(keyword)
                 .append("에 대해 어떤 여론이 나타나는지 세 문장으로 간략히 요약해 주세요.(1,2,3 이렇게 말고 그냥 한번에) 한국어로 작성해 주세요.");
-
+        System.out.println(prompt.toString());
         return prompt.toString();
     }
 
