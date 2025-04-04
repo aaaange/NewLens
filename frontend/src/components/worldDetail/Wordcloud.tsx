@@ -30,12 +30,12 @@ interface WordCloudProps {
 }
 
 interface CloudWord {
-  text: string;
-  value: number;
-  x: number;
-  y: number;
-  size: number;
-  rotate: number;
+  text?: string;
+  value?: number;
+  x?: number;
+  y?: number;
+  size?: number;
+  rotate?: number;
 }
 
 const WordCloud = ({
@@ -51,7 +51,9 @@ const WordCloud = ({
   // console.log('워드클라우드 키워드:', keyword);
   const handleWordClick = (word: CloudWord): void => {
     // alert는 반환 값이 없음으로 void
-    handleWordCloudChange?.(word.text);
+    if (word.text) {
+      handleWordCloudChange?.(word.text);
+    }
     handleModalOpen?.(country_code);
   };
 
@@ -80,7 +82,7 @@ const WordCloud = ({
         키워드
       </p>
       <svg width={width} height={height}>
-        {/* <Wordcloud
+        <Wordcloud
           words={keywords}
           width={width}
           height={height}
@@ -94,7 +96,7 @@ const WordCloud = ({
               handleWordClick={handleWordClick}
             />
           )}
-        </Wordcloud> */}
+        </Wordcloud>
       </svg>
     </div>
   );
@@ -111,7 +113,9 @@ const WordRenderer = React.memo(
     const [hoveredWord, setHoveredWord] = useState<string | null>(null);
 
     const handleMouseEnter = useCallback((word: CloudWord) => {
-      setHoveredWord(word.text);
+      if (word.text) {
+        setHoveredWord(word.text);
+      }
     }, []);
 
     const handleMouseLeave = useCallback(() => {
@@ -124,7 +128,11 @@ const WordRenderer = React.memo(
         fill={colors[i % colors.length]}
         textAnchor="middle"
         transform={`translate(${word.x}, ${word.y}) rotate(${word.rotate})`}
-        fontSize={hoveredWord === word.text ? word.size + 5 : word.size}
+        fontSize={
+          hoveredWord && word.text && hoveredWord === word.text
+            ? (word.size ?? 0) + 5
+            : (word.size ?? 0)
+        }
         style={{
           cursor: 'pointer',
           userSelect: 'none',
