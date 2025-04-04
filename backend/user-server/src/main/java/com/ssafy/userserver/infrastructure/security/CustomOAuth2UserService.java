@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	private final UserProviderRepository userProviderRepository;
 
 	@Override
+	@Transactional
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
 		OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -48,10 +50,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		}
 
 		String email = oAuth2Response.getEmail();
-		User existData = userRepository.findByEmail(email);
+		User existUser = userRepository.findByEmail(email);
 
 		// 기존 회원 정보 없으면 DB에 추가
-		if (existData == null) {
+		if (existUser == null) {
 			User newUser = User.builder()
 				.email(email)
 				.nickname(oAuth2Response.getNickname())
@@ -62,12 +64,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.build();
 			userRepository.save(newUser);
 
+			Object refreshTokenObj = userRequest.getAdditionalParameters().get("refresh_token");
+			String refreshToken = refreshTokenObj != null ? refreshTokenObj.toString() : null;
+
 			UserProvider newUserProvider = UserProvider.builder()
 				.user(newUser)
 				.providerName(ProviderType.valueOf(oAuth2Response.getProvider()))
 				.providerId(oAuth2Response.getProviderId())
-				.accessToken(null)
-				.refreshToken(null)
+				.accessToken(userRequest.getAccessToken().getTokenValue())
+				.refreshToken(refreshToken)
 				.createdAt(LocalDateTime.now())
 				.updatedAt(LocalDateTime.now())
 				.build();

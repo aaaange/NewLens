@@ -76,7 +76,6 @@ public class CountryCallbackController {
             CompletableFuture<NewsModalResponse> newFuture = (CompletableFuture<NewsModalResponse>) future;
             newFuture.complete(response);
         }
-        System.out.println(response);
         return ResponseEntity.ok().build();
     }
 
