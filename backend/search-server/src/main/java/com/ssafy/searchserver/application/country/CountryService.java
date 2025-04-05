@@ -224,6 +224,7 @@ public class CountryService {
                     .country2NewsIds(country2NewsIds)
                     .requestId(requestId)
                     .period(period)
+                    .category(category)
                     .callbackUrl(callBackUrl + "/api/search/country/compare_callback")
                     .build();
 

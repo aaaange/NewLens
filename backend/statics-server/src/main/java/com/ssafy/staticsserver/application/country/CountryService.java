@@ -185,11 +185,12 @@ public class CountryService {
             String country2 = G20_COUNTRIES.get(msg.getCountry2());
             String requestId = msg.getRequestId();
             String callbackUrl = msg.getCallbackUrl();
+            String category = msg.getCategory();
             int period = msg.getPeriod();
 
             String prompt = buildComparePrompt(
                     keyword, keywordMind,
-                    country1, country2, period
+                    country1, country2, period, category
             );
             String summary = gptClient.ask(prompt);
             // String summary = "결과";
@@ -497,7 +498,7 @@ public class CountryService {
     //  GPT 한줄 요약
     public String buildComparePrompt(
             String keyword, String keywordMind,
-            String country1, String country2, int period
+            String country1, String country2, int period, String category
     ) {
         StringBuilder prompt = new StringBuilder();
 
@@ -509,6 +510,7 @@ public class CountryService {
         }
         prompt.append("\" 키워드에 대한 ").append(country1).append("와 ").append(country2).append("의 뉴스 여론 비교 요청입니다.\n");
         prompt.append("오늘부터 ").append(period).append("기간전까지");
+        prompt.append(category).append("카테고리에 대해");
         prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 분석하여,\n");
         prompt.append("두 국가의 입장을 각각 나열하지 말고 비교된 내용을 한 문장으로 통합해서 요약해 주세요.\n\n");
 
