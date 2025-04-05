@@ -26,6 +26,23 @@ services:
       - backend-net
     environment:
       - TZ=Asia/Seoul
+
+  user-server:
+    image: kimsangouk/user-server:latest
+    container_name: user-server
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 9001:9001
+    depends_on:
+      - mysql
+      - redis
+      - mongodb
+    networks:
+      - backend-net
+    environment:
+      - TZ=Asia/Seoul
       
   search-server:
     image: kimsangouk/search-server:latest
@@ -178,10 +195,29 @@ services:
       timeout: 10s
       retries: 3
 
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend-net
+
 volumes:
   mongodb-data:
   # elasticsearch-data:
   redis-data:
+  mysql_data:
 
 networks:
   backend-net:

@@ -43,4 +43,8 @@ public class Log {
 		this.newsId = newsId;
 		this.visitedAt = visitedAt;
 	}
+
+	public void updateVisitedAt(LocalDateTime visitedAt) {
+		this.visitedAt = visitedAt;
+	}
 }
