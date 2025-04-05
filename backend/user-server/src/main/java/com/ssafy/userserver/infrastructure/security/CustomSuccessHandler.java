@@ -48,11 +48,15 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 		log.info("accessToken: {}", accessToken);
 
-		response.setHeader("Authorization", "Bearer " + accessToken);
-		response.addCookie(createCookie("RefreshToken", refreshToken));
-		response.addCookie(createCookie("AccessToken", accessToken));
+//		response.setHeader("Authorization", "Bearer " + accessToken);
+//		response.addCookie(createCookie("RefreshToken", refreshToken));
+//		response.addCookie(createCookie("AccessToken", accessToken));
 //      response.sendRedirect("https://newlens.co.kr/main");
-		response.sendRedirect("http://localhost:5173/main");
+//		response.sendRedirect("http://localhost:5173/main");
+		String redirectUrl = "http://localhost:5173/main"
+				+ "?accessToken=" + accessToken
+				+ "&refreshToken=" + refreshToken;
+		response.sendRedirect(redirectUrl);
 	}
 
 	private Cookie createCookie(String key, String value) {
