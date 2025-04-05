@@ -17,6 +17,10 @@ spring:
     redis:
       port: ${REDIS_PORT:6379}
       host: ${REDIS_HOST:localhost}
+      password: ${REDIS_PASSWORD}
+    mongodb:
+      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin
+      database: ${MONGODB_DATABASE}
 
   security:
     oauth2:
