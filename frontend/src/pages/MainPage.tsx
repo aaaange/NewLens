@@ -122,6 +122,7 @@ const MainPage = () => {
           period={period}
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
+          handleInitKeywordChange={() => {}}
         />
       </div>
       <div className="flex flex-col items-end">

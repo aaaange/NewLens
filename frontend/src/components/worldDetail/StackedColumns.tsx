@@ -15,6 +15,7 @@ interface StackedColumnChartProps {
   width: number;
   height: number;
   keyword: string;
+  keyword_mind: string;
   country_name: string;
   country_code: string;
 }
@@ -24,6 +25,7 @@ const StackedColumns = ({
   width,
   height,
   keyword,
+  keyword_mind,
   country_name,
   country_code,
 }: StackedColumnChartProps) => {
@@ -47,7 +49,7 @@ const StackedColumns = ({
           fontWeight: 500,
         },
       },
-      categories: data.map((item) => formatDate(item.published_at, '')),
+      categories: data.map((item) => formatDate(item.published_at, 'perHour')),
     },
     yaxis: {
       labels: {
@@ -89,12 +91,17 @@ const StackedColumns = ({
 
   const Flags = Flag as any;
 
+  const headerString = [keyword, keyword_mind]
+    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
+    .join(' > '); // ' > '로 연결
+
   return (
     <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
       <p className="flex items-center flex-wrap">
         <Flags code={country_code} width="24" height="12" /> &nbsp;
         {country_name}에서 본&nbsp;
-        <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
+        <span className="text-amount-300 text-lg ">{headerString}</span>에
+        대한&nbsp;
         <span className="text-amount-300 text-lg ">감정 분석</span>
       </p>
       <Chart
