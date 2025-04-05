@@ -2,7 +2,7 @@ package com.ssafy.userserver.domain.dto;
 
 import java.util.Map;
 
-import com.ssafy.userserver.domain.enums.ProviderType;
+import com.ssafy.userserver.domain.enums.ProviderName;
 
 public class GoogleResponse implements OAuth2Response{
 
@@ -14,8 +14,8 @@ public class GoogleResponse implements OAuth2Response{
 	}
 
 	@Override
-	public String getProvider() {
-		return ProviderType.GOOGLE.name();
+	public String getProviderName() {
+		return ProviderName.GOOGLE.name();
 	}
 
 	@Override
