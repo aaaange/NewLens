@@ -17,5 +17,13 @@ public class VideoResponse {
 	private LocalDateTime publishedAt;
 	private String thumbnailUrl;
 
-
+	@Override
+	public String toString() {
+		return "VideoResponse{" +
+				"title='" + title + '\'' +
+				", url='" + url + '\'' +
+				", publishedAt=" + publishedAt +
+				", thumbnailUrl='" + thumbnailUrl + '\'' +
+				'}';
+	}
 }
