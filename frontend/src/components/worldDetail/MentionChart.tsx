@@ -13,6 +13,7 @@ interface MentionChartProps {
   width: number;
   height: number;
   keyword: string;
+  keyword_mind: string;
   country_name: string;
   country_code: string;
 }
@@ -22,11 +23,14 @@ const MentionChart = ({
   width,
   height,
   keyword,
+  keyword_mind,
   country_name,
   country_code,
 }: MentionChartProps) => {
   // x축과 y축 데이터를 변환
-  const categories = data.map((item) => formatDate(item.published_at, ''));
+  const categories = data.map((item) =>
+    formatDate(item.published_at, 'perHour')
+  );
   const seriesData = data.map((item) => item.count);
   const FixedFlag = Flag as any;
   const options: ApexOptions = {
@@ -84,6 +88,9 @@ const MentionChart = ({
       data: seriesData,
     },
   ];
+  const headerString = [keyword, keyword_mind]
+    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
+    .join(' > '); // ' > '로 연결
 
   return (
     <div
@@ -93,7 +100,8 @@ const MentionChart = ({
       <p className="flex items-center flex-wrap">
         <FixedFlag code={country_code} width={24} height={12} /> &nbsp;
         {country_name}에서 본&nbsp;
-        <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
+        <span className="text-amount-300 text-lg ">{headerString}</span>에
+        대한&nbsp;
         <span className="text-amount-300 text-lg ">언급량 변화</span>
       </p>
       <Chart

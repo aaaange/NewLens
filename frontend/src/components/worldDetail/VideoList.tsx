@@ -14,6 +14,7 @@ interface VideoListProps {
   width: number;
   // height: number;
   keyword: string;
+  keyword_mind: string;
   country_name: string;
   country_code: string;
 }
@@ -22,10 +23,14 @@ const VideoList = ({
   videos,
   width,
   keyword,
+  keyword_mind,
   country_name,
   country_code,
 }: VideoListProps) => {
   const Flags = Flag as any;
+  const headerString = [keyword, keyword_mind]
+    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
+    .join(' > '); // ' > '로 연결
   return (
     <>
       <div
@@ -38,7 +43,7 @@ const VideoList = ({
         <p className="flex items-center flex-wrap">
           <Flags code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
-          <span className="text-amount-300 text-lg ">{keyword}</span>의
+          <span className="text-amount-300 text-lg ">{headerString}</span>의
           관련&nbsp;
           <span className="text-amount-300 text-lg "> 유튜브</span>
         </p>
