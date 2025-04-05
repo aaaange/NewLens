@@ -5,7 +5,7 @@ import Flag from 'react-world-flags';
 interface VideoItemType {
   title: string;
   url: string;
-  published_date: string;
+  published_at: string;
   thumbnail_url: string;
 }
 
@@ -14,6 +14,7 @@ interface KoreaVideoListProps {
   width: number;
   height: number;
   keyword: string;
+  keyword_mind: string;
   country_name: string;
   country_code: string;
 }
@@ -33,6 +34,8 @@ const KoreaVideoList = ({
   videos,
   width,
   keyword,
+  keyword_mind,
+  height,
   country_name,
   country_code,
 }: KoreaVideoListProps) => {

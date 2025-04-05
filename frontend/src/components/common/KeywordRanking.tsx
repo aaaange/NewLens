@@ -14,6 +14,7 @@ interface PropsType {
   is_korea: boolean;
   onKeywordChange: (keyword: string) => void;
   handleMindMapKeywordChange: (keyword: string) => void;
+  handleInitKeywordChange: (keyword: string) => void;
 }
 
 const KeywordRanking = ({
@@ -22,6 +23,7 @@ const KeywordRanking = ({
   is_korea,
   onKeywordChange,
   handleMindMapKeywordChange,
+  handleInitKeywordChange,
 }: PropsType) => {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [currentTime] = useState(() => {
@@ -46,6 +48,7 @@ const KeywordRanking = ({
     try {
       const response = await getKeywordRankingApi(category, period, is_korea);
       const { keywords: apiKeywords } = response.data;
+      handleInitKeywordChange(apiKeywords[0].name); // 첫 번째 키워드로 초기화
 
       const newKeywords: Keyword[] = apiKeywords.map(
         (keyword: { name: string; state: string }, index: number) => {
