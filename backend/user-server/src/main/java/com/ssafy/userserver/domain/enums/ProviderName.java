@@ -1,6 +1,6 @@
 package com.ssafy.userserver.domain.enums;
 
-public enum ProviderType {
+public enum ProviderName {
 	KAKAO,
 	GOOGLE,
 	SSAFY
