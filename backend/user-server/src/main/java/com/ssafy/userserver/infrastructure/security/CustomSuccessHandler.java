@@ -46,7 +46,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String accessToken = jwtUtil.createJwt(email, nickname, 10*60*60*1000L);
 		String refreshToken = jwtUtil.createJwt(email, nickname, 14*24*60*60*1000L);
 
-		log.info("accessToken: {}", accessToken);
+		log.info("배포 확인용 accessToken: {}", accessToken);
 
 //		response.setHeader("Authorization", "Bearer " + accessToken);
 //		response.addCookie(createCookie("RefreshToken", refreshToken));
