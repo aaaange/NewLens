@@ -98,6 +98,7 @@ const FirstCountryBoard = ({
             handleModalOpen={handleModalOpen}
             keyword={keyword}
             keywords={safeData.keywords}
+            keyword_mind={keyword_mind}
             width={410}
             height={200}
             country_name={country_name}
@@ -108,6 +109,7 @@ const FirstCountryBoard = ({
             width={410}
             height={150}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -116,6 +118,7 @@ const FirstCountryBoard = ({
             width={410}
             height={200}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -124,6 +127,7 @@ const FirstCountryBoard = ({
             width={410}
             height={200}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -132,6 +136,7 @@ const FirstCountryBoard = ({
             news={safeData.articles}
             width={410}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -139,6 +144,7 @@ const FirstCountryBoard = ({
             videos={safeData.videos}
             width={410}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />

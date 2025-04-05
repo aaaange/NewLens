@@ -23,6 +23,7 @@ interface WordCloudProps {
   width: number;
   height: number;
   keyword: string;
+  keyword_mind: string;
   country_name: string;
   country_code: string;
   handleWordCloudChange?: (word: string) => void; // 단어 클릭 시 부모 컴포넌트에 전달하는 함수
@@ -43,6 +44,7 @@ const WordCloud = ({
   width,
   height,
   keyword,
+  keyword_mind,
   country_name,
   country_code,
   handleWordCloudChange,
@@ -73,10 +75,15 @@ const WordCloud = ({
   };
 
   const Flags = Flag as any;
+  const headerString = [keyword, keyword_mind]
+    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
+    .join(' > '); // ' > '로 연결
+
   return (
     <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
       <p className="flex items-center flex-wrap">
-        <span className="text-amount-300 text-lg ">{keyword}</span>에 대한&nbsp;
+        <span className="text-amount-300 text-lg ">{headerString}</span>
+        에 대한&nbsp;
         <Flags code={country_code} width="24" height="12" /> &nbsp;
         <span className="text-amount-300 text-lg"> {country_name}</span>의 관련
         키워드
