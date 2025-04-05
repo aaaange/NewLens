@@ -96,6 +96,7 @@ const SecondCountryBoard = ({
             handleWordCloudChange={handleWordCloudChange}
             keyword={keyword}
             keywords={safeData.keywords}
+            keyword_mind={keyword_mind}
             width={410}
             height={200}
             country_name={country_name}
@@ -106,6 +107,7 @@ const SecondCountryBoard = ({
             width={410}
             height={150}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -114,6 +116,7 @@ const SecondCountryBoard = ({
             width={410}
             height={200}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -122,6 +125,7 @@ const SecondCountryBoard = ({
             width={410}
             height={200}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -130,6 +134,7 @@ const SecondCountryBoard = ({
             news={safeData.articles}
             width={410}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
@@ -137,6 +142,7 @@ const SecondCountryBoard = ({
             videos={safeData.videos}
             width={410}
             keyword={keyword}
+            keyword_mind={keyword_mind}
             country_name={country_name}
             country_code={country}
           />
