@@ -12,6 +12,7 @@ interface NewsListProps {
   news: NewsItemType[];
   width: number;
   keyword: string;
+  keyword_mind: string;
   country_name: string;
   country_code: string;
   handleModalOpen: (country: string) => void; // 모달 열기 함수
@@ -20,11 +21,16 @@ const NewsList = ({
   news,
   width,
   keyword,
+  keyword_mind,
   country_name,
   country_code,
   handleModalOpen,
 }: NewsListProps) => {
   const Flags = Flag as any; // Flag 컴포넌트의 타입을 any로 설정
+
+  const headerString = [keyword, keyword_mind]
+    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
+    .join(' > '); // ' > '로 연결
   return (
     <div className="flex flex-col gap-2" style={{ width: `${width}px` }}>
       {/* 뉴스 리스트 헤더 */}
@@ -32,12 +38,15 @@ const NewsList = ({
         <p className="flex items-center flex-wrap">
           <Flags code={country_code} width="24" height="12" /> &nbsp;
           <span className="text-lg "> {country_name}</span>에서 본&nbsp;
-          <span className="text-amount-300 text-lg ">{keyword}</span>의
+          <span className="text-amount-300 text-lg ">{headerString}</span>의
           관련&nbsp;
           <span className="text-amount-300 text-lg "> 뉴스</span>
         </p>
         <div className="ml-auto">
-          <div onClick={() => handleModalOpen(country_code)} className="p-2 cursor-pointer">
+          <div
+            onClick={() => handleModalOpen(country_code)}
+            className="p-2 cursor-pointer"
+          >
             + 더보기
           </div>
         </div>

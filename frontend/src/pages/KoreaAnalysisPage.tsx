@@ -7,19 +7,11 @@ import { useParams, useOutletContext } from 'react-router-dom';
 import { useState } from 'react';
 
 const KoreaAnalysisPage = () => {
-  // const { category, period, keyword } = useParams();
-  // const { category, period } = useParams(); // 원래 코드
-
   const [category, setCategory] = useState('all');
   const [period, setPeriod] = useState(30);
   const [keyword, setKeyword] = useState('');
   const [keyword_mind, setKeywordMind] = useState('');
-  // const {
-  //   keyword: initialKeyword,
-  //   keyword_mind: initialKeywordMind,
-  //   category: initialCategory,
-  //   period: initialPeriod,
-  // } = useParams();
+  const [initialKeyword, setInitialKeyword] = useState('');
 
   const country: string = 'kr';
   const country_name: string = '대한민국';
@@ -32,8 +24,8 @@ const KoreaAnalysisPage = () => {
   // const [period, setPeriod] = useState(
   //   initialPeriod ? parseInt(initialPeriod) : 1
   // );
-  const upperCaseCountry = (country ?? '').toUpperCase();
-  const [firstCountry, setFirstCountry] = useState(upperCaseCountry);
+  // const upperCaseCountry = (country ?? '').toUpperCase();
+  // const [firstCountry, setFirstCountry] = useState(upperCaseCountry);
 
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -42,6 +34,10 @@ const KoreaAnalysisPage = () => {
   };
   const handleMindMapKeywordChange = (newKeyword: string) => {
     setKeywordMind(newKeyword);
+  };
+
+  const handleInitKeywordChange = (newKeyword: string) => {
+    setInitialKeyword(newKeyword);
   };
   const handleRankingKeywordChange = (newKeyword: string) => {
     setKeyword(newKeyword);
@@ -61,7 +57,7 @@ const KoreaAnalysisPage = () => {
     <div className="mt-5 flex gap-10 justify-center">
       <div className="flex flex-col gap-5">
         <SearchInput
-          value={keyword}
+          value={initialKeyword}
           onChange={keywordInputChangeHandler}
           onSearch={() => console.log('Search triggered')}
         />
@@ -72,14 +68,15 @@ const KoreaAnalysisPage = () => {
           category={category}
           period={period}
           mainKeyword={keyword}
-          isKorea={firstCountry === 'KR'}
+          isKorea={true}
         />
         <KeywordRanking
           category={category}
           period={period}
-          is_korea={firstCountry === ''}
+          is_korea={true}
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
+          handleInitKeywordChange={handleInitKeywordChange}
         />
       </div>
       <div className="flex flex-col items-center gap-3">
@@ -89,13 +86,15 @@ const KoreaAnalysisPage = () => {
           categoryChangeHandler={categoryChangeHandler}
           periodChangeHandler={periodChangeHandler}
         />
-        {/* <KoreaAnalysis
-          country={country}
+        <KoreaAnalysis
+          country={''}
           country_name={country_name}
-          keyword={keyword ?? ''} // undefined 방지
+          keyword={initialKeyword ?? keyword} // undefined 방지
+          keyword_mind={keyword_mind ?? ''}
           category={category ?? ''}
-          period={category ?? ''}
-        /> */}
+          period={period ?? ''}
+          is_korea={true}
+        />
       </div>
     </div>
   );
