@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @Component
+@Slf4j
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JWTUtil jwtUtil;
@@ -42,6 +45,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 		String accessToken = jwtUtil.createJwt(email, nickname, 10*60*60*1000L);
 		String refreshToken = jwtUtil.createJwt(email, nickname, 14*24*60*60*1000L);
+
+		log.info("accessToken: {}", accessToken);
 
 		response.setHeader("Authorization", "Bearer " + accessToken);
 		response.addCookie(createCookie("RefreshToken", refreshToken));
