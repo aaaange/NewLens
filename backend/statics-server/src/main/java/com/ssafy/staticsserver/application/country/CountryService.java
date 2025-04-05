@@ -101,18 +101,18 @@ public class CountryService {
             List<ArticleResponse> articles = processArticles(newsList);
 
             // videos
-            //            List<VideoResponse> videos;
-            //            if (!newsDashboard.isEmpty()) {
-            //                videos = processVideos(keyword, keywordMind, country);
-            //            } else
-            //                videos = new ArrayList<>();
+            List<VideoResponse> videos;
+            if (!newsList.isEmpty()) {
+                videos = processVideos(keyword, keywordMind, country);
+            } else
+                videos = new ArrayList<>();
 
             DashboardData response = DashboardData.builder()
                     .wordcloud(wordCloud)
                     .sentiment(sentiment)
                     .mentions(mentions)
                     .articles(articles)
-                    //                    .videos(videos)
+                    .videos(videos)
                     .build();
 
             String responseJson = objectMapper.writeValueAsString(response);
