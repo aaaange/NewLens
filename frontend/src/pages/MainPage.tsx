@@ -3,7 +3,7 @@ import KeywordRanking from '../components/common/KeywordRanking';
 import MindMap from '../components/common/MindMap';
 import SearchInput from '../components/common/SearchInput';
 import Map from '../components/world/Map';
-import { debounce } from 'lodash';
+import { debounce, set } from 'lodash';
 
 import { useEffect, useState } from 'react';
 import { getWorldMapDataApi } from '../services/api/worldService';
@@ -53,6 +53,10 @@ const MainPage = () => {
     setKeyword(newKeyword);
   };
 
+  useEffect(() => {
+    setKeywordMind('');
+  }, [debouncedKeyword]);
+
   const fetchWorldData = async (mind: string) => {
     try {
       if (debouncedKeyword.length == 1) {
@@ -73,7 +77,6 @@ const MainPage = () => {
       console.error('검색 실패:', error);
     }
   };
-  // Debounce 처리
   useEffect(() => {
     const handler = debounce(() => {
       setDebouncedKeyword(keyword);
@@ -82,7 +85,6 @@ const MainPage = () => {
     return () => handler.cancel();
   }, [keyword]);
 
-  // debouncedKeyword가 변경될 때만 fetchWorldData 호출
   useEffect(() => {
     fetchWorldData('');
   }, []);
@@ -120,6 +122,7 @@ const MainPage = () => {
           period={period}
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
+          handleInitKeywordChange={() => {}}
         />
       </div>
       <div className="flex flex-col items-end">

@@ -82,11 +82,11 @@ const LandingPage = () => {
         }}
         src="/assets/images/scroll-to-top.png"
         alt="scroll to top"
-        className="fixed bottom-10 right-10 w-12 h-12 cursor-pointer z-50"
+        className="fixed bottom-[5vh] right-[5vw] w-[3vw] h-[3vw] cursor-pointer z-50"
       />
 
       {/* Dot Navigation */}
-      <div className="fixed right-[32px] top-1/2 -translate-y-1/2 z-50 flex flex-col gap-[16px]">
+      <div className="fixed right-[2vw] top-1/2 -translate-y-1/2 z-50 flex flex-col gap-[16px]">
         {sectionRefs.map((_, i) => (
           <button
             key={i}

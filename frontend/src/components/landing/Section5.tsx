@@ -17,10 +17,7 @@ const Section5 = forwardRef<HTMLDivElement>((_, ref) => {
   };
 
   return (
-    <div
-      ref={ref}
-      className="flex h-screen border-b justify-center gap-[8vw] p-[4vw] border-gray-400"
-    >
+    <div ref={ref} className="flex h-screen justify-center gap-[8vw] p-[4vw]">
       <motion.div
         className="flex flex-col gap-[3vh] pt-[3vh] justify-items-center"
         initial="hidden"

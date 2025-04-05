@@ -56,39 +56,41 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div
       ref={ref}
-      className="h-screen border-b border-gray-400 p-[4vw] flex flex-col items-center justify-center gap-[6vh]"
+      className="h-screen p-[4vw] flex flex-col items-center justify-between gap-[6vh]"
     >
       {/* 상단 */}
-      <div className="flex justify-center gap-[6vw] -mt-[5vh]">
+      <div className="flex justify-center gap-[1vw] -mt-[3vh] w-full">
         {fadeSections.map((section, index) => (
           <motion.div
             key={index}
-            className="flex flex-col items-center h-[500px] w-fit"
+            className="flex flex-col flex-1 items-center justify-center h-[500px] w-fit"
             variants={fadeLeftVariant}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: false, amount: 0.3 }}
             custom={index}
           >
-            <div className="flex flex-col gap-[2.5vh]">
+            <div className="flex flex-col h-full gap-[6vh]">
               <div className="flex flex-col items-center">
-                <p className="headline-small">{section.title}</p>
-                <p className="caption-small text-tetiary-600">
+                <p className="headline-medium">{section.title}</p>
+                <p className="caption-medium text-tetiary-600">
                   {section.subtitle}
                 </p>
               </div>
-              <img
-                src={section.image}
-                alt="로고"
-                className={section.imgStyle}
-              />
+              <div className="flex items-center">
+                <img
+                  src={section.image}
+                  alt="로고"
+                  className={section.imgStyle}
+                />
+              </div>
             </div>
 
-            <div className="flex items-end h-full">
+            {/* <div className="flex items-end h-full">
               <p className="headline-large justify-baseline">
                 {section.bottomText}
               </p>
-            </div>
+            </div> */}
           </motion.div>
         ))}
       </div>
