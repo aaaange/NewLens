@@ -106,7 +106,7 @@
 // };
 
 // export default KoreaAnalysis;
-const KoreaAnalysis = () => {
-  return <div>KoreaAnalysis</div>;
-};
-export default KoreaAnalysis;
+// const KoreaAnalysis = () => {
+//   return <div>KoreaAnalysis</div>;
+// };
+// export default KoreaAnalysis;
