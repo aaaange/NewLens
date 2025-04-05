@@ -1,8 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
+import { get } from 'lodash';
 
 export const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
-// axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = false;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 const setupInterceptors = (instance: AxiosInstance) => {
@@ -10,11 +11,22 @@ const setupInterceptors = (instance: AxiosInstance) => {
     (request) => {
       console.log('api: ', request.url, '호출됨.');
 
-      // const accessToken = getAccessToken();
-      const accessToken = '';
+      // 리다이렉트된 페이지에서 토큰 추출
+      const query = new URLSearchParams(window.location.search);
+      const accessToken = query.get('accessToken');
+      console.log(accessToken);
+
+      const refreshToken = query.get('refreshToken');
+      console.log(refreshToken);
+
+      // localStorage 또는 상태 관리 저장
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
 
       if (accessToken) {
-        request.headers.Authorization = accessToken;
+        localStorage.setItem('accessToken', accessToken);
+        request.headers.Authorization = 'Bearer ' + accessToken;
       }
       return request;
     },

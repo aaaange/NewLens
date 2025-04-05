@@ -3,7 +3,7 @@ import KeywordRanking from '../components/common/KeywordRanking';
 import MindMap from '../components/common/MindMap';
 import SearchInput from '../components/common/SearchInput';
 import Map from '../components/world/Map';
-import { debounce } from 'lodash';
+import { debounce, set } from 'lodash';
 
 import { useEffect, useState } from 'react';
 import { getWorldMapDataApi } from '../services/api/worldService';
@@ -53,6 +53,10 @@ const MainPage = () => {
     setKeyword(newKeyword);
   };
 
+  useEffect(() => {
+    setKeywordMind('');
+  }, [debouncedKeyword]);
+
   const fetchWorldData = async (mind: string) => {
     try {
       if (debouncedKeyword.length == 1) {
@@ -67,22 +71,20 @@ const MainPage = () => {
       };
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
-      setKeyword(response.data.keyword); // 조건 없으면 무한 루프
+      setKeyword(response.data.keyword);
       console.log('reponse', response.data);
     } catch (error) {
       console.error('검색 실패:', error);
     }
   };
-  // Debounce 처리
   useEffect(() => {
     const handler = debounce(() => {
       setDebouncedKeyword(keyword);
-    }, 500); // 500ms 딜레이 설정
+    }, 500);
     handler();
-    return () => handler.cancel(); // cleanup
+    return () => handler.cancel();
   }, [keyword]);
 
-  // debouncedKeyword가 변경될 때만 fetchWorldData 호출
   useEffect(() => {
     fetchWorldData('');
   }, []);

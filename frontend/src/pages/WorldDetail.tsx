@@ -55,17 +55,20 @@ const WorldDetail = () => {
   );
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
+    setKeywordMind('');
     console.log(category);
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
     console.log(period);
+    setKeywordMind('');
   };
 
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setKeyword(e.target.value);
+    setKeywordMind('');
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
@@ -180,7 +183,10 @@ const WorldDetail = () => {
           />
         </div>
         <GptSummary
-          description={data?.analysis ?? '비교할 나라를 선택해보세요! 양 측의 입장을 한 줄로 요약해요✨'}
+          description={
+            data?.analysis ??
+            '비교할 나라를 선택해보세요! 양 측의 입장을 한 줄로 요약해요✨'
+          }
           width={880}
           height={125}
           keyword={keyword}
