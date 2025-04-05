@@ -327,10 +327,10 @@ public class SearchService {
 		return idList;
 	}
 
-	public void triggerKeywordRanking(String category, int period, boolean isKorea) {
+	public void  triggerKeywordRanking(String category, int period, boolean isKorea) {
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-			LocalDateTime to = LocalDateTime.now().minusDays(1);
+			LocalDateTime to = LocalDateTime.now();
 			LocalDateTime from = to.minusDays(period);
 			String gte = from.format(formatter);
 			String lte = to.format(formatter);

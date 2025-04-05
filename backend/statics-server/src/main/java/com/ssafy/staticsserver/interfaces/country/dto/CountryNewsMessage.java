@@ -14,6 +14,7 @@ public class CountryNewsMessage {
     private String keywordMind;
     private String country1;
     private String country2;
+    private int period;
     private List<String> country1NewsIds;
     private List<String> country2NewsIds;
 }

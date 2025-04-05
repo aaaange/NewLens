@@ -2,7 +2,7 @@ package com.ssafy.userserver.domain.entity;
 
 import java.time.LocalDateTime;
 
-import com.ssafy.userserver.domain.enums.ProviderType;
+import com.ssafy.userserver.domain.enums.ProviderName;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,7 +37,7 @@ public class UserProvider {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "provider_name", nullable = false)
-	private ProviderType providerName;
+	private ProviderName providerName;
 
 	@Column(name = "provider_id", nullable = false)
 	private String providerId;
@@ -55,7 +55,7 @@ public class UserProvider {
 	private LocalDateTime updatedAt;
 
 	@Builder
-	public UserProvider(User user, ProviderType providerName, String providerId, String accessToken, String refreshToken, LocalDateTime createdAt, LocalDateTime updatedAt) {
+	public UserProvider(User user, ProviderName providerName, String providerId, String accessToken, String refreshToken, LocalDateTime createdAt, LocalDateTime updatedAt) {
 		this.user = user;
 		this.providerName = providerName;
 		this.providerId = providerId;
