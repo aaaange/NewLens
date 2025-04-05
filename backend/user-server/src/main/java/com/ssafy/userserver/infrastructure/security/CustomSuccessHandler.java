@@ -50,7 +50,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 		response.setHeader("Authorization", "Bearer " + accessToken);
 		response.addCookie(createCookie("RefreshToken", refreshToken));
-		response.sendRedirect("https://newlens.co.kr/main");
+		response.addCookie(createCookie("AccessToken", accessToken));
+//      response.sendRedirect("https://newlens.co.kr/main");
+		response.sendRedirect("http://localhost:5173/main");
 	}
 
 	private Cookie createCookie(String key, String value) {
