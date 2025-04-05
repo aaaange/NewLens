@@ -37,11 +37,11 @@ public class YouTubeClient {
                 .queryParam("part", "snippet")
                 .queryParam("q", query)
                 .queryParam("regionCode", regionCode)
-//                .queryParam("relevanceLanguage", getLanguageCode(regionCode))
+                .queryParam("relevanceLanguage", getLanguageCode(regionCode))
                 .queryParam("type", "video")
                 .queryParam("order", "relevance")
                 .queryParam("safeSearch", "moderate")
-                .queryParam("maxResults", 10)
+                .queryParam("maxResults", 5)
                 .toUriString();
 
         ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
@@ -55,13 +55,13 @@ public class YouTubeClient {
                 String title = item.get("snippet").get("title").asText("");
                 String description = item.get("snippet").get("description").asText("");
 
-                boolean containsKeyword = title.contains(keyword) || description.contains(keyword);
-                boolean containsKeywordMind = keywordMind != null && !keywordMind.isBlank()
-                        && (title.contains(keywordMind) || description.contains(keywordMind));
-
-                if (!containsKeyword && !containsKeywordMind) {
-                    continue;
-                }
+//                boolean containsKeyword = title.contains(keyword) || description.contains(keyword);
+//                boolean containsKeywordMind = keywordMind != null && !keywordMind.isBlank()
+//                        && (title.contains(keywordMind) || description.contains(keywordMind));
+//
+//                if (!containsKeyword && !containsKeywordMind) {
+//                    continue;
+//                }
 
                 String videoId = item.get("id").get("videoId").asText();
                 String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
