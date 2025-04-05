@@ -3,30 +3,35 @@ import SearchInput from '../components/common/SearchInput';
 import MindMap from '../components/common/MindMap';
 import KeywordRanking from '../components/common/KeywordRanking';
 import Category from '../components/common/Category';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import { useState } from 'react';
 
 const KoreaAnalysisPage = () => {
   // const { category, period, keyword } = useParams();
   // const { category, period } = useParams(); // 원래 코드
-  const {
-    keyword: initialKeyword,
-    keyword_mind: initialKeywordMind,
-    category: initialCategory,
-    period: initialPeriod,
-  } = useParams();
+
+  const [category, setCategory] = useState('all');
+  const [period, setPeriod] = useState(30);
+  const [keyword, setKeyword] = useState('');
+  const [keyword_mind, setKeywordMind] = useState('');
+  // const {
+  //   keyword: initialKeyword,
+  //   keyword_mind: initialKeywordMind,
+  //   category: initialCategory,
+  //   period: initialPeriod,
+  // } = useParams();
 
   const country: string = 'kr';
   const country_name: string = '대한민국';
   // const keyword: string = '임시 데이터';
 
-  const [keyword, setKeyword] = useState(initialKeyword ?? '');
-  const [keyword_mind, setKeywordMind] = useState(initialKeywordMind ?? '');
+  // const [keyword, setKeyword] = useState(initialKeyword ?? '');
+  // const [keyword_mind, setKeywordMind] = useState(initialKeywordMind ?? '');
 
-  const [category, setCategory] = useState(initialCategory ?? 'all');
-  const [period, setPeriod] = useState(
-    initialPeriod ? parseInt(initialPeriod) : 1
-  );
+  // const [category, setCategory] = useState(initialCategory ?? 'all');
+  // const [period, setPeriod] = useState(
+  //   initialPeriod ? parseInt(initialPeriod) : 1
+  // );
   const upperCaseCountry = (country ?? '').toUpperCase();
   const [firstCountry, setFirstCountry] = useState(upperCaseCountry);
 
@@ -72,7 +77,7 @@ const KoreaAnalysisPage = () => {
         <KeywordRanking
           category={category}
           period={period}
-          is_korea={firstCountry === 'KR'}
+          is_korea={firstCountry === ''}
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
         />
