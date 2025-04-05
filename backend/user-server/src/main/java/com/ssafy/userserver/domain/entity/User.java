@@ -60,4 +60,13 @@ public class User {
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
+
+	public void changeActivate(Active currentActive) {
+		if (currentActive == Active.Y) {
+			this.active = Active.N;
+		} else if (currentActive == Active.N) {
+			this.active = Active.Y;
+		}
+		this.updatedAt = LocalDateTime.now();
+	}
 }
