@@ -185,10 +185,11 @@ public class CountryService {
             String country2 = G20_COUNTRIES.get(msg.getCountry2());
             String requestId = msg.getRequestId();
             String callbackUrl = msg.getCallbackUrl();
+            int period = msg.getPeriod();
 
             String prompt = buildComparePrompt(
                     keyword, keywordMind,
-                    country1, country2
+                    country1, country2, period
             );
             String summary = gptClient.ask(prompt);
             // String summary = "결과";
@@ -496,7 +497,7 @@ public class CountryService {
     //  GPT 한줄 요약
     public String buildComparePrompt(
             String keyword, String keywordMind,
-            String country1, String country2
+            String country1, String country2, int period
     ) {
         StringBuilder prompt = new StringBuilder();
 
@@ -507,12 +508,13 @@ public class CountryService {
             prompt.append("\"와 \"").append(keywordMind);
         }
         prompt.append("\" 키워드에 대한 ").append(country1).append("와 ").append(country2).append("의 뉴스 여론 비교 요청입니다.\n");
-
-        prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 유추하여,\n");
+        prompt.append("오늘부터 ").append(period).append("기간전까지");
+        prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 분석하여,\n");
         prompt.append("두 국가의 입장을 각각 나열하지 말고 비교된 내용을 한 문장으로 통합해서 요약해 주세요.\n\n");
 
         prompt.append("출력 조건:\n");
         prompt.append("- 반드시 **한국어로 작성**해 주세요.\n");
+        prompt.append(" 여론이 언제 형성되었는지에 대한 기간 정보(예: '최근 30일간', '최근 며칠간')는 절대 포함하지 마세요. ");
         prompt.append("- **한 문장**으로 간결하게 정리해 주세요.\n");
         prompt.append("- 문장은 중립적이고 비교 중심으로 구성해 주세요.\n");
 
