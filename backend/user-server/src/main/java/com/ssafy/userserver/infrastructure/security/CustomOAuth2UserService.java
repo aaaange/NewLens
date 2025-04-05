@@ -6,7 +6,7 @@ import com.ssafy.userserver.domain.dto.UserDTO;
 import com.ssafy.userserver.domain.entity.User;
 import com.ssafy.userserver.domain.entity.UserProvider;
 import com.ssafy.userserver.domain.enums.Active;
-import com.ssafy.userserver.domain.enums.ProviderType;
+import com.ssafy.userserver.domain.enums.ProviderName;
 import com.ssafy.userserver.domain.repository.UserProviderRepository;
 import com.ssafy.userserver.domain.repository.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -69,7 +68,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 			UserProvider newUserProvider = UserProvider.builder()
 				.user(newUser)
-				.providerName(ProviderType.valueOf(oAuth2Response.getProvider()))
+				.providerName(ProviderName.valueOf(oAuth2Response.getProviderName()))
 				.providerId(oAuth2Response.getProviderId())
 				.accessToken(userRequest.getAccessToken().getTokenValue())
 				.refreshToken(refreshToken)
@@ -82,6 +81,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			userDTO.setEmail(email);
 			userDTO.setNickname(oAuth2Response.getNickname());
 			userDTO.setProfileImage(oAuth2Response.getProfileImageUrl());
+			userDTO.setProviderName(ProviderName.valueOf(oAuth2Response.getProviderName()));
+			userDTO.setActive(Active.Y);
 
 			return new CustomOAuth2User(userDTO);
 		}
@@ -90,6 +91,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			userDTO.setEmail(email);
 			userDTO.setNickname(oAuth2Response.getNickname());
 			userDTO.setProfileImage(oAuth2Response.getProfileImageUrl());
+			userDTO.setProviderName(ProviderName.valueOf(oAuth2Response.getProviderName()));
+			userDTO.setActive(Active.Y);
 
 			return new CustomOAuth2User(userDTO);
 		}
