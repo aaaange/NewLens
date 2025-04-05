@@ -191,6 +191,7 @@ public class CountryService {
             payload.put("country", country);
             payload.put("isKorea", isKorea);
             payload.put("period", period);
+            payload.put("category", category);
             payload.put("callbackUrl", callBackUrl + "/api/search/country/dashboard_gpt_callback");
 
             String json = objectMapper.writeValueAsString(payload);
@@ -224,6 +225,7 @@ public class CountryService {
                     .country2NewsIds(country2NewsIds)
                     .requestId(requestId)
                     .period(period)
+                    .category(category)
                     .callbackUrl(callBackUrl + "/api/search/country/compare_callback")
                     .build();
 

@@ -101,18 +101,18 @@ public class CountryService {
             List<ArticleResponse> articles = processArticles(newsList);
 
             // videos
-            //            List<VideoResponse> videos;
-            //            if (!newsDashboard.isEmpty()) {
-            //                videos = processVideos(keyword, keywordMind, country);
-            //            } else
-            //                videos = new ArrayList<>();
+            List<VideoResponse> videos;
+            if (!newsList.isEmpty()) {
+                videos = processVideos(keyword, keywordMind, country);
+            } else
+                videos = new ArrayList<>();
 
             DashboardData response = DashboardData.builder()
                     .wordcloud(wordCloud)
                     .sentiment(sentiment)
                     .mentions(mentions)
                     .articles(articles)
-                    //                    .videos(videos)
+                    .videos(videos)
                     .build();
 
             String responseJson = objectMapper.writeValueAsString(response);
@@ -145,6 +145,7 @@ public class CountryService {
             String callbackUrl = payload.get("callbackUrl").toString();
             String keywordMind = (String) payload.get("keyword_mind");
             String country = (String) payload.get("country");
+            String category = (String) payload.get("category");
             int period = (Integer) payload.get("period");
             List<String> newsIds = (List<String>) payload.get("newsIds");
             boolean isKorea = (Boolean) payload.get("isKorea");
@@ -154,7 +155,7 @@ public class CountryService {
 
             String description;
             if (!newsList.isEmpty()) {
-                String prompt = makeDescription(keyword, keywordMind, countryName, period);
+                String prompt = makeDescription(keyword, keywordMind, countryName, period, category);
                 description = gptClient.ask(prompt);
             } else
                 description = "관련된 뉴스가 없습니다.";
@@ -185,11 +186,12 @@ public class CountryService {
             String country2 = G20_COUNTRIES.get(msg.getCountry2());
             String requestId = msg.getRequestId();
             String callbackUrl = msg.getCallbackUrl();
+            String category = msg.getCategory();
             int period = msg.getPeriod();
 
             String prompt = buildComparePrompt(
                     keyword, keywordMind,
-                    country1, country2, period
+                    country1, country2, period, category
             );
             String summary = gptClient.ask(prompt);
             // String summary = "결과";
@@ -250,7 +252,7 @@ public class CountryService {
 
     // 언론 반응 요약
     private String makeDescription(String keyword, String keywordMind,
-                                   String countryName, int period) {
+                                   String countryName, int period, String category) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("[국가 뉴스 여론 분석 요청]\n\n");
@@ -261,10 +263,11 @@ public class CountryService {
         prompt.append("\" 키워드와 관련된 ").append(countryName);
         prompt.append(" 뉴스를 참고하여, ")
                 .append(countryName).append("에서 ")
+                .append(category).append("카테고리에 대해")
                 .append("오늘을 기준으로 ").append(period).append("일전까지")
                 .append(keyword)
                 .append("에 대해 어떤 여론이 나타나는지 세 문장으로 간략히 요약해 주세요.(1,2,3 이렇게 말고 그냥 한번에")
-                .append("단, 여론이 언제 형성되었는지에 대한 기간 정보(예: '최근 30일간', '최근 며칠간')는 절대 포함하지 마세요. ");
+                .append("단, 여론이 언제 형성되었는지에 대한 기간 정보 ex)30일 과 카테고리 ex)all, sports 정보는 절대 포함하지 마세요. ");
         return prompt.toString();
     }
 
@@ -497,7 +500,7 @@ public class CountryService {
     //  GPT 한줄 요약
     public String buildComparePrompt(
             String keyword, String keywordMind,
-            String country1, String country2, int period
+            String country1, String country2, int period, String category
     ) {
         StringBuilder prompt = new StringBuilder();
 
@@ -509,13 +512,14 @@ public class CountryService {
         }
         prompt.append("\" 키워드에 대한 ").append(country1).append("와 ").append(country2).append("의 뉴스 여론 비교 요청입니다.\n");
         prompt.append("오늘부터 ").append(period).append("기간전까지");
-        prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 분석하여,\n");
+        prompt.append(category).append("카테고리에 대해");
+        prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 뉴스를 분석하여,\n");
         prompt.append("두 국가의 입장을 각각 나열하지 말고 비교된 내용을 한 문장으로 통합해서 요약해 주세요.\n\n");
 
         prompt.append("출력 조건:\n");
         prompt.append("- 반드시 **한국어로 작성**해 주세요.\n");
         prompt.append(" 여론이 언제 형성되었는지에 대한 기간 정보(예: '최근 30일간', '최근 며칠간')는 절대 포함하지 마세요. ");
-        prompt.append("- **한 문장**으로 간결하게 정리해 주세요.\n");
+        prompt.append("- **1~2개 문장**으로 간결하게 정리해 주세요.\n");
         prompt.append("- 문장은 중립적이고 비교 중심으로 구성해 주세요.\n");
 
         return prompt.toString();

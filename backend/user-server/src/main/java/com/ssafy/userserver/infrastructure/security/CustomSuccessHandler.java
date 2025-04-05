@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @Component
+@Slf4j
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JWTUtil jwtUtil;
@@ -43,9 +46,17 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String accessToken = jwtUtil.createJwt(email, nickname, 10*60*60*1000L);
 		String refreshToken = jwtUtil.createJwt(email, nickname, 14*24*60*60*1000L);
 
-		response.setHeader("Authorization", "Bearer " + accessToken);
-		response.addCookie(createCookie("RefreshToken", refreshToken));
-		response.sendRedirect("https://newlens.co.kr/main");
+		log.info("배포 확인용 accessToken: {}", accessToken);
+
+//		response.setHeader("Authorization", "Bearer " + accessToken);
+//		response.addCookie(createCookie("RefreshToken", refreshToken));
+//		response.addCookie(createCookie("AccessToken", accessToken));
+//      response.sendRedirect("https://newlens.co.kr/main");
+//		response.sendRedirect("http://localhost:5173/main");
+		String redirectUrl = "http://localhost:5173/main"
+				+ "?accessToken=" + accessToken
+				+ "&refreshToken=" + refreshToken;
+		response.sendRedirect(redirectUrl);
 	}
 
 	private Cookie createCookie(String key, String value) {
