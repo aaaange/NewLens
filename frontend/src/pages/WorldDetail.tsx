@@ -152,6 +152,7 @@ const WorldDetail = () => {
           is_korea={firstCountry === 'KR'}
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
+          handleInitKeywordChange={() => {}}
         />
       </div>
       <div className="flex flex-col items-center gap-3">
