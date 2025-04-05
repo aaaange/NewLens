@@ -6,6 +6,16 @@ const LoginPage = () => {
     navigate('/main');
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_APP_GOOGLE_LOGIN}`;
+  };
+  const handleKakaoLogin = () => {
+    window.location.href = `${import.meta.env.VITE_APP_KAKAO_LOGIN}`;
+  };
+  const handleSsafyLogin = () => {
+    window.location.href = `${import.meta.env.VITE_APP_SSAFY_LOGIN}`;
+  };
+
   return (
     <div className="bg-background h-screen flex justify-center items-center">
       <div className="flex flex-col w-1/3 items-center gap-6">
@@ -25,6 +35,7 @@ const LoginPage = () => {
             className="w-2/4 transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
           />
           <img
+            onClick={handleGoogleLogin}
             src="/assets/images/google_login.png"
             alt="구글 로그인"
             className="w-2/4 transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"

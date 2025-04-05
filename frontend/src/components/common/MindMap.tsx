@@ -129,13 +129,21 @@ const MindMap = ({
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
-      if (node.id === '1') return; // 중앙 노드는 클릭 이벤트 무시
-      setKeyword(node.data.label);
-      setSelectedNodeId(node.id);
-      onKeywordChange(node.data.label);
-      fetchWorldData(node.data.label); // 클릭한 노드의 키워드로 API 호출
+      if (node.id === '1') return;
+
+      if (selectedNodeId === node.id) {
+        // 동일한 노드를 클릭한 경우 상태 초기화
+        setKeyword('');
+        setSelectedNodeId('');
+        onKeywordChange('');
+      } else {
+        setKeyword(node.data.label);
+        setSelectedNodeId(node.id);
+        onKeywordChange(node.data.label);
+        fetchWorldData(node.data.label);
+      }
     },
-    [onKeywordChange]
+    [selectedNodeId, onKeywordChange, fetchWorldData]
   );
 
   const fetchMindMapData = async () => {
