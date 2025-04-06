@@ -37,7 +37,7 @@ public class UserService {
 	// 회원 탈퇴
 	public CommonResponse<String> signout(@AuthenticationPrincipal CustomOAuth2User user) {
 		User existUser = userRepository.findByEmailAndActive(user.getEmail(), Active.Y)
-			.orElseThrow(() -> new NoSuchElementException("조회된 사용자가 없습니다."));
+			.orElseThrow(() -> new NoSuchElementException("사용자 정보를 찾을 수 없습니다."));
 
 		existUser.changeActivate(existUser.getActive());
 		userRepository.save(existUser);
@@ -64,5 +64,29 @@ public class UserService {
 		dto.setProviderName(userProvider.getProviderName());
 
 		return CommonResponse.success(dto);
+	}
+
+	// 닉네임 변경
+	public CommonResponse<String> changeNickname(CustomOAuth2User user, String nickname) {
+		User existUser = userRepository.findByEmailAndActive(user.getEmail(), Active.Y)
+			.orElseThrow(() -> new NoSuchElementException("사용자 정보를 찾을 수 없습니다."));
+		validateNickname(nickname);
+
+		existUser.changeNickname(nickname);
+		userRepository.save(existUser);
+
+		return CommonResponse.success(null);
+	}
+
+	// 닉네임 유효성 검사
+	private void validateNickname(String nickname) {
+		if (nickname == null || nickname.trim().isEmpty()) {
+			throw new IllegalArgumentException("닉네임은 공백일 수 없습니다.");
+		}
+		String trimmedNickname = nickname.trim();
+
+		if (trimmedNickname.length() < 2 || trimmedNickname.length() > 10) {
+			throw new IllegalArgumentException("닉네임은 2자 이상 10자 이하로 입력해 주세요.");
+		}
 	}
 }
