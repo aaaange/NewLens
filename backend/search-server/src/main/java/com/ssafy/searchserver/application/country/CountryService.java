@@ -364,21 +364,26 @@ public class CountryService {
 
             List<String> idList = sliceScroll(boolQuery, index);
 
-            // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("newsIds", idList);
-            payload.put("page", page);
-            payload.put("size", size);
-            payload.put("requestId", requestId);
-            payload.put("isKorea", isKorea);
-            payload.put("callbackUrl", callBackUrl + "/api/search/country/news_modal_callback");
+            NewsModalRequest payload = NewsModalRequest.builder()
+                .newsIds(idList)
+                .page(page)
+                .size(size)
+                .requestId(requestId)
+                .isKorea(isKorea)
+                .callbackUrl(callBackUrl + "/api/search/country/news_modal_callback")
+                .keyword(keyword)
+                .keywordMind(keywordMind)
+                .keywordCloud(keywordCloud)
+                .category(category)
+                .country(country)
+                .period(period)
+                .build();
+
+            kafkaTemplate.send("news_modal", objectMapper.writeValueAsString(payload));
 
             CompletableFuture<NewsModalResponse> future = new CompletableFuture<>();
             pendingCompareResults.put(requestId, future);
 
-            // Map을 JSON 문자열로 변환 & kafka로 전송
-            String json = objectMapper.writeValueAsString(payload);
-            kafkaTemplate.send("news_modal", json);
 
             // 15초 대기
             NewsModalResponse data = future.get(timeout, TimeUnit.SECONDS);
