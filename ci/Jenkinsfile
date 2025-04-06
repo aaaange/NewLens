@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = 'kimsangouk'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // GitLab에서 소스 코드 체크아웃
+                git branch: 'develop', url: 'https://lab.ssafy.com/s12-bigdata-dist-sub1/S12P21A508.git'
+            }
+        }
+        stage('Build Docker Images') {
+            steps {
+                // 각 마이크로서비스 Docker 이미지 빌드
+                sh 'docker build -t ${DOCKER_REGISTRY}/spring-gateway:latest S12P12A508/backend/spring-gateway'
+                sh 'docker build -t ${DOCKER_REGISTRY}/search-server:latest S12P12A508/backend/search-server'
+                sh 'docker build -t ${DOCKER_REGISTRY}/user-server:latest S12P12A508/backend/user-server'
+                sh 'docker build -t ${DOCKER_REGISTRY}/statics-server:latest S12P12A508/backend/statics-server'
+                sh 'docker build -f S12P12A508/nginx/Dockerfile -t ${DOCKER_REGISTRY}/nginx:latest S12P12A508/nginx'
+            }
+        }
+        stage('Login to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+        stage('Push Docker Images') {
+            steps {
+                // 빌드된 이미지를 Docker Hub 또는 지정한 레지스트리에 push
+                sh 'docker push ${DOCKER_REGISTRY}/spring-gateway:latest'
+                sh 'docker push ${DOCKER_REGISTRY}/search-server:latest'
+                sh 'docker push ${DOCKER_REGISTRY}/user-server:latest'
+                sh 'docker push ${DOCKER_REGISTRY}/statics-server:latest'
+                sh 'docker push ${DOCKER_REGISTRY}/nginx:latest'
+            }
+        }
+        stage('Deploy to EC2') {
+            steps {
+                // [EC2: j12a508.p.ssafy.io] - springboot-mongodb 관련 서비스 배포
+                sshagent(['ec2_p_ssafy_io']) {
+                    sh '''
+                    scp -o StrictHostKeyChecking=no S12P12A508/deployment/docker-compose-springboot-mongodb.yml ubuntu@j12a508.p.ssafy.io:/home/ubuntu/docker-compose-springboot-mongodb.yml
+
+                    ssh -o StrictHostKeyChecking=no ubuntu@j12a508.p.ssafy.io "cd /home/ubuntu && \
+                    docker-compose -f docker-compose-springboot-mongodb.yml pull && \
+                    docker-compose -f docker-compose-springboot-mongodb.yml up -d nginx user-server search-server statics-server"
+                    '''
+                }
+                // [EC2: j12a508a.ssafy.io] - elasticsearch 관련 서비스 배포
+                // sshagent(['ec2_a_ssafy_io']) {
+                //     sh '''
+                //     ssh -o StrictHostKeyChecking=no ec2-user@j12a508a.ssafy.io "cd /path/to/deployment && \
+                //     docker-compose -f docker-compose-elasticsearch.yml pull && \
+                //     docker-compose -f docker-compose-elasticsearch.yml up -d"
+                //     '''
+                // }
+            }
+        }
+    }
+}
