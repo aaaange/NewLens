@@ -94,6 +94,7 @@ const SecondCountryBoard = ({
         <>
           <WordCloud
             handleWordCloudChange={handleWordCloudChange}
+            handleModalOpen={handleModalOpen}
             keyword={keyword}
             keywords={safeData.keywords}
             keyword_mind={keyword_mind}
