@@ -61,7 +61,7 @@ const RecommendedArticle = () => {
     setArticles(recommendNewsList); // API에서 받은 데이터로 초기화
   }, [recommendNewsList]);
 
-  if (loading) return <p>Loading...</p>;
+  // if (loading) return <p>Loading...</p>;
 
   // 읽음 표시
   // const markAsRead = (newsId: string) => {

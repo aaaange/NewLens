@@ -1,82 +1,74 @@
 import { useState, useEffect } from 'react';
 import NewsItem from '../worldDetail/NewsItem';
 import { Trash } from 'lucide-react';
-
-import {
-  words,
-  sentimentData,
-  mentionData,
-  newsData,
-  description,
-  videos,
-} from '../worldDetail/MockData';
-import { useScrapNews } from '../../hooks/useMypageNews';
-
-const safeData = {
-  keywords: words,
-  description: description,
-  sentimentData: sentimentData,
-  mentions: mentionData,
-  articles: newsData,
-  videos: videos,
-};
+import { useScrapNews, News } from '../../hooks/useMypageNews';
+import { toast } from 'react-toastify';
 
 const ClippingNews = () => {
-  const [clippedArticles, setClippedArticles] = useState(safeData.articles);
+  const [articles, setArticles] = useState<News[]>([]);
 
-  const { scrapNewsList, loading, fetchScrapNews, removeScrapNews } = useScrapNews();
-
-  // ~~~~~~~~~ 목 데이터 ~~~~~~~~~~
-  // const deleteArticle = (index: number) => {
-  //   setClippedArticles((prev) => prev.filter((_, i) => i !== index));
-  // };
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  const { scrapNewsList, loading, fetchScrapNews, scrapNews } = useScrapNews();
 
   // 뉴스 삭제
   const deleteArticle = async (newsId: string) => {
     try {
-      await removeScrapNews(newsId);
-      await fetchScrapNews(); // 삭제 후 목록 갱신
+      const res = await scrapNews(newsId);
+      if (!res) return;
+
+      const { isScrap } = res;
+
+      // 스크랩이 해제된 경우만 UI에서 제거
+      if (!isScrap) {
+        setArticles((prev) => prev.filter((item) => item.newsId !== newsId));
+      }
     } catch (err) {
-      console.error('뉴스 삭제 실패:', err);
+      console.error('스크랩 해제 실패:', err);
+      toast.error('스크랩 해제에 실패했어요. 다시 시도해주세요!');
     }
   };
 
   useEffect(() => {
-    fetchScrapNews(); // 기본 5개
+    fetchScrapNews();
   }, []);
 
-  if (loading) return <p>로딩 중...</p>;
+  useEffect(() => {
+    setArticles(scrapNewsList);
+  }, [scrapNewsList]);
+
+  // if (loading) return <p>로딩 중...</p>;
 
   return (
     <div>
-      <h2 className="text-2xl">스크랩 NEWS</h2>
+      <h2 className="text-2xl mb-4">스크랩 NEWS</h2>
       <div className="rounded-lg">
-        {/* {clippedArticles.map((item, index) => ( */}
-        {scrapNewsList.map((item, index) => (
-          <div key={index} className="flex items-center gap-4">
-            {/* 삭제 버튼 */}
-            <button
-              // onClick={() => deleteArticle(index)}
-              onClick={() => deleteArticle(item.news_id)}
-              className="cursor-pointer"
-            >
-              <Trash
-                size={20}
-                className="text-red-400 hover:text-system-danger transition-colors"
-              />
-            </button>
-            <div className="w-full">
-              <NewsItem
-                title={item.title}
-                url={item.url}
-                // publishedDate={item.published_at}
-                publishedDate={item.public_at}
-                imageUrl={item.image_url}
-              />
-            </div>
+        {articles.length === 0 ? (
+          <div className="flex flex-col justify-center items-center h-screen gap-2">
+            <p className="headline-xlarge">📰</p>
+            <p className="text-gray-500">아직 스크랩한 뉴스가 없어요!</p>
           </div>
-        ))}
+        ) : (
+          articles.map((item) => (
+            <div key={item.newsId} className="flex items-center gap-4">
+              <button
+                onClick={() => deleteArticle(item.newsId)}
+                className="cursor-pointer"
+              >
+                <Trash
+                  size={20}
+                  className="text-red-400 hover:text-system-danger transition-colors"
+                />
+              </button>
+              <div className="w-full">
+                <NewsItem
+                  title={item.title}
+                  url={item.url}
+                  publishedDate={item.publishedAt}
+                  imageUrl={item.imageUrl}
+                />
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
