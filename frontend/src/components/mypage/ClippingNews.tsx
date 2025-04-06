@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import NewsItem from '../worldDetail/NewsItem';
-import { Trash } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 import { useScrapNews, News } from '../../hooks/useMypageNews';
 import { toast } from 'react-toastify';
 
@@ -53,9 +53,13 @@ const ClippingNews = () => {
                 onClick={() => deleteArticle(item.newsId)}
                 className="cursor-pointer"
               >
-                <Trash
+                <Bookmark
                   size={20}
-                  className="text-red-400 hover:text-system-danger transition-colors"
+                  className={`transition-colors duration-200 ${
+                    item.isScrap
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'text-gray-300'
+                  }`}
                 />
               </button>
               <div className="w-full">
