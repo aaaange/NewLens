@@ -31,6 +31,7 @@ const MainPage = () => {
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [keyword_mind, setKeywordMind] = useState('');
+  const [firstRanking, setFirstRanking] = useState('');
   const [mapData, setMapData] = useState(null);
 
   const categoryChangeHandler = (category: string) => {
@@ -53,11 +54,22 @@ const MainPage = () => {
     setKeyword(newKeyword);
   };
 
+  const handleFirstRankingChange = (newKeyword: string) => {
+    setFirstRanking(newKeyword);
+  };
+
   useEffect(() => {
     setKeywordMind('');
   }, [debouncedKeyword]);
 
   const fetchWorldData = async (mind: string) => {
+    console.log(keyword);
+    console.log(firstRanking);
+    // if (mind || keyword_mind) {
+    // } else if (keyword === firstRanking && keyword !== '') {
+    //   return;
+    // }
+
     try {
       if (debouncedKeyword.length == 1) {
         setDebouncedKeyword('');
@@ -72,7 +84,6 @@ const MainPage = () => {
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
       setKeyword(response.data.keyword);
-      console.log('reponse', response.data);
     } catch (error) {
       console.error('검색 실패:', error);
     }
@@ -93,7 +104,8 @@ const MainPage = () => {
     if (debouncedKeyword) {
       fetchWorldData('');
     }
-  }, [debouncedKeyword, category, period]);
+  }, [debouncedKeyword, category, period, keyword_mind]);
+  console.log(keyword_mind);
 
   const headerString = [keyword, keyword_mind]
     .filter((item) => item && item.trim() !== '')
@@ -122,7 +134,7 @@ const MainPage = () => {
           period={period}
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
-          handleInitKeywordChange={() => {}}
+          handleInitKeywordChange={handleFirstRankingChange}
         />
       </div>
       <div className="flex flex-col items-end">
