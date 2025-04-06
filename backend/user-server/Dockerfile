@@ -5,6 +5,7 @@ WORKDIR /app
 # Gradle Wrapper 및 설정 파일들을 먼저 복사해서 의존성 캐시 활용 (옵션)
 COPY gradle gradle
 COPY gradlew .
+RUN chmod +x gradlew
 COPY gradlew.bat .
 COPY build.gradle .
 COPY settings.gradle .
