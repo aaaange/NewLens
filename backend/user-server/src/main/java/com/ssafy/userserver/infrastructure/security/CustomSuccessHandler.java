@@ -46,17 +46,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String accessToken = jwtUtil.createJwt(email, nickname, 10*60*60*1000L);
 		String refreshToken = jwtUtil.createJwt(email, nickname, 14*24*60*60*1000L);
 
-		log.info("배포 확인용 accessToken: {}", accessToken);
+		log.info("accessToken: {}", accessToken);
 
-//		response.setHeader("Authorization", "Bearer " + accessToken);
-//		response.addCookie(createCookie("RefreshToken", refreshToken));
-//		response.addCookie(createCookie("AccessToken", accessToken));
-//      response.sendRedirect("https://newlens.co.kr/main");
-//		response.sendRedirect("http://localhost:5173/main");
-		String redirectUrl = "http://localhost:5173/main"
-				+ "?accessToken=" + accessToken
-				+ "&refreshToken=" + refreshToken;
-		response.sendRedirect(redirectUrl);
+		response.setHeader("Authorization", "Bearer " + accessToken);
+		response.addCookie(createCookie("RefreshToken", refreshToken));
+		response.sendRedirect("https://www.newlens.co.kr/main");
 	}
 
 	private Cookie createCookie(String key, String value) {
