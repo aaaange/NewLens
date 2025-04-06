@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -24,8 +25,14 @@ import com.ssafy.staticsserver.infrastructure.client.KakaoClient;
 import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
 import com.ssafy.staticsserver.interfaces.country.dto.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +49,8 @@ public class CountryService {
     private final ForeignNewsRepositoryImpl foreignRepo;
     private final DomesticNewsRepositoryImpl domesticRepo;
     private final KakaoClient kakaoClient;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private static final int PAGE_GROUP_SIZE = 5;
 
     // 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
     private NewsMongoDBRepository repository(boolean isKorea) {
@@ -218,30 +227,58 @@ public class CountryService {
     public void listenNewsModal(String message) {
         try {
             long start = System.currentTimeMillis();
-            Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
-            });
+            NewsModalRequest newsModalRequest = objectMapper.readValue(message, NewsModalRequest.class);
 
-            List<String> newsIds = (List<String>) payload.get("newsIds");
-            int page = (Integer) payload.get("page");
-            int size = (Integer) payload.get("size");
-            String callbackUrl = payload.get("callbackUrl").toString();
-            String requestId = payload.get("requestId").toString();
-            boolean isKorea = (Boolean) payload.get("isKorea");
+            List<String> newsIds = newsModalRequest.getNewsIds();
+            int page = newsModalRequest.getPage();
+            int size = newsModalRequest.getSize();
+            String callbackUrl = newsModalRequest.getCallbackUrl();
+            String requestId = newsModalRequest.getRequestId();
+            boolean isKorea = newsModalRequest.isKorea();
+            String keyword = newsModalRequest.getKeyword();
+            String keywordMind = newsModalRequest.getKeywordMind();
+            String keywordCloud = newsModalRequest.getKeywordCloud();
+            String country = newsModalRequest.getCountry();
+            String category = newsModalRequest.getCategory();
+            int period = newsModalRequest.getPeriod();
 
-            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
 
-            NewsModalResponse response = processNews(newsList, page, size);
-            String responseJson = objectMapper.writeValueAsString(response);
+//            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
+            // 해시 키 생성
+            int startPage = ((page - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
+            int endPage = startPage + PAGE_GROUP_SIZE - 1;
+            String rawKey = String.join("|",
+                keyword,
+                keywordMind != null ? keywordMind : "none",
+                keywordCloud != null ? keywordCloud : "none",
+                category != null ? category : "all",
+                country != null ? country : "all",
+                String.valueOf(isKorea),
+                String.valueOf(period)
+            );
 
-            // 콜백 요청 전송
-            HttpClient httpClient = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(callbackUrl + "?requestId=" + requestId))
-                    .POST(HttpRequest.BodyPublishers.ofString(responseJson))
-                    .header("Content-Type", "application/json")
-                    .build();
+            String hash = DigestUtils.md5DigestAsHex(rawKey.getBytes());
+            String redisKey = String.format("modal_cache:%s:%d", hash, startPage);
+            // 캐시 있으면 가져옴
+            Object cached = redisTemplate.opsForValue().get(redisKey);
+            if (cached != null) {
+                List<NewsModalResponse> cachedPages = objectMapper.convertValue(cached, new TypeReference<>() {});
+                sendCallback(callbackUrl, requestId, cachedPages.get(page - startPage));
+                System.out.println("캐싱된: 페이지 " + page);
+                return;
+            }
+            // 캐시 없으면 직접 조회 PAGE_GROUP 크기 만큼 캐싱
+            else{
+                List<NewsModalResponse> pageGroup = new ArrayList<>();
+                for (int p = startPage; p <= endPage; p++) {
+                    pageGroup.add(processNews(newsIds, p, size, isKorea));
+                }
+                redisTemplate.opsForValue().set(redisKey, pageGroup, Duration.ofMinutes(5));
+                sendCallback(callbackUrl, requestId, pageGroup.get(page - startPage));
+                System.out.println("캐시 안된: 페이지 " + page + " 캐싱 및 응답");
+            }
 
-            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
             long end = System.currentTimeMillis();
             int newsSize = newsIds.size();
             System.out.println("뉴스 " + newsSize + "개 ====> 뉴스 모달 리스트 통계 시간: " + (end - start) + "ms");
@@ -249,6 +286,19 @@ public class CountryService {
             e.printStackTrace();
         }
     }
+
+    private void sendCallback(String callbackUrl, String requestId, NewsModalResponse response) throws Exception {
+        String responseJson = objectMapper.writeValueAsString(response);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(callbackUrl + "?requestId=" + requestId))
+            .POST(HttpRequest.BodyPublishers.ofString(responseJson))
+            .header("Content-Type", "application/json")
+            .build();
+
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
 
     // 언론 반응 요약
     private String makeDescription(String keyword, String keywordMind,
@@ -526,25 +576,13 @@ public class CountryService {
     }
 
     // 뉴스 리스트 모달창 출력을 위한 집계 로직
-    public NewsModalResponse processNews(List<ForeignNewsMongo> newsList, int page, int size) {
-        // 1. 최신순 정렬(날짜 필드 타입에 맞춰서 정렬 로직 적용)
-        newsList.sort((n1, n2) -> n2.getPublishedAt().compareTo(n1.getPublishedAt()));
+    public NewsModalResponse processNews(List<String> newsIds, int page, int size, boolean isKorea) {
 
-        int totalElements = newsList.size();
-        int totalPages = (int) Math.ceil((double) totalElements / size);
+        Pageable pageable = PageRequest.of(page -1, size, Sort.by("PublishedAt").descending());
 
-        // 현재 페이지 범위 계산
-        // page는 1부터 시작한다고 가정
-        int fromIndex = (page - 1) * size;
-        int toIndex = Math.min(fromIndex + size, (int) totalElements);
+        Page<ForeignNewsMongo> pagedNews = repository(isKorea).findByIdIn(newsIds, pageable);
 
-        // 만약 fromIndex가 전체 크기를 벗어나면 빈 리스트 처리
-        List<ForeignNewsMongo> paginatedList = Collections.emptyList();
-        if (fromIndex < totalElements) {
-            paginatedList = newsList.subList(fromIndex, toIndex);
-        }
-        // 2. DTO 변환
-        List<NewsDto> newsDtos = paginatedList.stream()
+        List<NewsDto> newsDtos = pagedNews.getContent().stream()
                 .map(item -> {
                     // sentiment를 66 이상 / 34~65 / 0~33 으로 구분하려면 여기서 처리
                     // 예: 숫자를 그대로 내려준다고 가정
@@ -571,19 +609,15 @@ public class CountryService {
                 })
                 .collect(Collectors.toList());
 
-        // 3. 페이징 정보 설정
-        boolean hasNext = page < totalPages;
-        boolean hasPrevious = page > 1 && totalPages > 0;
 
-        // 4. Response DTO 빌드
         return NewsModalResponse.builder()
                 .news(newsDtos)
                 .page(page)
                 .size(size)
-                .totalElements(totalElements)
-                .totalPages(totalPages)
-                .hasNext(hasNext)
-                .hasPrevious(hasPrevious)
+                .totalElements((int)pagedNews.getTotalElements())
+                .totalPages(pagedNews.getTotalPages())
+                .hasNext(pagedNews.hasNext())
+                .hasPrevious(pagedNews.hasPrevious())
                 .build();
     }
 
