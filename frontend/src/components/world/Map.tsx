@@ -179,10 +179,22 @@ const Map = ({
       if (target) {
         const dataContext = target.dataItem?.dataContext as {
           shortName?: string;
+          mentionCount?: number;
         };
         const shortName = dataContext?.shortName;
+        const mentionCount = dataContext?.mentionCount;
+        const sentiment = sentimentData?.[shortName ?? ''];
 
-        if (shortName) {
+        const isValidMention = mentionCount && mentionCount > 0;
+        const isValidSentiment =
+          sentiment &&
+          (sentiment.positive > 0 ||
+            sentiment.neutral > 0 ||
+            sentiment.negative > 0);
+
+        const hasValidData = isValidMention || isValidSentiment;
+
+        if (shortName && hasValidData) {
           if (shortName === 'RU') {
             chart.zoomToGeoPoint({ latitude: 60, longitude: 90 }, 3, true);
           } else {
@@ -267,6 +279,7 @@ const Map = ({
     });
 
     legend.labels.template.setAll({
+      text: '{name}',
       fontSize: 13,
       fill: am5.color('#FFFFFF'),
       textAlign: 'center',
@@ -277,13 +290,18 @@ const Map = ({
     //===========================================================================
 
     // 언급량에 따른 색상 설정 함수
+    const mentionValues = mentionData ? Object.values(mentionData) : [];
+    const minCount = Math.min(...mentionValues);
+    const maxCount = Math.max(...mentionValues);
+    const range = maxCount - minCount;
+
     const getColorByMention = (count: number): string => {
-      if (count <= 100) return '#FFF9EB'; // 매우 낮음(50)
-      if (count <= 250) return '#FFEEC6'; // 낮음(100)
-      if (count <= 400) return '#FFC34A'; // 보통(300)
-      if (count <= 500) return '#FFAA20'; // 높음(400)
-      if (count > 500) return '#F98607'; // 매우 높음(500)
-      return '#E0E0E0'; // 기본 설정(그레이)
+      if (range === 0) return '#FFF9EB';
+      if (count <= minCount + range * 0.2) return '#FFF9EB';
+      if (count <= minCount + range * 0.4) return '#FFEEC6';
+      if (count <= minCount + range * 0.6) return '#FFC34A';
+      if (count <= minCount + range * 0.8) return '#FFAA20';
+      return '#F98607';
     };
 
     // 긍부정에 따른 색상 설정 함수
@@ -345,28 +363,50 @@ const Map = ({
               ? `${fullName}\n(언급량: {mentionCount})`
               : `${fullName}`
           );
-          legend.data.setAll([
-            {
-              name: '매우 낮음',
-              color: am5.color('#FFF9EB'),
-            },
-            {
-              name: '낮음',
-              color: am5.color('#FFEEC6'),
-            },
-            {
-              name: '보통',
-              color: am5.color('#FFC34A'),
-            },
-            {
-              name: '높음',
-              color: am5.color('#FFAA20'),
-            },
-            {
-              name: '매우 높음',
-              color: am5.color('#F98607'),
-            },
-          ]);
+
+          const countRange = [
+            minCount + range * 0.2,
+            minCount + range * 0.4,
+            minCount + range * 0.6,
+            minCount + range * 0.8,
+            maxCount,
+          ];
+
+          let mentionLegend;
+          if (range === 0) {
+            // 언급량 0
+            mentionLegend = [
+              {
+                name: `데이터 없음\n(0 ~ 0)`,
+                color: am5.color('#FFF9EB'),
+              },
+            ];
+          } else {
+            mentionLegend = [
+              {
+                name: `매우 낮음\n(${minCount} ~ ${Math.floor(countRange[0])})`,
+                color: am5.color('#FFF9EB'),
+              },
+              {
+                name: `낮음\n(${Math.floor(countRange[0] + 1)} ~ ${Math.floor(countRange[1])})`,
+                color: am5.color('#FFEEC6'),
+              },
+              {
+                name: `보통\n(${Math.floor(countRange[1] + 1)} ~ ${Math.floor(countRange[2])})`,
+                color: am5.color('#FFC34A'),
+              },
+              {
+                name: `높음\n(${Math.floor(countRange[2] + 1)} ~ ${Math.floor(countRange[3])})`,
+                color: am5.color('#FFAA20'),
+              },
+              {
+                name: `매우 높음\n(${Math.floor(countRange[3] + 1)} ~ ${countRange[4]})`,
+                color: am5.color('#F98607'),
+              },
+            ];
+          }
+
+          legend.data.setAll(mentionLegend);
         } else {
           polygon.set('fill', am5.color(getColorBySentiment(primarySentiment)));
           polygon.set(
