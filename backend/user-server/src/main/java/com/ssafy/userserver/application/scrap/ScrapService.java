@@ -89,7 +89,7 @@ public class ScrapService {
 		}
 		// 30초 후에 DB 동기화 작업 예약
 		ScheduledFuture<?> future = taskScheduler.schedule(() -> syncScrap(user, newsId, redisKey),
-			new Date(System.currentTimeMillis() + 30000));
+			new Date(System.currentTimeMillis() + 10000));
 		pendingSyncTasks.put(taskKey, future);
 
 		return ToggleScrapResponse.builder().isScrap(finalState).build();
