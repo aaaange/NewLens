@@ -1,0 +1,25 @@
+package com.ssafy.searchserver.interfaces.search.dto;
+
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class RelatedKeywordsResponse {
+	private String keyword;
+	private List<String> relatedKeywords;
+
+	@Override
+	public String toString() {
+		return "RelatedKeywordsResponse{" +
+			"keyword='" + keyword + '\'' +
+			", relatedKeywords=" + relatedKeywords +
+			'}';
+	}
+}

@@ -1,0 +1,76 @@
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import ClippingNews from '../components/mypage/ClippingNews';
+import MyActivities from '../components/mypage/MyActivities';
+import RecommendedArticle from '../components/mypage/RecommendedArticle';
+
+const MyPage = () => {
+  const [selectedTab, setSelectedTab] = useState(() => {
+    return sessionStorage.getItem('selectedTab') || 'activities';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('selectedTab', selectedTab);
+  }, [selectedTab]);
+
+  useEffect(() => {
+    return () => {
+      // unmount 시(즉, 페이지 벗어날 때) 실행
+      sessionStorage.removeItem('selectedTab');
+    };
+  }, []);
+
+  return (
+    <div className="flex p-15 gap-10">
+      <div className="flex flex-col border-r-1 border-gray-300 w-1/4 gap-20">
+        <h1 className="text-5xl">마이페이지</h1>
+        <div className="flex flex-col text-2xl gap-5">
+          <div
+            className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+            onClick={() => setSelectedTab('activities')}
+          >
+            <span
+              className={`inline-block ${
+                selectedTab === 'activities' ? 'border-b' : ''
+              }`}
+            >
+              나의 활동
+            </span>
+          </div>
+          <div
+            className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+            onClick={() => setSelectedTab('recommended')}
+          >
+            <span
+              className={`inline-block ${
+                selectedTab === 'recommended' ? 'border-b' : ''
+              }`}
+            >
+              추천 기사
+            </span>
+          </div>
+          <div
+            className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+            onClick={() => setSelectedTab('clipping')}
+          >
+            <span
+              className={`inline-block ${
+                selectedTab === 'clipping' ? 'border-b' : ''
+              }`}
+            >
+              스크랩 NEWS
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="w-3/4">
+        {selectedTab === 'activities' && <MyActivities />}
+        {selectedTab === 'recommended' && <RecommendedArticle />}
+        {selectedTab === 'clipping' && <ClippingNews />}
+      </div>
+    </div>
+  );
+};
+
+export default MyPage;

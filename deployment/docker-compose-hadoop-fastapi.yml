@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  ingest-server:
+    image: kimsangouk/ingest-server:latest
+    container_name: ingest-server
+    # build:
+    #   context: ../backend/ingest-server
+    #   dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8081:8000
+    depends_on:
+      - namenode
+      - datanode1
+      - datanode2
+    networks:
+      - ingest-net
+    environment:
+      - TZ=Asia/Seoul
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=myHadoopCluster
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_replication=2
+      - HDFS_CONF_dfs_namenode_datanode_registration_ip_hostname_check=false # [추가 1] NameNode ↔ DataNode 간 IP/Hostname 체크 비활성화
+      - HDFS_CONF_dfs_client_use_datanode_hostname=true # [추가 2] DataNode hostname을 클라이언트에서도 사용하도록
+      - HDFS_CONF_dfs_datanode_use_datanode_hostname=true # [추가 3] DataNode가 자기 hostname을 사용하도록 (NameNode에도 알림)
+    ports:
+      - "9870:9870"   # NameNode UI (http://localhost:9870)
+      - "8020:8020"   # NameNode RPC
+    networks:
+      - ingest-net
+
+  datanode1:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode1
+    volumes:
+      - hadoop_datanode1:/hadoop/dfs/data
+    environment:
+      - CLUSTER_NAME=myHadoopCluster
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_replication=2
+
+      - HDFS_CONF_dfs_namenode_datanode_registration_ip_hostname_check=false
+      - HDFS_CONF_dfs_client_use_datanode_hostname=true
+      - HDFS_CONF_dfs_datanode_use_datanode_hostname=true
+
+      # 여기서 핵심: 이 DataNode가 자기 hostname을 "host.docker.internal"로 광고
+      - HDFS_CONF_dfs_datanode_hostname=3.34.193.175
+
+      # 아래 3개로 실제 포트를 고정시킴
+      # (기본 9864/9866/9867이지만, 여기서는 datanode1 그대로 사용)
+      - HDFS_CONF_dfs_datanode_address=0.0.0.0:9864          # 블록 전송용
+      - HDFS_CONF_dfs_datanode_http_address=0.0.0.0:9866     # 웹 UI
+      - HDFS_CONF_dfs_datanode_ipc_address=0.0.0.0:9867      # IPC
+
+    depends_on:
+      - namenode
+    # 별도 command: 없이, 기본 엔트리포인트가 DataNode 프로세스 실행
+    ports:
+      - "9864:9864"   # => 호스트 9864 -> 컨테이너 9864
+      - "9866:9866"   # => 호스트 9866 -> 컨테이너 9866
+      - "9867:9867"   # => 호스트 9867 -> 컨테이너 9867
+    networks:
+      - ingest-net
+
+  datanode2:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode2
+    volumes:
+      - hadoop_datanode2:/hadoop/dfs/data
+    environment:
+      - CLUSTER_NAME=myHadoopCluster
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_replication=2
+
+      - HDFS_CONF_dfs_namenode_datanode_registration_ip_hostname_check=false
+      - HDFS_CONF_dfs_client_use_datanode_hostname=true
+      - HDFS_CONF_dfs_datanode_use_datanode_hostname=true
+
+      - HDFS_CONF_dfs_datanode_hostname=3.34.193.175
+
+      # 여기서는 DataNode2가 포트를 다르게 써야 서로 충돌 안 납니다
+      - HDFS_CONF_dfs_datanode_address=0.0.0.0:9865
+      - HDFS_CONF_dfs_datanode_http_address=0.0.0.0:9868
+      - HDFS_CONF_dfs_datanode_ipc_address=0.0.0.0:9869
+    depends_on:
+      - namenode
+    # 역시 command: 없이, 기본 엔트리포인트에 맡김
+    ports:
+      - "9865:9865"   # => 호스트 9865 -> 컨테이너 9865
+      - "9868:9868"   # => 호스트 9868 -> 컨테이너 9868
+      - "9869:9869"   # => 호스트 9869 -> 컨테이너 9869
+    networks:
+      - ingest-net
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode1:
+  hadoop_datanode2:
+
+networks:
+  ingest-net:
+    driver: bridge
