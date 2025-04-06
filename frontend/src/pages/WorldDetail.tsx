@@ -55,17 +55,20 @@ const WorldDetail = () => {
   );
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
+    setKeywordMind('');
     console.log(category);
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
     console.log(period);
+    setKeywordMind('');
   };
 
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setKeyword(e.target.value);
+    setKeywordMind('');
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
