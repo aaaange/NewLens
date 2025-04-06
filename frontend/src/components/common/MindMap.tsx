@@ -136,6 +136,7 @@ const MindMap = ({
         setKeyword('');
         setSelectedNodeId('');
         onKeywordChange('');
+        // fetchWorldData('');
       } else {
         setKeyword(node.data.label);
         setSelectedNodeId(node.id);
@@ -157,7 +158,7 @@ const MindMap = ({
       const response = await getMindMapApi(params);
 
       const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
-      const truncateLabel = (label: string, maxLength: number = 6) => {
+      const truncateLabel = (label: string, maxLength: number = 4) => {
         return label.length > maxLength
           ? label.slice(0, maxLength) + '…'
           : label;

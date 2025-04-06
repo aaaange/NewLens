@@ -299,10 +299,13 @@ const NewsModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 흐려진 배경 */}
-      <div className="absolute inset-0 bg-black opacity-80 bg-opacity-50 backdrop-blur-sm"></div>
+      <div
+        className="absolute inset-0 bg-black opacity-80 bg-opacity-50"
+        onClick={handleModalClose}
+      ></div>
 
       {/* 모달 콘텐츠 */}
-      <div className="relative p-4 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto z-10">
+      <div className="relative p-2 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto z-10">
         <div className="md:p-6">
           {/* 헤더 */}
           <div className="flex items-start justify-between">
