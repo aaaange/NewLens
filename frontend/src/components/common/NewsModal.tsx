@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react';
-import {
-  Bookmark,
-  ChevronFirst,
-  ChevronLast,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 import Flag from 'react-world-flags';
 import { getNewsListForModalApi } from '../../services/api/worldService';
 import { getCountryName } from '../../utils/countryUtils';
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/formatDateUtils';
+import Pagination from './Pagination';
 
 interface itemPropsType {
   date: string;
@@ -97,96 +92,6 @@ const NewsItem = ({
             bookmarked ? 'fill-amount-300 text-amount-300' : 'text-gray-300'
           }
         />
-      </button>
-    </div>
-  );
-};
-
-interface PaginationPropsType {
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-  onPageChange: (page: number) => void;
-}
-
-const Pagination = ({
-  page,
-  totalPages,
-  hasNext,
-  hasPrevious,
-  onPageChange,
-}: PaginationPropsType) => {
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
-
-    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
-    }
-
-    return pageNumbers;
-  };
-
-  return (
-    <div className="flex justify-center items-center p-4 flex-wrap gap-1">
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(1)}
-        disabled={!hasPrevious}
-        aria-label="첫 페이지"
-      >
-        <ChevronFirst color="black" size={16} />
-      </button>
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(page - 1)}
-        disabled={!hasPrevious}
-        aria-label="이전 페이지"
-      >
-        <ChevronLeft color="black" size={16} />
-      </button>
-
-      {getPageNumbers().map((pageNum) => (
-        <button
-          key={pageNum}
-          className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg ${
-            pageNum === page
-              ? 'bg-slate-300 text-white'
-              : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-gray-100'
-          }`}
-          onClick={() => onPageChange(pageNum)}
-          aria-label={`${pageNum} 페이지`}
-          aria-current={pageNum === page ? 'page' : undefined}
-        >
-          {pageNum}
-        </button>
-      ))}
-
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(page + 1)}
-        disabled={!hasNext}
-        aria-label="다음 페이지"
-      >
-        <ChevronRight color="black" size={16} />
-      </button>
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(totalPages)}
-        disabled={!hasNext}
-        aria-label="마지막 페이지"
-      >
-        <ChevronLast color="black" size={16} />
       </button>
     </div>
   );
@@ -299,10 +204,13 @@ const NewsModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 흐려진 배경 */}
-      <div className="absolute inset-0 bg-black opacity-80 bg-opacity-50 backdrop-blur-sm"></div>
+      <div
+        className="absolute inset-0 bg-black opacity-80 bg-opacity-50"
+        onClick={handleModalClose}
+      ></div>
 
       {/* 모달 콘텐츠 */}
-      <div className="relative p-4 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto z-10">
+      <div className="relative p-2 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto z-10">
         <div className="md:p-6">
           {/* 헤더 */}
           <div className="flex items-start justify-between">
