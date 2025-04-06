@@ -13,6 +13,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 public class RedisConfig {
@@ -52,6 +54,8 @@ public class RedisConfig {
 		// 모든 필드를 직렬화하되, 기본 타입 정보는 추가하지 않습니다.
 		// 기본 typing을 활성화하지 않으므로, @class 정보가 포함되지 않습니다.
 		mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+		mapper.registerModule(new JavaTimeModule()); //  LocalDateTime 지원 추가
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); //  ISO-8601 문자열로 저장
 
 		GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(mapper);
 		template.setValueSerializer(serializer);

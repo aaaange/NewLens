@@ -2,6 +2,8 @@ package com.ssafy.staticsserver.domain.news.repository;
 
 import com.ssafy.staticsserver.domain.news.model.ForeignNewsMongo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +22,7 @@ public class ForeignNewsRepositoryImpl implements NewsMongoDBRepository{
     public List<KeywordsOnly> findKeywordsOnly(List<String> idList) {
         return repository.findKeywordsOnly(idList);
     }
+
+    @Override
+    public Page<ForeignNewsMongo> findByIdIn(List<String> ids, Pageable pageable) { return repository.findByIdIn(ids, pageable); }
 }
