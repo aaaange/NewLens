@@ -11,7 +11,7 @@ import {
   description,
   videos,
 } from '../worldDetail/MockData';
-import { useScrapNews } from '../../hooks/useMypageNews';
+import { useScrapNews, News } from '../../hooks/useMypageNews';
 
 const safeData = {
   keywords: words,
@@ -24,6 +24,7 @@ const safeData = {
 
 const RecommendedArticle = () => {
   // const [readItems, setReadItems] = useState<string[]>([]);
+  const [articles, setArticles] = useState<News[]>([]);
 
   const {
     recommendNewsList,
@@ -31,18 +32,22 @@ const RecommendedArticle = () => {
     error,
     scrapNews,
     fetchRecommendNews,
-    removeScrapNews,
+    // removeScrapNews,
   } = useScrapNews();
 
   // 뉴스 스크랩
-  const toggleScrap = async (newsId: string, isScrap: boolean) => {
+  const toggleScrap = async (newsId: string) => {
     try {
-      if (isScrap) {
-        await removeScrapNews(newsId);
-      } else {
-        await scrapNews(newsId);
-      }
-      await fetchRecommendNews(); // 상태 갱신
+      const res = await scrapNews(newsId);
+      if (!res) return;
+
+      const { isScrap } = res;
+
+      setArticles((prev) =>
+        prev.map((item) =>
+          item.newsId === newsId ? { ...item, isScrap } : item
+        )
+      );
     } catch (err) {
       console.error('스크랩 상태 변경 실패:', err);
     }
@@ -52,6 +57,10 @@ const RecommendedArticle = () => {
     fetchRecommendNews();
   }, []);
 
+  useEffect(() => {
+    setArticles(recommendNewsList); // API에서 받은 데이터로 초기화
+  }, [recommendNewsList]);
+
   if (loading) return <p>Loading...</p>;
 
   // 읽음 표시
@@ -60,9 +69,9 @@ const RecommendedArticle = () => {
   // };
 
   // 날짜별로 그룹
-  const groupedArticles = recommendNewsList.reduce(
+  const groupedArticles = articles.reduce(
     (acc: Record<string, any[]>, article, index) => {
-      const date = formatDate(article.public_at, 'day');
+      const date = formatDate(article.publishedAt, 'day');
       if (!acc[date]) acc[date] = [];
       acc[date].push({ ...article, _index: index });
       return acc;
@@ -80,16 +89,16 @@ const RecommendedArticle = () => {
 
             {/* 해당 날짜의 기사들 */}
             {articles.map((item) => (
-              <div key={item.news_id} className="flex items-center gap-4 mb-3">
+              <div key={item.newsId} className="flex items-center gap-4 mb-3">
                 {/* 북마크 버튼 */}
                 <button
-                  onClick={() => toggleScrap(item.news_id, item.is_scrap)}
+                  onClick={() => toggleScrap(item.newsId)}
                   className="cursor-pointer"
                 >
                   <Bookmark
                     size={20}
                     className={`transition-colors duration-200 ${
-                      item.is_scrap
+                      item.isScrap
                         ? 'fill-yellow-400 text-yellow-400'
                         : 'text-gray-300'
                     }`}
@@ -99,19 +108,19 @@ const RecommendedArticle = () => {
                 {/* 뉴스 아이템 */}
                 <div
                   className="w-full cursor-pointer"
-                  // onClick={() => markAsRead(item.news_id)}
+                  // onClick={() => markAsRead(item.newsId)}
                 >
                   <NewsItem
                     title={item.title}
                     url={item.url}
-                    publishedDate={item.published_at}
-                    imageUrl={item.image_url}
+                    publishedDate={item.publishedAt}
+                    imageUrl={item.imageUrl}
                   />
                 </div>
 
                 {/* 읽음 여부 */}
                 <div>
-                  {/* {readItems.includes(item.news_id) ? (
+                  {/* {readItems.includes(item.newsId) ? (
                     <MailOpen size={20} className="text-blue-500" />
                   ) : (
                     <Mail size={20} className="text-gray-400" />
