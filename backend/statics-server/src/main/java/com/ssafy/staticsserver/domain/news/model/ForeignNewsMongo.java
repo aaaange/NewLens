@@ -31,7 +31,10 @@ public class ForeignNewsMongo {
     private String country;
     private List<String> keywords;
     private Integer sentiment;
-    private String rawDataRef;
+    @Field(name = "original_title")
+    private String OriginalTitle;
+    @Field(name = "original_description")
+    private String OriginalDescription;
 
     @Override
     public String toString() {
@@ -45,8 +48,7 @@ public class ForeignNewsMongo {
             ", categories=" + categories +
             ", country='" + country + '\'' +
             ", keywords=" + keywords +
-            ", sentiment=" + sentiment +
-            ", rawDataRef='" + rawDataRef + '\'' +
-            '}';
+            ", sentiment=" + sentiment;
+
     }
 }

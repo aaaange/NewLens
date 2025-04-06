@@ -41,6 +41,7 @@ const KoreaAnalysisPage = () => {
   };
   const handleRankingKeywordChange = (newKeyword: string) => {
     setKeyword(newKeyword);
+    setInitialKeyword(newKeyword);
   };
 
   const categoryChangeHandler = (category: string) => {
