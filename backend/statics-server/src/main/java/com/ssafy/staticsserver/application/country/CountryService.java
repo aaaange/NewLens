@@ -50,6 +50,7 @@ public class CountryService {
     private final DomesticNewsRepositoryImpl domesticRepo;
     private final KakaoClient kakaoClient;
     private final RedisTemplate<String, Object> redisTemplate;
+    private static final int PAGE_GROUP_SIZE = 5;
 
     // 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
     private NewsMongoDBRepository repository(boolean isKorea) {
@@ -244,6 +245,8 @@ public class CountryService {
 
 //            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
             // 해시 키 생성
+            int startPage = ((page - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
+            int endPage = startPage + PAGE_GROUP_SIZE - 1;
             String rawKey = String.join("|",
                 keyword,
                 keywordMind != null ? keywordMind : "none",
@@ -255,20 +258,24 @@ public class CountryService {
             );
 
             String hash = DigestUtils.md5DigestAsHex(rawKey.getBytes());
-            String redisKey = String.format("modal_cache:%s:%d", hash, page);
+            String redisKey = String.format("modal_cache:%s:%d", hash, startPage);
             // 캐시 있으면 가져옴
             Object cached = redisTemplate.opsForValue().get(redisKey);
             if (cached != null) {
-                NewsModalResponse cachedResponse = objectMapper.convertValue(cached, NewsModalResponse.class);
-                sendCallback(callbackUrl, requestId, cachedResponse);
-                System.out.println("가져옴");
+                List<NewsModalResponse> cachedPages = objectMapper.convertValue(cached, new TypeReference<>() {});
+                sendCallback(callbackUrl, requestId, cachedPages.get(page - startPage));
+                System.out.println("캐싱된: 페이지 " + page);
                 return;
             }
-            // 캐시 없으면 직접 조회
+            // 캐시 없으면 직접 조회 PAGE_GROUP 크기 만큼 캐싱
             else{
-                NewsModalResponse response = processNews(newsIds, page, size, isKorea);
-                redisTemplate.opsForValue().set(redisKey, response, Duration.ofMinutes(5));
-                sendCallback(callbackUrl, requestId, response);
+                List<NewsModalResponse> pageGroup = new ArrayList<>();
+                for (int p = startPage; p <= endPage; p++) {
+                    pageGroup.add(processNews(newsIds, p, size, isKorea));
+                }
+                redisTemplate.opsForValue().set(redisKey, pageGroup, Duration.ofMinutes(5));
+                sendCallback(callbackUrl, requestId, pageGroup.get(page - startPage));
+                System.out.println("캐시 안된: 페이지 " + page + " 캐싱 및 응답");
             }
 
 
