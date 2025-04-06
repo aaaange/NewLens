@@ -8,21 +8,21 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
       subtitle: '키워드에 대한 국가별 관심도와 반응을 확인해보세요!',
       image: '/assets/images/vector-world-map 3.png',
       bottomText: '국가별 반응 분석',
-      imgStyle: 'w-[500px] h-[250px]',
+      imgStyle: 'w-[30vw] h-[30vh]',
     },
     {
       title: '실시간 인기 검색어',
       subtitle: '실시간으로 가장 핫한 키워드!',
       image: '/assets/images/keywordranking.png',
       bottomText: '실시간 키워드 랭킹',
-      imgStyle: 'w-[300px] h-[350px]',
+      imgStyle: 'w-[20vw] h-[45vh]',
     },
     {
       title: '연관어',
       subtitle: '추천 연관어를 선택하여 검색해보세요!',
       image: '/assets/images/mindmap.png',
       bottomText: '연관어 분석까지!',
-      imgStyle: 'w-[350px] h-[250px]',
+      imgStyle: 'w-[22vw] h-[30vh]',
     },
   ];
 
@@ -56,14 +56,14 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div
       ref={ref}
-      className="h-screen p-[4vw] flex flex-col items-center justify-between gap-[6vh]"
+      className="h-screen p-[6vw] flex flex-col items-center gap-[16vh]"
     >
       {/* 상단 */}
       <div className="flex justify-center gap-[1vw] -mt-[3vh] w-full">
         {fadeSections.map((section, index) => (
           <motion.div
             key={index}
-            className="flex flex-col flex-1 items-center justify-center h-[500px] w-fit"
+            className="flex flex-col flex-1 items-center justify-center h-[50vh] w-fit"
             variants={fadeLeftVariant}
             initial="hidden"
             whileInView="visible"
