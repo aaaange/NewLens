@@ -259,8 +259,9 @@ public class CountryService {
             // 캐시 있으면 가져옴
             Object cached = redisTemplate.opsForValue().get(redisKey);
             if (cached != null) {
-                NewsModalResponse cachedResponse = (NewsModalResponse) cached;
+                NewsModalResponse cachedResponse = objectMapper.convertValue(cached, NewsModalResponse.class);
                 sendCallback(callbackUrl, requestId, cachedResponse);
+                System.out.println("가져옴");
                 return;
             }
             // 캐시 없으면 직접 조회
