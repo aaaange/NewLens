@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -28,8 +29,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,6 +49,7 @@ public class CountryService {
     private final ForeignNewsRepositoryImpl foreignRepo;
     private final DomesticNewsRepositoryImpl domesticRepo;
     private final KakaoClient kakaoClient;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
     private NewsMongoDBRepository repository(boolean isKorea) {
@@ -230,26 +234,43 @@ public class CountryService {
             String callbackUrl = newsModalRequest.getCallbackUrl();
             String requestId = newsModalRequest.getRequestId();
             boolean isKorea = newsModalRequest.isKorea();
+            String keyword = newsModalRequest.getKeyword();
+            String keywordMind = newsModalRequest.getKeywordMind();
+            String keywordCloud = newsModalRequest.getKeywordCloud();
+            String country = newsModalRequest.getCountry();
+            String category = newsModalRequest.getCategory();
+            int period = newsModalRequest.getPeriod();
 
 
 //            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
+            // 해시 키 생성
+            String rawKey = String.join("|",
+                keyword,
+                keywordMind != null ? keywordMind : "none",
+                keywordCloud != null ? keywordCloud : "none",
+                category != null ? category : "all",
+                country != null ? country : "all",
+                String.valueOf(isKorea),
+                String.valueOf(period)
+            );
+
+            String hash = DigestUtils.md5DigestAsHex(rawKey.getBytes());
+            String redisKey = String.format("modal_cache:%s:%d", hash, page);
+            // 캐시 있으면 가져옴
+            Object cached = redisTemplate.opsForValue().get(redisKey);
+            if (cached != null) {
+                NewsModalResponse cachedResponse = (NewsModalResponse) cached;
+                sendCallback(callbackUrl, requestId, cachedResponse);
+                return;
+            }
+            // 캐시 없으면 직접 조회
+            else{
+                NewsModalResponse response = processNews(newsIds, page, size, isKorea);
+                redisTemplate.opsForValue().set(redisKey, response, Duration.ofMinutes(5));
+                sendCallback(callbackUrl, requestId, response);
+            }
 
 
-
-
-
-            NewsModalResponse response = processNews(newsIds, page, size, isKorea);
-            String responseJson = objectMapper.writeValueAsString(response);
-
-            // 콜백 요청 전송
-            HttpClient httpClient = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(callbackUrl + "?requestId=" + requestId))
-                    .POST(HttpRequest.BodyPublishers.ofString(responseJson))
-                    .header("Content-Type", "application/json")
-                    .build();
-
-            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             long end = System.currentTimeMillis();
             int newsSize = newsIds.size();
             System.out.println("뉴스 " + newsSize + "개 ====> 뉴스 모달 리스트 통계 시간: " + (end - start) + "ms");
@@ -257,6 +278,19 @@ public class CountryService {
             e.printStackTrace();
         }
     }
+
+    private void sendCallback(String callbackUrl, String requestId, NewsModalResponse response) throws Exception {
+        String responseJson = objectMapper.writeValueAsString(response);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(callbackUrl + "?requestId=" + requestId))
+            .POST(HttpRequest.BodyPublishers.ofString(responseJson))
+            .header("Content-Type", "application/json")
+            .build();
+
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
 
     // 언론 반응 요약
     private String makeDescription(String keyword, String keywordMind,
