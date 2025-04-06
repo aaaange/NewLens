@@ -222,17 +222,21 @@ public class CountryService {
     public void listenNewsModal(String message) {
         try {
             long start = System.currentTimeMillis();
-            Map<String, Object> payload = objectMapper.readValue(message, new TypeReference<>() {
-            });
+            NewsModalRequest newsModalRequest = objectMapper.readValue(message, NewsModalRequest.class);
 
-            List<String> newsIds = (List<String>) payload.get("newsIds");
-            int page = (Integer) payload.get("page");
-            int size = (Integer) payload.get("size");
-            String callbackUrl = payload.get("callbackUrl").toString();
-            String requestId = payload.get("requestId").toString();
-            boolean isKorea = (Boolean) payload.get("isKorea");
+            List<String> newsIds = newsModalRequest.getNewsIds();
+            int page = newsModalRequest.getPage();
+            int size = newsModalRequest.getSize();
+            String callbackUrl = newsModalRequest.getCallbackUrl();
+            String requestId = newsModalRequest.getRequestId();
+            boolean isKorea = newsModalRequest.isKorea();
+
 
 //            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
+
+
+
+
 
             NewsModalResponse response = processNews(newsIds, page, size, isKorea);
             String responseJson = objectMapper.writeValueAsString(response);
