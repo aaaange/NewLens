@@ -17,7 +17,7 @@ pipeline {
                 sh 'docker build -t ${DOCKER_REGISTRY}/search-server:latest backend/search-server'
                 sh 'docker build -t ${DOCKER_REGISTRY}/user-server:latest backend/user-server'
                 sh 'docker build -t ${DOCKER_REGISTRY}/statics-server:latest backend/statics-server'
-                sh 'docker build -f nginx/Dockerfile -t ${DOCKER_REGISTRY}/nginx:latest nginx'
+                sh 'docker build -f nginx/Dockerfile -t ${DOCKER_REGISTRY}/nginx:latest .'
             }
         }
         stage('Login to DockerHub') {
