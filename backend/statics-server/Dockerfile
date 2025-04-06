@@ -15,6 +15,7 @@ RUN ./gradlew --no-daemon help
 
 # 전체 소스코드 복사
 COPY . .
+RUN chmod +x gradlew
 
 # 실제 빌드 (테스트 스킵: -x test)
 RUN ./gradlew clean build -x test --no-daemon
