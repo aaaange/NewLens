@@ -1,0 +1,24 @@
+server:
+  port: 9003
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin
+      database: ${MONGODB_DATABASE}
+
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    consumer:
+      group-id: statics-group  # 같은 그룹 id를 쓰는 Consumer들을 하나로 묶음
+      auto-offset-reset: earliest # Consumer가 처음 시작할때 메시지를 어디서 부터 읽을지
+      # earliest: 가ㅣ장 오래된거, latest : 최신
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties: # JSON 데이터를 역직렬화할 때 어떤 패키지의 클래스들을 신뢰할지
+        spring.json.trusted.packages: '*'

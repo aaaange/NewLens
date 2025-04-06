@@ -1,0 +1,224 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: kimsangouk/nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - spring-gateway
+    networks:
+      - backend-net
+
+  spring-gateway:
+    image: kimsangouk/spring-gateway:latest
+    container_name: spring-gateway
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - backend-net
+    environment:
+      - TZ=Asia/Seoul
+
+  user-server:
+    image: kimsangouk/user-server:latest
+    container_name: user-server
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 9001:9001
+    depends_on:
+      - mysql
+      - redis
+      - mongodb
+    networks:
+      - backend-net
+    environment:
+      - TZ=Asia/Seoul
+      
+  search-server:
+    image: kimsangouk/search-server:latest
+    # build:
+    #   context: ../backend/search-server
+    #   dockerfile: Dockerfile
+    container_name: search-server
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 9002:9002
+    depends_on:
+      # - elasticsearch
+      - redis
+      - kafka
+      - mongodb
+    networks:
+      - backend-net
+    environment:
+      - TZ=Asia/Seoul
+    # wait-for-it 스크립트를 사용하여 모든 의존 서비스가 준비될 때까지 대기
+    command: >
+      sh -c "./wait-for-it.sh mongodb:27017 --timeout=60 -- \
+             ./wait-for-it.sh redis:6379 --timeout=60 -- \
+             ./wait-for-it.sh kafka:9092 --timeout=60 -- \
+             exec your_search_server_start_command"
+
+  statics-server:
+    image: kimsangouk/statics-server:latest
+    # build:
+    #   context: ../backend/statics-server
+    #   dockerfile: Dockerfile
+    container_name: statics-server
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 9003:9003
+    depends_on:
+      - mongodb
+      - redis
+      - kafka
+    networks:
+      - backend-net
+    environment:
+      - TZ=Asia/Seoul
+    command: >
+      sh -c "./wait-for-it.sh mongodb:27017 --timeout=60 -- \
+             ./wait-for-it.sh redis:6379 --timeout=60 -- \
+             ./wait-for-it.sh kafka:9092 --timeout=60 -- \
+             exec your_statics_server_start_command"
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "${MONGODB_PORT}:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - backend-net
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
+  #   container_name: elastic
+  #   environment:
+  #     xpack.security.enabled: ${XPACK_SECURITY_ENABLED}
+  #     discovery.type: zen
+  #     cluster.initial_master_nodes: ${CLUSTER_INITIAL_MASTER_NODES}
+  #   ports:
+  #     - "${ES_PORT}:9200"
+  #     - "9300:9300"
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - backend-net
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9200"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:8.6.1
+  #   container_name: kibana
+  #   ports:
+  #     - "${KIBANA_PORT}:5601"
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #     - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
+  #     - SERVER_HOST=0.0.0.0
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - backend-net
+
+
+  kafka:
+    image: bitnami/kafka:latest
+    restart: always
+    container_name: kafka
+    environment:
+      - KAFKA_CFG_LISTENERS=${KAFKA_CFG_LISTENERS}
+      - KAFKA_CFG_ADVERTISED_LISTENERS=${KAFKA_CFG_ADVERTISED_LISTENERS}
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=${KAFKA_CFG_CONTROLLER_LISTENER_NAMES}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=${KAFKA_CFG_CONTROLLER_QUORUM_VOTERS}
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=${KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP}
+      - KAFKA_BROKER_ID=${KAFKA_BROKER_ID}
+      - KAFKA_CFG_NODE_ID=${KAFKA_CFG_NODE_ID}
+      - KAFKA_CLUSTER_ID=${KAFKA_CLUSTER_ID}
+      - KAFKA_CFG_PROCESS_ROLES=${KAFKA_CFG_PROCESS_ROLES}
+      - KAFKA_CFG_MESSAGE_MAX_BYTES=10242880  # 카프카 메시지 크기 한도 늘림 1 -> 10MB
+      - KAFKA_CFG_REPLICA_FETCH_MAX_BYTES=10242880
+    ports:
+      - "${KAFKA_PORT}:9092"
+      - "9093:9093"
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend-net
+
+volumes:
+  mongodb-data:
+  # elasticsearch-data:
+  redis-data:
+  mysql_data:
+
+networks:
+  backend-net:
+    driver: bridge

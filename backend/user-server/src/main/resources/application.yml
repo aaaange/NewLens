@@ -1,0 +1,63 @@
+server:
+  port: 9001
+  forward-headers-strategy: native
+
+spring:
+  application:
+    name: user-server
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST:localhost}
+      password: ${REDIS_PASSWORD}
+    mongodb:
+      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin
+      database: ${MONGODB_DATABASE}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google: # 이게 registrationId 로서 역할
+            client-name: google
+            client-id: ${GOOGLE_CLIENT}
+            client-secret: ${GOOGLE_SECRET}
+            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/google
+            authorization-grant-type: authorization_code
+            scope:
+              - profile
+              - email
+
+          kakao: # 이게 registrationId 로서 역할
+            client-id: ${KAKAO_CLIENT}
+            client-secret: ${KAKAO_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
+            client-authentication-method: client_secret_post # kakao는 인증 토큰 발급 요청 메서드가 post이다.
+            authorization-grant-type: authorization_code
+            scope: # kakao 개인 정보 동의 항목 설정의 ID 값
+              - profile_nickname
+              - profile_image
+              - account_email
+            client-name: kakao
+
+        # kakao provider 설정 (구글은 provider 설정 필요 x)
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id # 유저 정보 조회 시 반환되는 최상위 필드명으로 해야 한다.
+
+jwt:
+  secret-key: ${JWT_SECRETKEY}
+  access-expiration: 3600000   # 10시간 (access Token 만료 시간)
+  refresh-expiration: 604800000  # 7일 (Refresh Token 만료 시간)
