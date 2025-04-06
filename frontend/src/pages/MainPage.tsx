@@ -108,9 +108,8 @@ const MainPage = () => {
   console.log(keyword_mind);
 
   const headerString = [keyword, keyword_mind]
-    .filter((item) => item && item.trim() !== '') // 빈 문자열 또는 undefined/null 제거
-    .join(' > '); // ' > '로 연결
-  console.log(firstRanking);
+    .filter((item) => item && item.trim() !== '')
+    .join(' > ');
 
   return (
     <div className="mt-5 flex gap-20 justify-center overflow-hidden pb-[32px]">
