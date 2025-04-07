@@ -13,6 +13,9 @@ import lombok.Getter;
 @Schema(description = "기사 데이터")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ArticleResponse {
+
+	private String newsId;
+
 	@Schema(description = "기사 제목", example = "AI 기술의 발전과 미래")
 	private String title;
 
