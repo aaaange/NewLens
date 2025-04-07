@@ -11,14 +11,14 @@ export const getScrapNewsApi = async (params: ScrapNewsGetParams) => {
 };
 
 export const postScrapNewsApi = async (data: ScrapNewsActionParams) => {
-  const response = await api.post('scrap/news', data);
+  const response = await api.post('scrap/news/toggle', data);
   return response.data;
 };
 
-export const deleteScrapNewsApi = async (data: ScrapNewsActionParams) => {
-  const response = await api.delete('scrap/news', { data });
-  return response.data;
-};
+// export const deleteScrapNewsApi = async (data: ScrapNewsActionParams) => {
+//   const response = await api.delete('scrap/news', { data });
+//   return response.data;
+// };
 
 // recommend 관련 api
 export const getRecommendNewsApi = async () => {
