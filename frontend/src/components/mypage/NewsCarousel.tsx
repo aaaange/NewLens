@@ -64,7 +64,7 @@ export default function NewsCarousel() {
       {/* 슬라이더 본체 */}
       <div ref={sliderRef} className="keen-slider">
         {articles.length === 0 ? (
-          <div className="keen-slider__slide flex items-center justify-center bg-gray-100 h-60 rounded text-white opacity-20 text-lg">
+          <div className=" flex items-center justify-center w-full h-60 rounded text-white text-lg">
             최근 본 뉴스가 없어요 🗞️
           </div>
         ) : (
@@ -76,7 +76,10 @@ export default function NewsCarousel() {
               <a href={news.url} target="_blank" rel="noopener noreferrer">
                 <div className="relative">
                   <button
-                    onClick={() => toggleScrap(news.news_id)}
+                    onClick={(e) => {
+                      e.preventDefault(); // 링크 이동 막기
+                      toggleScrap(news.news_id);
+                    }}
                     className="cursor-pointer p-2 m-2"
                   >
                     <Bookmark
