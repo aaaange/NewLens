@@ -69,4 +69,9 @@ public class User {
 		}
 		this.updatedAt = LocalDateTime.now();
 	}
+
+	public void changeNickname(String nickname) {
+		this.nickname = nickname;
+		this.updatedAt = LocalDateTime.now();
+	}
 }

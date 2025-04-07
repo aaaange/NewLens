@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.userserver.common.dto.CommonResponse;
+import com.ssafy.userserver.domain.dto.NicknameRequest;
 import com.ssafy.userserver.domain.dto.UserDTO;
 import com.ssafy.userserver.infrastructure.security.CustomOAuth2User;
 import com.ssafy.userserver.infrastructure.service.UserService;
@@ -46,6 +47,13 @@ public class UserController {
 	@GetMapping("/user_info")
 	public ResponseEntity<CommonResponse<UserDTO>> getCurrentUser(@AuthenticationPrincipal CustomOAuth2User user) {
 		CommonResponse<UserDTO> data = userService.getCurrentUser(user);
+		return ResponseEntity.ok(data);
+	}
+
+	// 닉네임 변경
+	@PatchMapping("nickname")
+	public ResponseEntity<CommonResponse<String>> changeNickname(@AuthenticationPrincipal CustomOAuth2User user, @RequestBody NicknameRequest request) {
+		CommonResponse<String> data = userService.changeNickname(user, request.getNickname());
 		return ResponseEntity.ok(data);
 	}
 

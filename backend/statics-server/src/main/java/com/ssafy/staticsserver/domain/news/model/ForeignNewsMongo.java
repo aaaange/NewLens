@@ -31,9 +31,9 @@ public class ForeignNewsMongo {
     private String country;
     private List<String> keywords;
     private Integer sentiment;
-    @Field(name = "original_title")
-    private String OriginalTitle;
-    @Field(name = "original_description")
+    @Field(name = "origin_title")
+    private String OriginTitle;
+    @Field(name = "origin_description")
     private String OriginalDescription;
 
     @Override

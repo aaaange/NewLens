@@ -13,19 +13,14 @@ const setupInterceptors = (instance: AxiosInstance) => {
 
       // 리다이렉트된 페이지에서 토큰 추출
       const query = new URLSearchParams(window.location.search);
-      const accessToken = query.get('accessToken');
-      console.log(accessToken);
+      const urlAccessToken = query.get('accessToken');
 
-      const refreshToken = query.get('refreshToken');
-      console.log(refreshToken);
-
-      // localStorage 또는 상태 관리 저장
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
+      if (urlAccessToken) {
+        localStorage.setItem('accessToken', urlAccessToken);
       }
 
+      const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
         request.headers.Authorization = 'Bearer ' + accessToken;
       }
       return request;
