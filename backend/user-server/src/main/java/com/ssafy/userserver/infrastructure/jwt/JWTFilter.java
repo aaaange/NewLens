@@ -25,6 +25,7 @@ public class JWTFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+		// AccessToken 추출
 		String authorization = request.getHeader("Authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer ")) {
@@ -35,8 +36,33 @@ public class JWTFilter extends OncePerRequestFilter {
 
 		String token = authorization.substring(7);
 
+		// AccessToken 만료 여부 확인
 		if (jwtUtil.isExpired(token)) {
 			System.out.println("token expired");
+
+			String refreshToken = jwtUtil.extractRefreshToken(request);
+
+			// refresh token이 존재하며 유효한 경우
+			if (refreshToken != null && !jwtUtil.isExpired(refreshToken)) {
+				String email = jwtUtil.getEmail(refreshToken);
+				String nickname = jwtUtil.getNickname(refreshToken);
+
+				String newAccessToken = jwtUtil.createJwt(email, nickname, 10*60*60*1000L);
+				response.setHeader("Authorization", "Bearer " + newAccessToken);
+				System.out.println("New access token generated");
+
+				// SecurityContext에 사용자 정보 등록
+				UserDTO userDTO = new UserDTO();
+				userDTO.setEmail(email);
+				userDTO.setNickname(nickname);
+				CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+				Authentication authToken = new UsernamePasswordAuthenticationToken(
+					customOAuth2User, null, customOAuth2User.getAuthorities());
+				SecurityContextHolder.getContext().setAuthentication(authToken);
+			} else {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Invalid refresh token");
+			}
+
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -51,46 +77,10 @@ public class JWTFilter extends OncePerRequestFilter {
 		//UserDetails에 회원 정보 객체 담기
 		CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
 		//스프링 시큐리티 인증 토큰 생성
-		Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+		Authentication authToken = new UsernamePasswordAuthenticationToken( customOAuth2User, null, customOAuth2User.getAuthorities());
 		//세션에 사용자 등록
 		SecurityContextHolder.getContext().setAuthentication(authToken);
 
 		filterChain.doFilter(request, response);
 	}
 }
-
-
-// public class JwtAuthenticationFilter extends OncePerRequestFilter {
-//
-// 	private final JwtUtil jwtUtil;
-//
-// 	public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-// 		// DI를 사용하거나, Spring Context에서 가져오는 방식으로 변경 가능
-// 		this.jwtUtil = jwtUtil;
-// 	}
-//
-// 	@Override
-// 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-// 		throws ServletException, IOException {
-// 		String token = getJwtFromRequest(request);
-//
-// 		if (StringUtils.hasText(token) && jwtUtil.validateToken(token)) {
-// 			Long userId = jwtUtil.getUserIdFromJWT(token);
-// 			// 실제 애플리케이션에서는 userId를 기반으로 사용자 상세정보 조회 후 Authentication 객체 생성
-// 			UsernamePasswordAuthenticationToken authentication =
-// 				new UsernamePasswordAuthenticationToken(userId, null, null);
-// 			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//
-// 			SecurityContextHolder.getContext().setAuthentication(authentication);
-// 		}
-// 		filterChain.doFilter(request, response);
-// 	}
-//
-// 	private String getJwtFromRequest(HttpServletRequest request) {
-// 		String bearerToken = request.getHeader("Authorization");
-// 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-// 			return bearerToken.substring(7);
-// 		}
-// 		return null;
-// 	}
-// }

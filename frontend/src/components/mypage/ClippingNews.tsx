@@ -107,16 +107,16 @@ const ClippingNews = () => {
   const { scrapNewsList, loading, fetchScrapNews, scrapNews } = useScrapNews();
 
   // 뉴스 삭제
-  const deleteArticle = async (newsId: string) => {
+  const deleteArticle = async (news_id: string) => {
     try {
-      const res = await scrapNews(newsId);
+      const res = await scrapNews(news_id);
       if (!res) return;
 
       const { isScrap } = res;
 
       // 스크랩이 해제된 경우만 UI에서 제거
       if (!isScrap) {
-        setArticles((prev) => prev.filter((item) => item.newsId !== newsId));
+        setArticles((prev) => prev.filter((item) => item.news_id !== news_id));
       }
     } catch (err) {
       console.error('스크랩 해제 실패:', err);
@@ -145,15 +145,15 @@ const ClippingNews = () => {
           </div>
         ) : (
           articles.map((item) => (
-            <div key={item.newsId} className="flex items-center gap-4">
+            <div key={item.news_id} className="flex items-center gap-4">
               <button
-                onClick={() => deleteArticle(item.newsId)}
+                onClick={() => deleteArticle(item.news_id)}
                 className="cursor-pointer"
               >
                 <Bookmark
                   size={20}
                   className={`transition-colors duration-200 ${
-                    item.isScrap
+                    item.is_scrap
                       ? 'fill-yellow-400 text-yellow-400'
                       : 'text-gray-300'
                   }`}
@@ -163,8 +163,8 @@ const ClippingNews = () => {
                 <NewsItem
                   title={item.title}
                   url={item.url}
-                  publishedDate={item.publishedAt}
-                  imageUrl={item.imageUrl}
+                  published_at={item.published_at}
+                  image_url={item.image_url}
                 />
               </div>
             </div>
