@@ -548,9 +548,9 @@ public class CountryService {
                     // 원문 제목가져오고 번역 없으면 기존 번역 그대로
                     String translatedTitle = isKorea ? news.getTitle() : googleTranslate(news.getOriginTitle(), news.getTitle());
 
-//                    String originalTitle = news.getTitle();
-//                    System.out.println("번역 전 : " + originalTitle);
-//                    System.out.println("번역 후: " + translatedTitle);
+                   // String originalTitle = news.getTitle();
+                   // System.out.println("번역 전 : " + originalTitle);
+                   // System.out.println("번역 후: " + translatedTitle);
 
                     return ArticleResponse.builder()
                             .title(translatedTitle)
@@ -619,9 +619,12 @@ public class CountryService {
                     String imageUrl = item.getImageUrl();
                     imageUrl = getKakaoImage(imageUrl, keywords);
 
+                    String translatedTitle = isKorea ? item.getTitle() : googleTranslate(item.getOriginTitle(), item.getTitle());
+
+
                     return NewsDto.builder()
                             .newsId(item.getId())
-                            .title(item.getTitle())
+                            .title(translatedTitle)
                             .url(item.getUrl())
                             .publishedAt(item.getPublishedAt())
                             .imageUrl(imageUrl)
