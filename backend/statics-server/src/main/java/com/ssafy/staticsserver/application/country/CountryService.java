@@ -9,7 +9,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 import com.ssafy.staticsserver.domain.news.repository.DomesticNewsRepositoryImpl;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsRepositoryImpl;
 import com.ssafy.staticsserver.domain.news.repository.NewsMongoDBRepository;
+import com.ssafy.staticsserver.infrastructure.client.GoogleClient;
 import com.ssafy.staticsserver.infrastructure.client.GptClient;
 import com.ssafy.staticsserver.infrastructure.client.KakaoClient;
 import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
@@ -49,6 +49,7 @@ public class CountryService {
     private final ForeignNewsRepositoryImpl foreignRepo;
     private final DomesticNewsRepositoryImpl domesticRepo;
     private final KakaoClient kakaoClient;
+    private final GoogleClient googleClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final int PAGE_GROUP_SIZE = 5;
 
@@ -107,7 +108,7 @@ public class CountryService {
             }
 
             // articles
-            List<ArticleResponse> articles = processArticles(newsList);
+            List<ArticleResponse> articles = processArticles(newsList, isKorea);
 
             // videos
             List<VideoResponse> videos;
@@ -298,6 +299,20 @@ public class CountryService {
 
         HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
     }
+
+
+    private String googleTranslate(String originTitle, String notTranslateTitle) {
+        try {
+            // 원문 제목이 없으면 패스~
+            if (originTitle != null && !originTitle.isBlank()) {
+                return googleClient.translateText(originTitle);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return notTranslateTitle;
+    }
+
 
 
     // 언론 반응 요약
@@ -521,7 +536,7 @@ public class CountryService {
     }
 
     // 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택 위에서 이미 정렬
-    private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList) {
+    private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList, boolean isKorea) {
         return newsList.stream()
                 .filter(news -> news.getTitle() != null && news.getUrl() != null)
                 .limit(5)
@@ -530,9 +545,15 @@ public class CountryService {
                     List<String> keywords = news.getKeywords();
                     // 이미지 URL이 비어있으면 키워드 기반으로 카카오 이미지 검색
                     imageUrl = getKakaoImage(imageUrl, keywords);
+                    // 원문 제목가져오고 번역 없으면 기존 번역 그대로
+                    String translatedTitle = isKorea ? news.getTitle() : googleTranslate(news.getOriginTitle(), news.getTitle());
+
+                   // String originalTitle = news.getTitle();
+                   // System.out.println("번역 전 : " + originalTitle);
+                   // System.out.println("번역 후: " + translatedTitle);
 
                     return ArticleResponse.builder()
-                            .title(news.getTitle())
+                            .title(translatedTitle)
                             .url(news.getUrl())
                             .publishedAt(news.getPublishedAt())
                             .imageUrl(imageUrl)
@@ -598,9 +619,12 @@ public class CountryService {
                     String imageUrl = item.getImageUrl();
                     imageUrl = getKakaoImage(imageUrl, keywords);
 
+                    String translatedTitle = isKorea ? item.getTitle() : googleTranslate(item.getOriginTitle(), item.getTitle());
+
+
                     return NewsDto.builder()
                             .newsId(item.getId())
-                            .title(item.getTitle())
+                            .title(translatedTitle)
                             .url(item.getUrl())
                             .publishedAt(item.getPublishedAt())
                             .imageUrl(imageUrl)
