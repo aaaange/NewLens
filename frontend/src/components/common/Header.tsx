@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isLogin, setIsLogin] = useState(true);
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    setIsLogin(accessToken !== null);
+  }, []);
   return (
     <div>
       <header>
@@ -13,16 +17,9 @@ const Header = () => {
                 <img src="/assets/images/logo-newLens.png" alt="로고" />
               </Link>
             </div>
-            <div>
+            {/* <div>
               <Link to="/">about</Link>
-            </div>
-            <div className="w-[120px]">
-              <Link to="/playground">양영조페이지</Link>
-            </div>
-            <div className="w-[120px]">
-              <Link to="/main">이승주페이지</Link>
-            </div>
-
+            </div> */}
             <div className="flex items-center gap-4 mr-4">
               <div className="w-[40px]">
                 <Link to="/koreaAnalysis">
