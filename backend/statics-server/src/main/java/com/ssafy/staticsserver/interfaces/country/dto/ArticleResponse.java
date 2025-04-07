@@ -11,18 +11,22 @@ import lombok.Getter;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ArticleResponse {
+
+	private String newsId;
 	private String title;
 	private String url;
 	private LocalDateTime publishedAt;
 	private String imageUrl;
+	private String originTitle;
 
 	@Override
 	public String toString() {
 		return "ArticleResponse{" +
-			"title='" + title + '\'' +
-			", url='" + url + '\'' +
-			", publishedAt=" + publishedAt +
-			", imageUrl='" + imageUrl + '\'' +
-			'}';
+				"title='" + title + '\'' +
+				", url='" + url + '\'' +
+				", publishedAt=" + publishedAt +
+				", imageUrl='" + imageUrl + '\'' +
+				", originTitle='" + originTitle + '\'' +
+				'}';
 	}
 }

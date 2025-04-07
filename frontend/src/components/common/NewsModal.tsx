@@ -6,7 +6,8 @@ import { getCountryName } from '../../utils/countryUtils';
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/formatDateUtils';
 import Pagination from './Pagination';
-
+import classes from './Common.module.css';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 interface itemPropsType {
   date: string;
   title: string;
@@ -210,17 +211,21 @@ const NewsModal = ({
       ></div>
 
       {/* 모달 콘텐츠 */}
-      <div className="relative p-2 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto z-10">
-        <div className="md:p-6">
+      <div
+        className={`relative p-2 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg h-11/12 overflow-y-auto ${classes.hide_scrollbar}`}
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        <div className="md:p-6 flex flex-col h-full">
           {/* 헤더 */}
           <div className="flex items-start justify-between">
-            <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2 flex">
-              <div>
-                <Flags code={country} width="40" />
-              </div>
-              <div className="text-black ml-4 headline-medium">
+            <h2 className="text-2xl md:text-3xl text-gray-500 font-semibold mb-2 flex mx-5">
+              <Flags code={country} width="40" />
+              <span className="text-black ml-4 headline-medium">
                 {getCountryName(country)}
-              </div>
+              </span>
             </h2>
             <img
               onClick={handleModalClose}
@@ -231,7 +236,7 @@ const NewsModal = ({
           </div>
 
           {/* 제목 */}
-          <div className="mb-4 mt-2">
+          <div className="mb-4 mt-2 ml-6">
             <span className="text-amount-400 headline-medium md:text-xl font-semibold">
               {headerString}
             </span>
@@ -247,27 +252,47 @@ const NewsModal = ({
             </span>
           </div>
 
-          {/* 뉴스 리스트 */}
-          <p className="text-slate-400 text-xs mb-2">총 {totalElements}건</p>
-          <div className="space-y-4">
-            {newsItems.map((item, index) => (
-              <div
-                key={index}
-                onClick={() => handleNewsClick(item.url)}
-                className="cursor-pointer"
-              >
-                <NewsItem
-                  date={item.published_at}
-                  title={item.title}
-                  image={item.image_url}
-                  sentiment={item.keywords[0]}
-                  tags={item.keywords.slice(1)}
-                  bookmarked={false}
-                  onToggleBookmark={() => toggleBookmark(index)}
-                />
+          {/* 뉴스 리스트 또는 알림 메시지 */}
+          {newsItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+              <SentimentDissatisfiedIcon
+                className="text-gray-400"
+                style={{ fontSize: '64px' }}
+              />
+              <p className="text-lg font-medium mt-4">
+                키워드에 해당하는 기사가 없습니다.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* 뉴스 리스트 */}
+              <p className="text-slate-400 text-xs justify-end flex mr-6">
+                총 {totalElements}건
+              </p>
+              <div className="space-y-4 flex-grow overflow-y-auto m-4">
+                {newsItems.map((item, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleNewsClick(item.url)}
+                    className="cursor-pointer"
+                  >
+                    <NewsItem
+                      date={item.published_at}
+                      title={item.title}
+                      image={item.image_url}
+                      sentiment={item.keywords[0]}
+                      tags={item.keywords.slice(1)}
+                      bookmarked={false}
+                      onToggleBookmark={() => toggleBookmark(index)}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-            {/* 페이지네이션 */}
+            </>
+          )}
+
+          {/* 페이지네이션 하단 고정 */}
+          <div className="mt-auto">
             <Pagination
               page={currentPage}
               size={itemsPerPage}

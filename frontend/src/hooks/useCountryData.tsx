@@ -24,6 +24,7 @@ export interface ArticleData {
   url: string;
   published_at: string;
   image_url: string;
+  news_id: string;
 }
 
 export interface VideoData {
