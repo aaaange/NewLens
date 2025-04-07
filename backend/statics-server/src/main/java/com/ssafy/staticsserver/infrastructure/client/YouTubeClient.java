@@ -38,6 +38,8 @@ public class YouTubeClient {
                 query += " " + keywordMind;
             }
 
+            if(regionCode.equals("한국")) regionCode = "KR";
+
             String url = UriComponentsBuilder.fromHttpUrl("https://www.googleapis.com/youtube/v3/search")
                     .queryParam("key", apiKey)
                     .queryParam("part", "snippet")
@@ -52,7 +54,6 @@ public class YouTubeClient {
 
             ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
             JsonNode items = response.getBody().get("items");
-            System.out.println(items.toString());
 
             results = new ArrayList<>();
 
