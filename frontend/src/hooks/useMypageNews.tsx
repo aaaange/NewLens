@@ -56,7 +56,7 @@ export const useScrapNews = () => {
   ): Promise<{ isScrap: boolean } | null> => {
     try {
       const response = await postScrapNewsApi({ news_id });
-      return response.data.data; // { isScrap: true/false } 리턴
+      return response.data; // { isScrap: true/false } 리턴
     } catch (err) {
       setError(err as Error);
       return null;
