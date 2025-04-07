@@ -107,6 +107,14 @@ const MainPage = () => {
   }, [debouncedKeyword, category, period, keyword_mind]);
   console.log(keyword_mind);
 
+  useEffect(() => {
+    if (firstRanking) {
+      setKeyword(firstRanking);
+      setKeywordMind('');
+      setDebouncedKeyword(firstRanking);
+    }
+  }, [firstRanking]);
+
   const headerString = [keyword, keyword_mind]
     .filter((item) => item && item.trim() !== '')
     .join(' > ');

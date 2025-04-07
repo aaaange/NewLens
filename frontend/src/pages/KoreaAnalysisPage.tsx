@@ -3,7 +3,7 @@ import SearchInput from '../components/common/SearchInput';
 import MindMap from '../components/common/MindMap';
 import KeywordRanking from '../components/common/KeywordRanking';
 import Category from '../components/common/Category';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const KoreaAnalysisPage = () => {
   const [category, setCategory] = useState('all');
@@ -16,18 +16,25 @@ const KoreaAnalysisPage = () => {
   const country: string = 'kr';
   const country_name: string = '대한민국';
 
+  const userTyped = useRef(false); // 사용자가 직접 입력했는지 여부
+
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    userTyped.current = true;
     setKeyword(e.target.value);
   };
   const handleMindMapKeywordChange = (newKeyword: string) => {
     setKeywordMind(newKeyword);
   };
   const handleInitKeywordChange = (newKeyword: string) => {
-    setInitialKeyword(newKeyword);
+    if (!userTyped.current) {
+      setKeyword(newKeyword);
+      setInitialKeyword(newKeyword);
+    }
   };
   const handleRankingKeywordChange = (newKeyword: string) => {
+    userTyped.current = false;
     setKeyword(newKeyword);
     setInitialKeyword(newKeyword);
   };
@@ -55,9 +62,12 @@ const KoreaAnalysisPage = () => {
         `}
         >
           <SearchInput
-            value={initialKeyword}
+            value={keyword}
             onChange={keywordInputChangeHandler}
-            onSearch={() => console.log('Search triggered')}
+            onSearch={() => {
+              setInitialKeyword(keyword);
+              userTyped.current = false;
+            }}
           />
           <MindMap
             keyword_mind={keyword_mind}
