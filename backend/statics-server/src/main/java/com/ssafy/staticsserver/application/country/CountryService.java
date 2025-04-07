@@ -553,6 +553,7 @@ public class CountryService {
                    // System.out.println("번역 후: " + translatedTitle);
 
                     return ArticleResponse.builder()
+                        .newsId(news.getId())
                             .title(translatedTitle)
                             .url(news.getUrl())
                             .publishedAt(news.getPublishedAt())
