@@ -1,7 +1,9 @@
 import Flag from 'react-world-flags';
 import NewsItem from './NewsItem';
+import { useScrapNews } from '../../hooks/useMypageNews';
 
 interface NewsItemType {
+  news_id: string;
   title: string;
   url: string;
   published_at: string;
@@ -26,6 +28,7 @@ const NewsList = ({
   country_code,
   handleModalOpen,
 }: NewsListProps) => {
+  const { fetchtAccessLog } = useScrapNews();
   const Flags = Flag as any; // Flag 컴포넌트의 타입을 any로 설정
 
   const headerString = [keyword, keyword_mind]
@@ -54,14 +57,16 @@ const NewsList = ({
 
       {/* 뉴스 리스트 영역 */}
       <div className="space-y-2 border-2 border-gray-500 rounded-lg">
+        {console.log('🔥 전체 news 배열:', news)}
         {news.map((item, index) => (
           <NewsItem
             // key={item.url}
             key={index}
             title={item.title} // 뉴스 제목
             url={item.url} // 뉴스 URL
-            publishedDate={item.published_at} // 뉴스 발행 날짜
-            imageUrl={item.image_url} // 뉴스 이미지 URL
+            published_at={item.published_at} // 뉴스 발행 날짜
+            image_url={item.image_url} // 뉴스 이미지 URL
+            onClick={() => fetchtAccessLog(item.news_id)}
           />
         ))}
       </div>

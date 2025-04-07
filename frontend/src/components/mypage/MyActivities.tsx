@@ -87,8 +87,8 @@ const MyActivities = () => {
                 <NewsItem
                   title={item.title}
                   url={item.url}
-                  publishedDate={item.published_at}
-                  imageUrl={item.image_url}
+                  published_at={item.published_at}
+                  image_url={item.image_url}
                 />
               </div>
             </div>

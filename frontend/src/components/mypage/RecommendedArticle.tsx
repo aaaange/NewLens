@@ -36,16 +36,16 @@ const RecommendedArticle = () => {
   } = useScrapNews();
 
   // 뉴스 스크랩
-  const toggleScrap = async (newsId: string) => {
+  const toggleScrap = async (news_id: string) => {
     try {
-      const res = await scrapNews(newsId);
+      const res = await scrapNews(news_id);
       if (!res) return;
 
       const { isScrap } = res;
 
       setArticles((prev) =>
         prev.map((item) =>
-          item.newsId === newsId ? { ...item, isScrap } : item
+          item.news_id === news_id ? { ...item, isScrap } : item
         )
       );
     } catch (err) {
@@ -64,14 +64,14 @@ const RecommendedArticle = () => {
   // if (loading) return <p>Loading...</p>;
 
   // 읽음 표시
-  // const markAsRead = (newsId: string) => {
-  //   setReadItems((prev) => (prev.includes(newsId) ? prev : [...prev, newsId]));
+  // const markAsRead = (news_id: string) => {
+  //   setReadItems((prev) => (prev.includes(news_id) ? prev : [...prev, news_id]));
   // };
 
   // 날짜별로 그룹
   const groupedArticles = articles.reduce(
     (acc: Record<string, any[]>, article, index) => {
-      const date = formatDate(article.publishedAt, 'day');
+      const date = formatDate(article.published_at, 'day');
       if (!acc[date]) acc[date] = [];
       acc[date].push({ ...article, _index: index });
       return acc;
@@ -89,10 +89,10 @@ const RecommendedArticle = () => {
 
             {/* 해당 날짜의 기사들 */}
             {articles.map((item) => (
-              <div key={item.newsId} className="flex items-center gap-4 mb-3">
+              <div key={item.news_id} className="flex items-center gap-4 mb-3">
                 {/* 북마크 버튼 */}
                 <button
-                  onClick={() => toggleScrap(item.newsId)}
+                  onClick={() => toggleScrap(item.news_id)}
                   className="cursor-pointer"
                 >
                   <Bookmark
@@ -108,19 +108,19 @@ const RecommendedArticle = () => {
                 {/* 뉴스 아이템 */}
                 <div
                   className="w-full cursor-pointer"
-                  // onClick={() => markAsRead(item.newsId)}
+                  // onClick={() => markAsRead(item.news_id)}
                 >
                   <NewsItem
                     title={item.title}
                     url={item.url}
-                    publishedDate={item.publishedAt}
-                    imageUrl={item.imageUrl}
+                    published_at={item.published_at}
+                    image_url={item.image_url}
                   />
                 </div>
 
                 {/* 읽음 여부 */}
                 <div>
-                  {/* {readItems.includes(item.newsId) ? (
+                  {/* {readItems.includes(item.news_id) ? (
                     <MailOpen size={20} className="text-blue-500" />
                   ) : (
                     <Mail size={20} className="text-gray-400" />
