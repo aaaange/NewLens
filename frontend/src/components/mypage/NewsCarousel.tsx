@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import 'keen-slider/keen-slider.min.css';
 import { useKeenSlider } from 'keen-slider/react';
-import { newsData } from '../worldDetail/MockData';
 import { ArrowLeft, ArrowRight, Bookmark } from 'lucide-react';
-import { useScrapNews } from '../../hooks/useMypageNews';
+import { useScrapNews, News } from '../../hooks/useMypageNews';
 
 export default function NewsCarousel() {
   const {
@@ -11,9 +10,9 @@ export default function NewsCarousel() {
     loading,
     error,
     scrapNews,
-    removeScrapNews,
     fetchNewsLog,
   } = useScrapNews();
+  const [articles, setArticles] = useState<News[]>([]);
 
   // 슬라이더 ref, 인스턴스 참조 가져오기
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
@@ -26,22 +25,28 @@ export default function NewsCarousel() {
   });
 
   // 뉴스 스크랩
-  const toggleScrap = async (newsId: string, isScrap: boolean) => {
-    try {
-      if (isScrap) {
-        await removeScrapNews(newsId);
-      } else {
-        await scrapNews(newsId);
-      }
-      await fetchNewsLog(); // 상태 갱신
-    } catch (err) {
-      console.error('스크랩 상태 변경 실패:', err);
+  const toggleScrap = async (newsId: string) => {
+    const result = await scrapNews(newsId);
+
+    if (result) {
+      const { isScrap } = result;
+      setArticles((prev) =>
+        prev.map((news) =>
+          news.newsId === newsId ? { ...news, isScrap } : news
+        )
+      );
+    } else {
+      console.error('스크랩 상태 갱신 실패!');
     }
   };
 
   useEffect(() => {
     fetchNewsLog();
   }, []);
+
+  useEffect(() => {
+    setArticles(logNewsList); // API에서 받아온 데이터 복사
+  }, [logNewsList]);
 
   if (loading) return <p>Loading...</p>;
 
@@ -63,16 +68,13 @@ export default function NewsCarousel() {
               <div className="relative">
                 {/* 북마크 버튼 */}
                 <button
-                  className="absolute z-10 m-2 bg-white hover:bg-gray-200 text-gray-800 rounded-full p-2 shadow cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleScrap(news.news_id, !!news.is_scrap); // 실제 API 호출
-                  }}
+                  onClick={() => toggleScrap(news.newsId)}
+                  className="cursor-pointer"
                 >
                   <Bookmark
                     size={20}
-                    className={`transition-colors duration-200 ${
-                      news.is_scrap
+                    className={`transition-colors ${
+                      news.isScrap
                         ? 'fill-yellow-400 text-yellow-400'
                         : 'text-gray-300'
                     }`}
@@ -81,7 +83,7 @@ export default function NewsCarousel() {
 
                 {/* 이미지 */}
                 <img
-                  src={news.image_url}
+                  src={news.imageUrl}
                   alt={news.title}
                   className="w-full h-40 object-cover"
                 />
@@ -92,7 +94,7 @@ export default function NewsCarousel() {
                 <h3 className="text-base font-semibold line-clamp-2 text-primary-900">
                   {news.title}
                 </h3>
-                <p className="text-xs text-gray-500 mt-2">{news.public_at}</p>
+                <p className="text-xs text-gray-500 mt-2">{news.publishedAt}</p>
               </div>
             </a>
           </div>
