@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class YouTubeClient {
 
+    private final GoogleClient googleClient;
     @Value("${YOUTUBE_API_KEY}")
     private String apiKey;
 
@@ -32,24 +33,28 @@ public class YouTubeClient {
         List<VideoResponse> results;
         try {
 
-
-            String query = keyword;
-            if (keywordMind != null && !keywordMind.isBlank()) {
-                query += " " + keywordMind;
-            }
-
             if(regionCode.equals("한국")) regionCode = "KR";
+
+            String languageCode = getLanguageCode(regionCode);
+            String translatedKeyword = googleClient.translateYoutube(keyword, languageCode);
+            String translatedKeywordMind = keywordMind != null ? googleClient.translateYoutube(keywordMind, languageCode) : null;
+
+
+            String query = translatedKeyword;
+            if (translatedKeywordMind != null && !translatedKeywordMind.isBlank()) {
+                query += " " + translatedKeywordMind;
+            }
 
             String url = UriComponentsBuilder.fromHttpUrl("https://www.googleapis.com/youtube/v3/search")
                     .queryParam("key", apiKey)
                     .queryParam("part", "snippet")
                     .queryParam("q", query)
                     .queryParam("regionCode", regionCode)
-//                .queryParam("relevanceLanguage", getLanguageCode(regionCode))
+                    .queryParam("relevanceLanguage", languageCode)
                     .queryParam("type", "video")
                     .queryParam("order", "relevance")
                     .queryParam("safeSearch", "moderate")
-                    .queryParam("maxResults", 10)
+                    .queryParam("maxResults", 5)
                     .toUriString();
 
             ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
@@ -66,9 +71,9 @@ public class YouTubeClient {
                     boolean containsKeywordMind = keywordMind != null && !keywordMind.isBlank()
                             && (title.contains(keywordMind) || description.contains(keywordMind));
 
-                    if (!containsKeyword && !containsKeywordMind) {
-                        continue;
-                    }
+//                    if (!containsKeyword && !containsKeywordMind) {
+//                        continue;
+//                    }
 
                     String videoId = item.get("id").get("videoId").asText();
                     String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
@@ -126,7 +131,6 @@ public class YouTubeClient {
             case "TR" -> "tr";
             case "GB" -> "en";
             case "US" -> "en";
-            case "EU" -> "en";
             default -> "en";
         };
     }
