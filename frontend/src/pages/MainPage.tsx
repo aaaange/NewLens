@@ -146,25 +146,35 @@ const MainPage = () => {
         />
         {/* 토글 버튼에 따른 세계 지도 렌더링 */}
         <div className="flex items-center justify-between w-full mt-[40px] mb-[10px]">
-          <div className="flex items-center">
-            {headerString && (
-              <img
-                src="/assets/images/newsicon.png"
-                className="mr-2"
-                alt="Earth Globe"
-                width={30}
-                height={30}
-              />
-            )}
-
-            <span className="text-amount-300 headline-large">
-              {headerString}
-            </span>
-            {headerString && (
-              <span className="caption-large text-gray-0 ml-2">
-                에 대한 분석 결과입니다.
-              </span>
-            )}
+          <div className="items-center flex">
+            <div>
+              {headerString && (
+                <img
+                  src="/assets/images/newsicon.png"
+                  className="mr-2"
+                  alt="Earth Globe"
+                  width={50}
+                  height={50}
+                />
+              )}
+            </div>
+            <div>
+              {firstRanking == keyword && (
+                <div className="body-small text-gray-0">
+                  실시간 가장 핫한 키워드!
+                </div>
+              )}
+              <div className="flex items-center">
+                <span className="text-amount-300 headline-xlarge">
+                  {headerString}
+                </span>
+                {headerString && (
+                  <span className="headline-small text-gray-0 ml-2">
+                    에 대한 분석 결과입니다.
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="w-[150px] h-[40px] flex justify-between rounded-[20px] overflow-hidden bg-primary-300 p-1">

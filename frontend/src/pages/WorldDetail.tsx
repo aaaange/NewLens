@@ -149,7 +149,7 @@ const WorldDetail = () => {
         <KeywordRanking
           category={category}
           period={period}
-          is_korea={firstCountry === 'KR'}
+          is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={() => {}}
