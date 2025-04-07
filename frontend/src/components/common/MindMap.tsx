@@ -39,6 +39,7 @@ const getRandomColor = () => {
 const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
   return (
     <div
+      title={data.fullLabel}
       style={{
         backgroundColor: data.backgroundColor || '#000',
         color: data.textColor || '#fff',
@@ -138,10 +139,10 @@ const MindMap = ({
         onKeywordChange('');
         // fetchWorldData('');
       } else {
-        setKeyword(node.data.label);
+        setKeyword(node.data.fullLabel);
         setSelectedNodeId(node.id);
-        onKeywordChange(node.data.label);
-        fetchWorldData(node.data.label);
+        onKeywordChange(node.data.fullLabel);
+        fetchWorldData(node.data.fullLabel);
       }
     },
     [selectedNodeId, onKeywordChange, fetchWorldData]
@@ -158,6 +159,7 @@ const MindMap = ({
       const response = await getMindMapApi(params);
 
       const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
+
       const truncateLabel = (label: string, maxLength: number = 4) => {
         return label.length > maxLength
           ? label.slice(0, maxLength) + '…'
@@ -181,8 +183,8 @@ const MindMap = ({
           type: 'custom',
           position: getCirclePosition(index, relatedKeywords.length),
           data: {
-            // label: truncateLabel(label),
-            label: label,
+            label: truncateLabel(label),
+            fullLabel: label,
             backgroundColor: getRandomColor(),
             textColor: '#fff',
           },

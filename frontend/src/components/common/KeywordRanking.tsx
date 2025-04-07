@@ -48,7 +48,9 @@ const KeywordRanking = ({
     try {
       const response = await getKeywordRankingApi(category, period, is_korea);
       const { keywords: apiKeywords } = response.data;
-      handleInitKeywordChange(apiKeywords[0].name); // 첫 번째 키워드로 초기화
+      if (apiKeywords.length > 0) {
+        handleInitKeywordChange(apiKeywords[0].name); // 기간 1일 선택 시 data가 빈 배열로 넘어올 경우 대비
+      } // 첫 번째 키워드로 초기화
 
       const newKeywords: Keyword[] = apiKeywords.map(
         (keyword: { name: string; state: string }, index: number) => {
