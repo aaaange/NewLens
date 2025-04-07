@@ -37,7 +37,6 @@ const getRandomColor = () => {
 };
 
 const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
-  console.log('CustomNode data:', data);
   return (
     <div
       title={data.fullLabel}

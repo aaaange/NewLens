@@ -57,7 +57,6 @@ const NewsList = ({
 
       {/* 뉴스 리스트 영역 */}
       <div className="space-y-2 border-2 border-gray-500 rounded-lg">
-        {console.log('🔥 전체 news 배열:', news)}
         {news.map((item, index) => (
           <NewsItem
             // key={item.url}
