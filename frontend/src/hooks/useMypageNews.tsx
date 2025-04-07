@@ -3,7 +3,7 @@ import {
   getScrapNewsApi,
   postScrapNewsApi,
   // deleteScrapNewsApi,
-  getNewslogApi,
+  postNewslogApi,
   getRecommendNewsApi,
 } from '../services/api/mypageService';
 
@@ -75,7 +75,7 @@ export const useScrapNews = () => {
   const fetchNewsLog = async () => {
     try {
       setLoading(true);
-      const response = await getNewslogApi();
+      const response = await postNewslogApi();
       setLogNewsList(response.data.news); // 응답 형식 다시 확인하기기
     } catch (err) {
       setError(err as Error);

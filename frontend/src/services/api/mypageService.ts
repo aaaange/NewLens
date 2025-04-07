@@ -27,7 +27,7 @@ export const getRecommendNewsApi = async () => {
 };
 
 // log 관련 api
-export const getNewslogApi = async () => {
-  const response = await api.get('log/news');
+export const postNewslogApi = async () => {
+  const response = await api.post('user/log/news');
   return response.data;
 };
