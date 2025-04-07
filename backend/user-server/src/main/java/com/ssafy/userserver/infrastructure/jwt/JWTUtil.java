@@ -1,6 +1,8 @@
 package com.ssafy.userserver.infrastructure.jwt;
 
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,22 +19,29 @@ public class JWTUtil {
 	private SecretKey secretKey;
 
 	public JWTUtil(@Value("${jwt.secret-key}") String secret) {
-		secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+		secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
+			Jwts.SIG.HS256.key().build().getAlgorithm());
 	}
 
 	public String getEmail(String token) {
 
-		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
+		return Jwts.parser().verifyWith(secretKey).build()
+			.parseSignedClaims(token).getPayload()
+			.get("email", String.class);
 	}
 
 	public String getNickname(String token) {
 
-		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("nickname", String.class);
+		return Jwts.parser().verifyWith(secretKey).build()
+			.parseSignedClaims(token).getPayload()
+			.get("nickname", String.class);
 	}
 
 	public Boolean isExpired(String token) {
 
-		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+		return Jwts.parser().verifyWith(secretKey)
+			.build().parseSignedClaims(token).getPayload()
+			.getExpiration().before(new Date());
 	}
 
 	public String createJwt(String email, String nickname, Long expiredMs) {
@@ -44,6 +53,32 @@ public class JWTUtil {
 			.expiration(new Date(System.currentTimeMillis() + expiredMs))
 			.signWith(secretKey)
 			.compact();
+	}
+
+	public String refreshAccessToken(String refreshToken, Long newAccessTokenExpiration) {
+		// refresh token 만료 체크
+		if (isExpired(refreshToken)) {
+			throw new JwtException("Refresh token expired");
+		}
+		// refresh token에서 email, nickname 정보 추출
+		String email = getEmail(refreshToken);
+		String nickname = getNickname(refreshToken);
+		// 새 access token 발급
+		return createJwt(email, nickname, newAccessTokenExpiration);
+	}
+
+	public String extractRefreshToken(HttpServletRequest request) {
+		String refreshToken = null;
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if ("refreshToken".equals(cookie.getName())) {
+					refreshToken = cookie.getValue();
+					break;
+				}
+			}
+		}
+		return refreshToken;
 	}
 
 	// private final JwtConfig jwtConfig;
