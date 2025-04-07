@@ -181,7 +181,8 @@ const MindMap = ({
           type: 'custom',
           position: getCirclePosition(index, relatedKeywords.length),
           data: {
-            label: truncateLabel(label),
+            // label: truncateLabel(label),
+            label: label,
             backgroundColor: getRandomColor(),
             textColor: '#fff',
           },
