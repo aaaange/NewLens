@@ -43,14 +43,14 @@ const KoreaAnalysisPage = () => {
       {/* 사이드바 */}
       <div
         className={`
-        overflow-hidden transition-all duration-500 ease-in-out
-        ${isSidebarOpen ? 'w-[20rem] mr-6' : 'w-0 mr-0'}
+        absolute left-22 overflow-hidden transition-all duration-500 ease-in-out
+        ${isSidebarOpen ? 'w-[21rem]' : 'w-0'}
       `}
       >
         <div
           className={`
           transition-all duration-500 ease-in-out
-          ${isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}
+          ${isSidebarOpen ? 'opacity-100 px-4' : 'opacity-0 px-0 py-0 pointer-events-none'}
           flex flex-col gap-5
         `}
         >
@@ -82,17 +82,31 @@ const KoreaAnalysisPage = () => {
       {/* 토글 버튼 */}
       <button
         className={`
-        absolute top-2 z-10 bg-white text-black rounded px-2 py-1 shadow
+        absolute  z-10 text-black rounded shadow
         transition-all duration-500 ease-in-out
-        ${isSidebarOpen ? 'left-[1rem]' : 'left-2'}
+        ${isSidebarOpen ? 'left-[1rem] px-2' : 'left-2 px-20'}
       `}
         onClick={() => setIsSidebarOpen((prev) => !prev)}
       >
-        {isSidebarOpen ? '←' : '→'}
+        {isSidebarOpen ? (
+          <img
+            src="/assets/images/curtain_left_expand_left.png"
+            alt=""
+            className="w-12 h-12"
+          />
+        ) : (
+          <img
+            src="/assets/images/curtain_right_expand_right.png"
+            alt=""
+            className="w-12 h-12"
+          />
+        )}
       </button>
 
       {/* 메인 콘텐츠 */}
-      <div className="flex flex flex-col items-center justify-center gap-3 transition-all duration-500 ease-in-out">
+      <div
+        className={`flex flex-col items-center  gap-3 transition-all duration-500 ease-in-out ${isSidebarOpen ? 'ml-[23rem]' : 'ml-0'}`}
+      >
         <Category
           isCategory={category}
           isPeriod={period}
