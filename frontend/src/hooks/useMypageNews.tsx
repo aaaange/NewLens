@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   getScrapNewsApi,
   postScrapNewsApi,
-  deleteScrapNewsApi,
+  // deleteScrapNewsApi,
   getNewslogApi,
   getRecommendNewsApi,
 } from '../services/api/mypageService';
@@ -12,20 +12,20 @@ export interface ScrapNewsGetParams {
 }
 
 export interface ScrapNewsActionParams {
-  news_id: string;
+  newsId: string;
 }
 
 export interface News {
-  news_id: string;
+  newsId: string;
   title: string;
   url: string;
-  public_at: string;
+  publishedAt: string;
   country: string;
   keywords: string[];
-  image_url: string;
+  imageUrl: string;
 
   // 선택적 필드로 선언
-  is_scrap?: boolean;
+  isScrap?: boolean;
   visited_at?: string;
 }
 
@@ -50,22 +50,26 @@ export const useScrapNews = () => {
   };
 
   // POST SCRAP
-  const scrapNews = async (newsId: string) => {
+  const scrapNews = async (
+    newsId: string
+  ): Promise<{ isScrap: boolean } | null> => {
     try {
-      await postScrapNewsApi({ news_id: newsId });
+      const response = await postScrapNewsApi({ newsId });
+      return response.data.data; // { isScrap: true/false } 리턴
     } catch (err) {
       setError(err as Error);
+      return null;
     }
   };
 
   // DELETE SCRAP
-  const removeScrapNews = async (newsId: string) => {
-    try {
-      await deleteScrapNewsApi({ news_id: newsId });
-    } catch (err) {
-      setError(err as Error);
-    }
-  };
+  // const removeScrapNews = async (newsId: string) => {
+  //   try {
+  //     await deleteScrapNewsApi({ newsId: newsId });
+  //   } catch (err) {
+  //     setError(err as Error);
+  //   }
+  // };
 
   // GET LOG
   const fetchNewsLog = async () => {
@@ -101,7 +105,7 @@ export const useScrapNews = () => {
     error,
     fetchScrapNews,
     scrapNews,
-    removeScrapNews,
+    // removeScrapNews,
     fetchNewsLog,
     fetchRecommendNews,
   };
