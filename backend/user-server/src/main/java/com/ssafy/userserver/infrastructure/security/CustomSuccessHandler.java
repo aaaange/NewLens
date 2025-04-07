@@ -50,7 +50,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 		response.addCookie(createCookie("RefreshToken", refreshToken));
 
-		String redirectUrl = "http://localhost:5173/main"
+		String redirectUrl = "http://www.newlens.co.kr/main"
 			+ "?accessToken=" + accessToken;
 		response.sendRedirect(redirectUrl);
 
