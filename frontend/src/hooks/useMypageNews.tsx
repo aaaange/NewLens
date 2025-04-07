@@ -3,8 +3,9 @@ import {
   getScrapNewsApi,
   postScrapNewsApi,
   // deleteScrapNewsApi,
-  getNewslogApi,
+  postNewslogApi,
   getRecommendNewsApi,
+  postAccessLogApi,
 } from '../services/api/mypageService';
 
 export interface ScrapNewsGetParams {
@@ -12,20 +13,20 @@ export interface ScrapNewsGetParams {
 }
 
 export interface ScrapNewsActionParams {
-  newsId: string;
+  news_id: string;
 }
 
 export interface News {
-  newsId: string;
+  news_id: string;
   title: string;
   url: string;
-  publishedAt: string;
+  published_at: string;
   country: string;
   keywords: string[];
-  imageUrl: string;
+  image_url: string;
 
   // 선택적 필드로 선언
-  isScrap?: boolean;
+  is_scrap?: boolean;
   visited_at?: string;
 }
 
@@ -51,11 +52,11 @@ export const useScrapNews = () => {
 
   // POST SCRAP
   const scrapNews = async (
-    newsId: string
+    news_id: string
   ): Promise<{ isScrap: boolean } | null> => {
     try {
-      const response = await postScrapNewsApi({ newsId });
-      return response.data.data; // { isScrap: true/false } 리턴
+      const response = await postScrapNewsApi({ news_id });
+      return response.data; // { isScrap: true/false } 리턴
     } catch (err) {
       setError(err as Error);
       return null;
@@ -63,24 +64,38 @@ export const useScrapNews = () => {
   };
 
   // DELETE SCRAP
-  // const removeScrapNews = async (newsId: string) => {
+  // const removeScrapNews = async (news_id: string) => {
   //   try {
-  //     await deleteScrapNewsApi({ newsId: newsId });
+  //     await deleteScrapNewsApi({ news_id: news_id });
   //   } catch (err) {
   //     setError(err as Error);
   //   }
   // };
 
-  // GET LOG
+  // LOG 조회
   const fetchNewsLog = async () => {
     try {
       setLoading(true);
-      const response = await getNewslogApi();
+      const response = await postNewslogApi();
       setLogNewsList(response.data.news); // 응답 형식 다시 확인하기기
     } catch (err) {
       setError(err as Error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // LOG 기록
+  const fetchtAccessLog = async (news_id: string) => {
+    try {
+      const response = await postAccessLogApi({ news_id });
+      console.log(news_id);
+      
+      return response.data;
+
+    } catch (err) {
+      setError(err as Error);
+      return null;
     }
   };
 
@@ -105,8 +120,8 @@ export const useScrapNews = () => {
     error,
     fetchScrapNews,
     scrapNews,
-    // removeScrapNews,
     fetchNewsLog,
+    fetchtAccessLog,
     fetchRecommendNews,
   };
 };

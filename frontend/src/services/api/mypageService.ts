@@ -27,7 +27,14 @@ export const getRecommendNewsApi = async () => {
 };
 
 // log 관련 api
-export const getNewslogApi = async () => {
-  const response = await api.get('log/news');
+// log 조회
+export const postNewslogApi = async () => {
+  const response = await api.post('user/log/news');
+  return response.data;
+};
+
+// log 기록
+export const postAccessLogApi = async (data:ScrapNewsActionParams) => {
+  const response = await api.post('user/log/access', data);
   return response.data;
 };
