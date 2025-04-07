@@ -5,13 +5,8 @@ import { ArrowLeft, ArrowRight, Bookmark } from 'lucide-react';
 import { useScrapNews, News } from '../../hooks/useMypageNews';
 
 export default function NewsCarousel() {
-  const {
-    logNewsList,
-    loading,
-    error,
-    scrapNews,
-    fetchNewsLog,
-  } = useScrapNews();
+  const { logNewsList, loading, error, scrapNews, fetchNewsLog } =
+    useScrapNews();
   const [articles, setArticles] = useState<News[]>([]);
 
   // 슬라이더 ref, 인스턴스 참조 가져오기
@@ -20,19 +15,19 @@ export default function NewsCarousel() {
       perView: 3,
       spacing: 15,
     },
-    mode: 'snap',
     loop: false,
+    mode: 'snap',
   });
 
   // 뉴스 스크랩
-  const toggleScrap = async (newsId: string) => {
-    const result = await scrapNews(newsId);
+  const toggleScrap = async (news_id: string) => {
+    const result = await scrapNews(news_id);
 
     if (result) {
       const { isScrap } = result;
       setArticles((prev) =>
         prev.map((news) =>
-          news.newsId === newsId ? { ...news, isScrap } : news
+          news.news_id === news_id ? { ...news, isScrap } : news
         )
       );
     } else {
@@ -48,6 +43,12 @@ export default function NewsCarousel() {
     setArticles(logNewsList); // API에서 받아온 데이터 복사
   }, [logNewsList]);
 
+  useEffect(() => {
+    if (instanceRef.current) {
+      instanceRef.current.update();
+    }
+  }, [articles]);
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -62,43 +63,52 @@ export default function NewsCarousel() {
 
       {/* 슬라이더 본체 */}
       <div ref={sliderRef} className="keen-slider">
-        {logNewsList.map((news) => (
-          <div className="keen-slider__slide rounded overflow-hidden shadow bg-white">
-            <a href={news.url} target="_blank" rel="noopener noreferrer">
-              <div className="relative">
-                {/* 북마크 버튼 */}
-                <button
-                  onClick={() => toggleScrap(news.newsId)}
-                  className="cursor-pointer"
-                >
-                  <Bookmark
-                    size={20}
-                    className={`transition-colors ${
-                      news.isScrap
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                </button>
-
-                {/* 이미지 */}
-                <img
-                  src={news.imageUrl}
-                  alt={news.title}
-                  className="w-full h-40 object-cover"
-                />
-              </div>
-
-              {/* 텍스트 */}
-              <div className="p-4">
-                <h3 className="text-base font-semibold line-clamp-2 text-primary-900">
-                  {news.title}
-                </h3>
-                <p className="text-xs text-gray-500 mt-2">{news.publishedAt}</p>
-              </div>
-            </a>
+        {articles.length === 0 ? (
+          <div className=" flex items-center justify-center w-full h-60 rounded text-white text-lg">
+            최근 본 뉴스가 없어요 🗞️
           </div>
-        ))}
+        ) : (
+          articles.map((news) => (
+            <div
+              key={news.news_id}
+              className="keen-slider__slide rounded overflow-hidden shadow bg-white w-lg"
+            >
+              <a href={news.url} target="_blank" rel="noopener noreferrer">
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault(); // 링크 이동 막기
+                      toggleScrap(news.news_id);
+                    }}
+                    className="cursor-pointer p-2 m-2"
+                  >
+                    <Bookmark
+                      size={20}
+                      className={`transition-colors ${
+                        news.is_scrap
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  </button>
+                  <img
+                    src={news.image_url}
+                    alt={news.title}
+                    className="w-full h-40 object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-base font-semibold line-clamp-2 text-primary-900">
+                    {news.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {news.published_at}
+                  </p>
+                </div>
+              </a>
+            </div>
+          ))
+        )}
       </div>
 
       {/* 오른쪽 버튼 */}

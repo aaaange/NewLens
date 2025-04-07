@@ -55,6 +55,7 @@ export const mentionData: MentionData[] = [
 ];
 
 export type NewsItemType = {
+  news_id: string;
   title: string;
   url: string;
   published_at: string;
@@ -63,6 +64,7 @@ export type NewsItemType = {
 
 export const newsData: NewsItemType[] = [
   {
+    news_id: 'news-1',
     title: 'AI 기술의 발전과 미래',
     url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
     published_at: '2025-03-11',
@@ -70,6 +72,7 @@ export const newsData: NewsItemType[] = [
       'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
   },
   {
+    news_id: 'news-2',
     title: '챗봇이 바꾸는 고객 서비스',
     url: 'https://n.news.naver.com/article/366/0001062129?cds=news_media_pc&type=editn',
     published_at: '2025-03-10',
@@ -77,6 +80,7 @@ export const newsData: NewsItemType[] = [
       'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
   },
   {
+    news_id: 'news-3',
     title: '챗봇이 바꾸는 고객 서비스',
     url: 'https://n.news.naver.com/mnews/article/018/0005968438',
     published_at: '2025-03-10',
@@ -84,6 +88,7 @@ export const newsData: NewsItemType[] = [
       'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
   },
   {
+    news_id: 'news-4',
     title: '챗봇이 바꾸는 고객 서비스',
     url: 'https://n.news.naver.com/mnews/article/011/0004464558',
     published_at: '2025-03-10',
@@ -91,6 +96,7 @@ export const newsData: NewsItemType[] = [
       'https://mimgnews.pstatic.net/image/origin/366/2025/03/19/1062129.jpg?type=nf168_108&ut=20250319124606',
   },
   {
+    news_id: 'news-5',
     title: '챗봇이 바꾸는 고객 서비스',
     url: 'https://n.news.naver.com/mnews/article/277/0005565230',
     published_at: '2025-03-10',
