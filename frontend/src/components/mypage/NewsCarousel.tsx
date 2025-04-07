@@ -15,8 +15,8 @@ export default function NewsCarousel() {
       perView: 3,
       spacing: 15,
     },
-    mode: 'snap',
     loop: false,
+    mode: 'snap',
   });
 
   // 뉴스 스크랩
@@ -43,6 +43,12 @@ export default function NewsCarousel() {
     setArticles(logNewsList); // API에서 받아온 데이터 복사
   }, [logNewsList]);
 
+  useEffect(() => {
+    if (instanceRef.current) {
+      instanceRef.current.update();
+    }
+  }, [articles]);
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -58,21 +64,20 @@ export default function NewsCarousel() {
       {/* 슬라이더 본체 */}
       <div ref={sliderRef} className="keen-slider">
         {articles.length === 0 ? (
-          <div className="keen-slider__slide flex flex-col items-center justify-center bg-gray-100 h-60 rounded text-white opacity-20 text-lg">
-            <div className='text-white'>최근 본 뉴스가 없어요</div>
-            <div>🗞️</div>
+          <div className="keen-slider__slide flex items-center justify-center bg-gray-100 h-60 rounded text-white opacity-20 text-lg">
+            최근 본 뉴스가 없어요 🗞️
           </div>
         ) : (
           articles.map((news) => (
             <div
               key={news.news_id}
-              className="keen-slider__slide rounded overflow-hidden shadow bg-white"
+              className="keen-slider__slide rounded overflow-hidden shadow bg-white w-lg"
             >
               <a href={news.url} target="_blank" rel="noopener noreferrer">
                 <div className="relative">
                   <button
                     onClick={() => toggleScrap(news.news_id)}
-                    className="cursor-pointer"
+                    className="cursor-pointer p-2 m-2"
                   >
                     <Bookmark
                       size={20}

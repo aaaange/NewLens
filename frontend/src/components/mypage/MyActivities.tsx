@@ -68,32 +68,8 @@ const MyActivities = () => {
         </div>
       </div>
       <div>
-        <h2 className="text-2xl">최근 본 NEWS</h2>
+        <h2 className="text-2xl mb-4">최근 본 NEWS</h2>
         <NewsCarousel />
-        <div className=" rounded-lg">
-          {safeData.articles.map((item, index) => (
-            <div key={index} className="flex items-center gap-4">
-              {/* 북마크 버튼 */}
-              <button
-                onClick={() => toggleBookmark(index)}
-                className="cursor-pointer"
-              >
-                <Bookmark
-                  size={20}
-                  className={`transition-colors ${bookmarks.includes(index) ? 'fill-amount-300 text-amount-300' : 'text-gray-300'}`}
-                />
-              </button>
-              <div className="w-full">
-                <NewsItem
-                  title={item.title}
-                  url={item.url}
-                  published_at={item.published_at}
-                  image_url={item.image_url}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
