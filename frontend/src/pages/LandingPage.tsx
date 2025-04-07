@@ -86,12 +86,12 @@ const LandingPage = () => {
       />
 
       {/* Dot Navigation */}
-      <div className="fixed right-[2vw] top-1/2 -translate-y-1/2 z-50 flex flex-col gap-[16px]">
+      <div className="fixed right-[2vw] top-1/2 -translate-y-1/2 z-50 flex flex-col gap-[1.5vh]">
         {sectionRefs.map((_, i) => (
           <button
             key={i}
             onClick={() => scrollToSection(i)}
-            className={`w-[8px] h-[8px] rounded-full cursor-pointer transition-all duration-300 ${
+            className={`w-[0.4vw] h-[0.4vw] rounded-full cursor-pointer transition-all duration-300 ${
               currentSectionIndex === i
                 ? 'bg-amount-300 scale-130'
                 : 'bg-gray-300'
