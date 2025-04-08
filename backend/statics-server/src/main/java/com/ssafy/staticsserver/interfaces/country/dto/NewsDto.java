@@ -18,6 +18,7 @@ public class NewsDto {
 	private LocalDateTime publishedAt;
 	private String imageUrl;
 	private List<String> keywords;
+	private boolean isScrap;
 
 	@Override
 	public String toString() {
