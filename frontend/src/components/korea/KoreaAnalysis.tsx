@@ -17,6 +17,7 @@ import {
   description,
   videos,
 } from '../worldDetail/MockData';
+import GlobalSpinner from '../common/GlobalSpinner';
 
 interface KoreaAnalysisProps {
   country: string;
@@ -69,7 +70,7 @@ const KoreaAnalysis = ({
     error: error_GPT,
   } = useDescription(koreaParams);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <GlobalSpinner />;
   // if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
 
   // 서버 응답 없을 경우 목데이터로 대체
