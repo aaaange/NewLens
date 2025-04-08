@@ -71,11 +71,6 @@ const Header = () => {
               </div>
               {isLogin ? (
                 <div className="flex items-center gap-4">
-                  <div className="w-[47px]">
-                    <Link to="/">
-                      <img src="/assets/images/signout.png" alt="로그아웃" />
-                    </Link>
-                  </div>
                   <div className="w-[30px]">
                     <Link to="/mypage">
                       <img src="/assets/images/notifi.png" alt="알람" />
