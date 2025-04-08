@@ -368,9 +368,17 @@ public class CountryService {
             }));
 
             List<String> idList = sliceScroll(boolQuery, index);
-            String token = request.getHeader("Authorization");
-            String email = jwtUtil.getEmail(token);
 
+            String token = request.getHeader("Authorization");
+            String email = null;
+
+            if (token != null && !token.isBlank()) {
+                try {
+                    email = jwtUtil.getEmail(token);
+                } catch (Exception e) {
+                    System.out.println("액세스 토큰 만료 or 이상함: " + e.getMessage());
+                }
+            }
 
             NewsModalRequest payload = NewsModalRequest.builder()
                 .newsIds(idList)
