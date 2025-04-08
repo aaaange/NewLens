@@ -37,11 +37,11 @@ const Section6 = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div
       ref={ref}
-      className="min-h-screen flex flex-col justify-center items-center p-[40px] gap-[40px] bg-gray-0"
+      className="min-h-screen flex flex-col justify-center items-center p-[40px] gap-[40px] bg-primary-100"
     >
       <div ref={innerRef} className="flex flex-col items-center gap-[40px]">
         <img
-          src="/assets/images/newlens-logo.png"
+          src="/assets/images/newlens-logo1.png"
           alt="로고"
           className="w-[260px] h-[145px]"
         />
@@ -50,7 +50,7 @@ const Section6 = forwardRef<HTMLDivElement>((_, ref) => {
         </p>
         <Link
           to="/login"
-          className="flex items-center justify-center border-2 border-amount-300 w-[270px] h-[60px] mt-[40px] rounded-[20px] text-gray-700 body-medium-bold hover:bg-amount-300 hover:text-gray-700"
+          className="flex items-center justify-center bg-amount-300 w-[270px] h-[60px] mt-[40px] rounded-[20px] text-gray-700 body-medium-bold hover:bg-amount-400 hover:text-gray-700"
         >
           <p className="text-gray-950">지금 시작하기</p>
         </Link>
