@@ -177,8 +177,8 @@ const MainPage = () => {
           periodChangeHandler={periodChangeHandler}
         />
         {/* 토글 버튼에 따른 세계 지도 렌더링 */}
-        <div className="flex items-center justify-between w-full mt-[40px] mb-[10px]">
-          <div className="items-center flex">
+        <div className="flex items-center justify-between w-full mt-[40px] mb-[10px] min-h-12">
+          <div className="items-center flex ">
             <div>
               {headerString && (
                 <img
