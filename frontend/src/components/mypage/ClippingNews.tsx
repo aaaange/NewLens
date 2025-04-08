@@ -10,6 +10,7 @@ import {
 import { useScrapNews, News } from '../../hooks/useMypageNews';
 import { toast } from 'react-toastify';
 import Pagination from '../common/Pagination';
+import GlobalSpinner from '../common/GlobalSpinner';
 
 const ClippingNews = () => {
   const [page, setPage] = useState(1);
@@ -62,7 +63,7 @@ const ClippingNews = () => {
     setPage(newPage);
   };
 
-  // if (loading) return <p>로딩 중...</p>;
+  if (loading) return <GlobalSpinner />
 
   return (
     <div>
