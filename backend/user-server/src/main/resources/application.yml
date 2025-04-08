@@ -35,7 +35,7 @@ spring:
 #            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/google
 #            redirect-uri: http://localhost:9001/login/oauth2/code/google
 #            redirect-uri: https://postmantest.com/oauth/callback
-            redirect-uri: https://www.newlens.co.kr/api/user/login/oauth2/code/google
+            redirect-uri: http://www.newlens.co.kr/api/user/login/oauth2/code/google
             authorization-grant-type: authorization_code           
             scope:
               - profile
