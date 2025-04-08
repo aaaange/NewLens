@@ -4,6 +4,7 @@ import { useKeenSlider } from 'keen-slider/react';
 import { ArrowLeft, ArrowRight, Bookmark } from 'lucide-react';
 import { useScrapNews, News } from '../../hooks/useMypageNews';
 import GlobalSpinner from '../common/GlobalSpinner';
+import { formatDate } from '../../utils/formatDateUtils';
 
 export default function NewsCarousel() {
   const { logNewsList, loading, error, scrapNews, fetchNewsLog } =
@@ -25,10 +26,10 @@ export default function NewsCarousel() {
     const result = await scrapNews(news_id);
 
     if (result) {
-      const { isScrap } = result;
+      const { is_scrap } = result;
       setArticles((prev) =>
         prev.map((news) =>
-          news.news_id === news_id ? { ...news, isScrap } : news
+          news.news_id === news_id ? { ...news, is_scrap } : news
         )
       );
     } else {
@@ -50,7 +51,7 @@ export default function NewsCarousel() {
     }
   }, [articles]);
 
-  if (loading) return <GlobalSpinner />
+  if (loading) return <GlobalSpinner />;
 
   return (
     <div className="relative max-w-5xl mx-auto px-4">
@@ -72,7 +73,7 @@ export default function NewsCarousel() {
           articles.map((news) => (
             <div
               key={news.news_id}
-              className="keen-slider__slide rounded overflow-hidden shadow bg-primary-800 w-lg"
+              className="keen-slider__slide rounded overflow-hidden shadow bg-primary-900 w-lg"
             >
               <a href={news.url} target="_blank" rel="noopener noreferrer">
                 <div className="relative">
@@ -99,11 +100,11 @@ export default function NewsCarousel() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-base font-semibold line-clamp-2 text-primary-900">
+                  <h3 className="text-base font-semibold line-clamp-2 text-white">
                     {news.title}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {news.published_at}
+                  <p className="text-xs text-gray-300 mt-2">
+                    {formatDate(news.published_at, 'full')}
                   </p>
                 </div>
               </a>

@@ -29,10 +29,10 @@ const ClippingNews = () => {
       const res = await scrapNews(news_id);
       if (!res) return;
 
-      const { isScrap } = res;
+      const { is_scrap } = res;
 
       // 스크랩이 해제된 경우만 UI에서 제거
-      if (!isScrap) {
+      if (!is_scrap) {
         setArticles((prev) => prev.filter((item) => item.news_id !== news_id));
       }
     } catch (err) {
