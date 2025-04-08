@@ -53,15 +53,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String redirectUrl = "http://www.newlens.co.kr/main"
 			+ "?accessToken=" + accessToken;
 		response.sendRedirect(redirectUrl);
-
-		// // JSON 응답을 통해 accessToken을 전달
-		// response.setContentType("application/json");
-		// response.getWriter().write("{\"accessToken\": \"" + accessToken + "\"}");
-		// response.getWriter().flush();
-
-		// response.setHeader("Authorization", "Bearer " + accessToken);
-		// response.addCookie(createCookie("RefreshToken", refreshToken));
-		// response.sendRedirect("https://www.newlens.co.kr/main");
 	}
 
 	private Cookie createCookie(String key, String value) {
