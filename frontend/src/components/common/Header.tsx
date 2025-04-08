@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 const Header = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    setIsLogin(accessToken !== null);
-  }, []);
+  const { accessToken, clearAccessToken } = useAuthStore();
+  const isLogin = !!accessToken;
   return (
     <div>
       <header>
