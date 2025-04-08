@@ -445,9 +445,7 @@ const Map = ({
     };
   }, [mentionData, sentimentData, tabId]);
 
-  return (
-    <div ref={chartContainerRef} className="w-[930px] h-[800px] mx-auto" />
-  );
+  return <div ref={chartContainerRef} className="w-[930px] h-full mx-auto" />;
 };
 
 export default Map;
