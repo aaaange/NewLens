@@ -3,6 +3,7 @@ import 'keen-slider/keen-slider.min.css';
 import { useKeenSlider } from 'keen-slider/react';
 import { ArrowLeft, ArrowRight, Bookmark } from 'lucide-react';
 import { useScrapNews, News } from '../../hooks/useMypageNews';
+import GlobalSpinner from '../common/GlobalSpinner';
 
 export default function NewsCarousel() {
   const { logNewsList, loading, error, scrapNews, fetchNewsLog } =
@@ -49,7 +50,7 @@ export default function NewsCarousel() {
     }
   }, [articles]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <GlobalSpinner />
 
   return (
     <div className="relative max-w-5xl mx-auto px-4">
@@ -71,7 +72,7 @@ export default function NewsCarousel() {
           articles.map((news) => (
             <div
               key={news.news_id}
-              className="keen-slider__slide rounded overflow-hidden shadow bg-white w-lg"
+              className="keen-slider__slide rounded overflow-hidden shadow bg-primary-800 w-lg"
             >
               <a href={news.url} target="_blank" rel="noopener noreferrer">
                 <div className="relative">

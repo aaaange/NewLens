@@ -12,6 +12,7 @@ import {
   videos,
 } from '../worldDetail/MockData';
 import { useScrapNews, News } from '../../hooks/useMypageNews';
+import GlobalSpinner from '../common/GlobalSpinner';
 
 const safeData = {
   keywords: words,
@@ -61,7 +62,7 @@ const RecommendedArticle = () => {
     setArticles(recommendNewsList); // API에서 받은 데이터로 초기화
   }, [recommendNewsList]);
 
-  // if (loading) return <p>Loading...</p>;
+  if (loading) return <GlobalSpinner />;
 
   // 읽음 표시
   // const markAsRead = (news_id: string) => {
