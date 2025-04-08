@@ -2,6 +2,7 @@ package com.ssafy.userserver.infrastructure.security;
 
 import com.ssafy.userserver.domain.dto.GoogleResponse;
 import com.ssafy.userserver.domain.dto.OAuth2Response;
+import com.ssafy.userserver.domain.dto.SsafyResponse;
 import com.ssafy.userserver.domain.dto.UserDTO;
 import com.ssafy.userserver.domain.entity.User;
 import com.ssafy.userserver.domain.entity.UserProvider;
@@ -43,6 +44,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
 		}
 		else if (registrationId.equals("ssafy")) {
+			oAuth2Response = new SsafyResponse(oAuth2User.getAttributes());
 		}
 		else {
 			return null;
