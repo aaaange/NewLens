@@ -38,6 +38,8 @@ const WorldDetail = () => {
   const [keyword_mind, setKeywordMind] = useState(initialKeywordMind ?? '');
   const [keyword_cloud, setKeywordCloud] = useState('');
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   const shouldCallCompare =
     secondCountry !== '' && category && period && keyword;
 
@@ -134,13 +136,38 @@ const WorldDetail = () => {
   };
 
   return (
-    <div className="mt-5 flex gap-10 justify-center">
-      <div className="flex flex-col gap-5">
-        <SearchInput
-          value={keyword}
-          onChange={keywordInputChangeHandler}
-          onSearch={() => console.log('Search triggered')}
-        />
+    <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
+      {/* 버튼 */}
+      <div className="flex flex-col items-start justify-start pt-1 px-4">
+        <button
+          className="w-10 h-10 cursor-pointer"
+          onClick={() => setIsSidebarOpen((prev) => !prev)}
+        >
+          <img
+            src={
+              isSidebarOpen
+                ? '/assets/images/slide_left.png'
+                : '/assets/images/slide_right.png'
+            }
+            alt="사이드바 토글"
+            className="w-10 h-10 m-auto"
+          />
+        </button>
+      </div>
+
+      {/* 사이드바 */}
+      <div
+        className={`transition-all duration-500 ease-in-out overflow-hidden
+      ${isSidebarOpen ? 'w-[24rem] px-8 opacity-100' : 'w-0 px-0 opacity-0 pointer-events-none'}
+      flex flex-col gap-5`}
+      >
+        <div className="flex items-center gap-2">
+          <SearchInput
+            value={keyword}
+            onChange={keywordInputChangeHandler}
+            onSearch={() => console.log('Search triggered')}
+          />
+        </div>
         <MindMap
           keyword_mind={keyword_mind}
           fetchWorldData={() => {}}
@@ -159,7 +186,11 @@ const WorldDetail = () => {
           handleInitKeywordChange={handleInitKeywordChange}
         />
       </div>
-      <div className="flex flex-col items-center gap-3">
+
+      {/* 메인 컨텐츠 */}
+      <div
+        className={`flex flex-col items-center gap-3 flex-grow transition-all duration-500 ease-in-out ${isSidebarOpen ? 'ml-[-3rem]' : 'ml-0'}`}
+      >
         <Category
           isCategory={category}
           isPeriod={period}
