@@ -140,7 +140,7 @@ const WorldDetail = () => {
       {/* 버튼 */}
       <div className="flex flex-col items-start justify-start pt-1 px-4">
         <button
-          className="w-10 h-10 "
+          className="w-10 h-10 cursor-pointer"
           onClick={() => setIsSidebarOpen((prev) => !prev)}
         >
           <img
