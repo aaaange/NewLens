@@ -47,9 +47,9 @@ public class SecurityConfig {
 
 						CorsConfiguration configuration = new CorsConfiguration();
 
-						configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://newlens.co.kr"));
+						configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://newlens.co.kr","https://www.newlens.co.kr"));
 						configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-						configuration.setAllowCredentials(true);
+						configuration.setAllowCredentials(false);
 						configuration.setAllowedHeaders(Collections.singletonList("*"));
 						configuration.setMaxAge(3600L);
 
@@ -79,6 +79,10 @@ public class SecurityConfig {
 		//oauth2
 		http
 				.oauth2Login((oauth2) -> oauth2
+						.authorizationEndpoint(authorization -> authorization.baseUri("/api/user/oauth2/authorization"))
+						.redirectionEndpoint(redirection -> redirection
+							.baseUri("/api/user/login/oauth2/code/*")
+						)
 						.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
 								.userService(customOAuth2UserService))
 						.successHandler(customSuccessHandler)
