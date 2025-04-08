@@ -8,6 +8,7 @@ import { formatDate } from '../../utils/formatDateUtils';
 import Pagination from './Pagination';
 import classes from './Common.module.css';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import GlobalSpinner from './GlobalSpinner';
 interface itemPropsType {
   date: string;
   title: string;
@@ -139,7 +140,10 @@ const NewsModal = ({
   const [hasPrevious, setHasPrevious] = useState(false);
   const itemsPerPage = 5;
 
+  const [loading, setLoading] = useState(false);
+
   const fetchNewsList = async () => {
+    setLoading(true);
     try {
       const params = {
         category: category,
@@ -162,6 +166,8 @@ const NewsModal = ({
       setHasPrevious(response.data.hasPrevious);
     } catch (error) {
       console.error('뉴스 목록 가져오기 실패:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -253,7 +259,9 @@ const NewsModal = ({
           </div>
 
           {/* 뉴스 리스트 또는 알림 메시지 */}
-          {newsItems.length === 0 ? (
+          {loading ? (
+            <GlobalSpinner /> // ✅ 여기서 로딩 보여주기!
+          ) : newsItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
               <SentimentDissatisfiedIcon
                 className="text-gray-400"
