@@ -242,6 +242,7 @@ public class CountryService {
             String country = newsModalRequest.getCountry();
             String category = newsModalRequest.getCategory();
             int period = newsModalRequest.getPeriod();
+            String email = newsModalRequest.getEmail();
 
 
 //            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
