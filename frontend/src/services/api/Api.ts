@@ -1,68 +1,49 @@
 import axios, { AxiosInstance } from 'axios';
-import { get } from 'lodash';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 export const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 axios.defaults.withCredentials = false;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
-
 const setupInterceptors = (instance: AxiosInstance) => {
   instance.interceptors.request.use(
-    (request) => {
-      console.log('api: ', request.url, '호출됨.');
+    (config) => {
+      console.log('API 호출:', config.url);
 
-      // 리다이렉트된 페이지에서 토큰 추출
-      const query = new URLSearchParams(window.location.search);
-      const urlAccessToken = query.get('accessToken');
-
-      if (urlAccessToken) {
-        localStorage.setItem('accessToken', urlAccessToken);
-      }
-
-      const accessToken = localStorage.getItem('accessToken');
+      // Zustand에서 토큰 가져오기
+      const { accessToken } = useAuthStore.getState();
       if (accessToken) {
-        request.headers.Authorization = 'Bearer ' + accessToken;
+        axios.defaults.withCredentials = true;
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
-      return request;
+
+      return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
   instance.interceptors.response.use(
-    (response) => {
-      return response;
-    },
+    (response) => response,
     async (error) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const errorState = error.status;
-
-      // switch (errorState) {
-
-      // }
-
+      if (error.response?.status === 401) {
+        // 인증 실패 시 로그아웃 처리
+        useAuthStore.getState().clearAccessToken();
+        console.error('인증 실패: 로그아웃 처리됨');
+      }
       return Promise.reject(error);
     }
   );
 };
 
-const createInstance = (headers = {}): AxiosInstance => {
+export const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: BASE_URL,
     timeout: 30000,
-    headers,
+    headers: { 'Content-Type': 'application/json' },
   });
 
   setupInterceptors(instance);
-
   return instance;
 };
 
-export const createAxiosInstance = (): AxiosInstance => createInstance();
-
-export const createMultipartAxiosInstance = (): AxiosInstance =>
-  createInstance({ 'Content-Type': 'multipart/form-data' });
-
 export const api = createAxiosInstance();
-export const multipartApi = createMultipartAxiosInstance();
