@@ -1,25 +1,67 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { DropdownMenu } from './DropdownMenu';
+import { logOutApi } from '../../services/api/AuthService';
 
 const Header = () => {
   const { accessToken, clearAccessToken } = useAuthStore();
   const isLogin = !!accessToken;
+
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 드롭다운 토글 함수
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // 외부 클릭 감지 및 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false); // 외부 클릭 시 드롭다운 닫기
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    const response = logOutApi(); // 로그아웃 API 호출
+    console.log(response);
+    clearAccessToken(); // Zustand에서 토큰 제거
+    setIsModalOpen(false); // 모달 닫기
+    navigate('/'); // 메인 페이지로 이동
+  };
+
   return (
     <div>
       <header>
         <nav>
           <div className="flex items-center justify-between h-[90px] bg-background px-4">
-            <div className="w-[120px]">
+            <div className="w-[120px] cursor-pointer">
               <Link to="/main">
                 <img src="/assets/images/logo-newLens.png" alt="로고" />
               </Link>
             </div>
-            {/* <div>
-              <Link to="/">about</Link>
-            </div> */}
-            <div className="flex items-center gap-4 mr-4">
-              <div className="w-[40px]">
+
+            <div className="flex items-end gap-4 mr-4">
+              <div className="w-[44px]">
+                <Link to="/">
+                  <img src="/assets/images/info.png" alt="서비스소개" />
+                </Link>
+              </div>
+              <div className="w-[35px]">
                 <Link to="/koreaAnalysis">
                   <img
                     src="/assets/images/domesticNews.png"
@@ -29,24 +71,47 @@ const Header = () => {
               </div>
               {isLogin ? (
                 <div className="flex items-center gap-4">
-                  <div className="w-[47px]">
-                    <Link to="/">
-                      <img src="/assets/images/signout.png" alt="로그아웃" />
-                    </Link>
-                  </div>
                   <div className="w-[30px]">
                     <Link to="/mypage">
                       <img src="/assets/images/notifi.png" alt="알람" />
                     </Link>
                   </div>
-                  <div className="w-[40px]">
-                    <Link to="/mypage">
-                      <img src="/assets/images/profile.png" alt="프로필사진" />
-                    </Link>
+                  {/* 프로필 사진 및 드롭다운 */}
+                  <div
+                    className="w-[40px] cursor-pointer relative"
+                    onClick={toggleDropdown}
+                    ref={dropdownRef} // 드롭다운 참조 추가
+                  >
+                    <img src="/assets/images/profile.png" alt="프로필사진" />
+                    {isDropdownOpen && (
+                      // 드롭다운 메뉴
+                      <div className="absolute top-[50px] right-0 z-200">
+                        <DropdownMenu
+                          list={[
+                            {
+                              text: '프로필 보기',
+                              onClick: () => {
+                                navigate('/mypage');
+                                console.log('프로필 보기 클릭됨');
+                                setIsDropdownOpen(false); // 닫기
+                              },
+                            },
+                            {
+                              text: '로그아웃',
+                              onClick: () => {
+                                handleLogout();
+                                setIsDropdownOpen(false);
+                              },
+                            },
+                          ]}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
-                <div className="w-[40px]">
+                // 로그인 버튼
+                <div className="w-[35px] ">
                   <Link to="/login">
                     <img src="/assets/images/signin.png" alt="로그인" />
                   </Link>

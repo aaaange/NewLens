@@ -17,6 +17,7 @@ import com.ssafy.userserver.domain.dto.NewsResponse;
 import com.ssafy.userserver.domain.entity.Log;
 import com.ssafy.userserver.domain.entity.User;
 import com.ssafy.userserver.domain.repository.LogRepository;
+import com.ssafy.userserver.domain.repository.ScrapRepository;
 import com.ssafy.userserver.domain.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -27,11 +28,14 @@ public class LogService {
 	private final LogRepository logRepository;
 	private final UserRepository userRepository;
 	private final MongoTemplate mongoTemplate;
+	private final ScrapRepository scrapRepository;
 
-	public LogService(LogRepository logRepository, UserRepository userRepository, MongoTemplate mongoTemplate) {
+
+	public LogService(LogRepository logRepository, UserRepository userRepository, MongoTemplate mongoTemplate, ScrapRepository scrapRepository) {
 		this.logRepository = logRepository;
 		this.userRepository = userRepository;
 		this.mongoTemplate = mongoTemplate;
+		this.scrapRepository = scrapRepository;
 	}
 
 	@Transactional
@@ -73,12 +77,14 @@ public class LogService {
 
 		List<Log> logs = logRepository.findTop10ByUserOrderByVisitedAtDesc(user);
 		return logs.stream()
-			.map(log -> getNewsDetails(log.getNewsId()))
+			.map(log -> getNewsDetails(log.getNewsId(), user))
 			.collect(Collectors.toList());
 	}
 
-	private NewsResponse getNewsDetails(String newsId) {
+	private NewsResponse getNewsDetails(String newsId, User user) {
 		Query query = new Query(Criteria.where("id").is(newsId));
+
+		boolean isScrap = scrapRepository.existsByUserAndNewsId(user, newsId);
 
 		Document domesticDoc = mongoTemplate.findOne(query, Document.class, "domestic_news");
 		if (domesticDoc != null) {
@@ -96,7 +102,7 @@ public class LogService {
 				.publishedAt(publishedAt)
 				.country("KR")
 				.keywords(keywords)
-				.isScrap(false)
+				.isScrap(isScrap)
 				.imageUrl(imageUrl)
 				.build();
 		} else {
@@ -118,7 +124,7 @@ public class LogService {
 					.publishedAt(publishedAt)
 					.country(country)
 					.keywords(keywords)
-					.isScrap(false)
+					.isScrap(isScrap)
 					.imageUrl(imageUrl)
 					.build();
 			} else {
