@@ -42,6 +42,7 @@ const LoginPage = () => {
             className="w-2/4 transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
           />
           <img
+            onClick={handleSsafyLogin}
             src="/assets/images/ssafy_login.png"
             alt="싸피 로그인"
             className="w-2/4 transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
