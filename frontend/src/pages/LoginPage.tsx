@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import PlayGround from '../components/common/PlayGround';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -17,8 +18,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="bg-background h-screen flex justify-center items-center">
-      <div className="flex flex-col w-1/3 items-center gap-6">
+    <div className="bg-background h-screen flex justify-between items-center relative overflow-hidden">
+      <div className="flex flex-col w-1/3 items-center gap-6 z-10 ml-[15vw]">
         <img
           src="/assets/images/logo-newLens.png"
           alt="로고"
@@ -53,12 +54,8 @@ const LoginPage = () => {
           ← 돌아가기
         </div>
       </div>
-      <div>
-        <img
-          src="/assets/images/earth_login.gif"
-          alt="지구"
-          className="w-8/9"
-        />
+      <div className="absolute right-0 top-0 translate-x-[20vw] -translate-y-[3vh] z-0 ">
+        <PlayGround />
       </div>
     </div>
   );
