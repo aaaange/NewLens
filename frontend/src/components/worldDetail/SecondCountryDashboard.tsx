@@ -15,6 +15,7 @@ import {
   newsData,
   videos,
 } from './MockData';
+import GlobalSpinner from '../common/GlobalSpinner';
 
 interface SecondCountryBoardProps {
   country: string;
@@ -57,7 +58,7 @@ const SecondCountryBoard = ({
     error: error_GPT,
   } = useDescription(memoizedParams);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <GlobalSpinner />;
   if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
   // if (!data) return <div>No Data</div>;
 
