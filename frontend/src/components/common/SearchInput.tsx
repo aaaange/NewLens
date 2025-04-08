@@ -53,11 +53,11 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
           type="text"
           value={value}
           onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSearch();
-            }
-          }}
+          // onKeyDown={(e) => {
+          //   if (e.key === 'Enter') {
+          //     handleSearch();
+          //   }
+          // }}
         />
         <button
           onClick={() => handleSearch()}
