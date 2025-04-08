@@ -55,7 +55,7 @@ export const useScrapNews = () => {
   // POST SCRAP
   const scrapNews = async (
     news_id: string
-  ): Promise<{ isScrap: boolean } | null> => {
+  ): Promise<{ is_scrap: boolean } | null> => {
     try {
       const response = await postScrapNewsApi({ news_id });
       return response.data; // { isScrap: true/false } 리턴
