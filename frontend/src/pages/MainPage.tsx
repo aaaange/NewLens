@@ -7,6 +7,8 @@ import { debounce, set } from 'lodash';
 
 import { useEffect, useState } from 'react';
 import { getWorldMapDataApi } from '../services/api/worldService';
+import { useAuthStore } from '../stores/useAuthStore';
+import { useLocation, useNavigate } from 'react-router';
 
 const MainPage = () => {
   //==============================================
@@ -118,6 +120,25 @@ const MainPage = () => {
   const headerString = [keyword, keyword_mind]
     .filter((item) => item && item.trim() !== '')
     .join(' > ');
+
+  // accessToken 세팅
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const urlAccessToken = query.get('accessToken');
+
+    if (urlAccessToken) {
+      // Zustand와 localStorage에 저장
+      setAccessToken(urlAccessToken);
+
+      // URL에서 토큰 제거
+      navigate('/main', { replace: true });
+    }
+  }, [location, setAccessToken, navigate]);
 
   return (
     <div className="mt-5 flex gap-20 justify-center overflow-hidden pb-[32px]">
