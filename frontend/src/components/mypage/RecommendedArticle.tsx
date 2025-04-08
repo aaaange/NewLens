@@ -12,6 +12,7 @@ import {
   videos,
 } from '../worldDetail/MockData';
 import { useScrapNews, News } from '../../hooks/useMypageNews';
+import GlobalSpinner from '../common/GlobalSpinner';
 
 const safeData = {
   keywords: words,
@@ -41,11 +42,11 @@ const RecommendedArticle = () => {
       const res = await scrapNews(news_id);
       if (!res) return;
 
-      const { isScrap } = res;
+      const { is_scrap } = res;
 
       setArticles((prev) =>
         prev.map((item) =>
-          item.news_id === news_id ? { ...item, isScrap } : item
+          item.news_id === news_id ? { ...item, is_scrap } : item
         )
       );
     } catch (err) {
@@ -61,7 +62,7 @@ const RecommendedArticle = () => {
     setArticles(recommendNewsList); // API에서 받은 데이터로 초기화
   }, [recommendNewsList]);
 
-  // if (loading) return <p>Loading...</p>;
+  if (loading) return <GlobalSpinner />;
 
   // 읽음 표시
   // const markAsRead = (news_id: string) => {
@@ -98,7 +99,7 @@ const RecommendedArticle = () => {
                   <Bookmark
                     size={20}
                     className={`transition-colors duration-200 ${
-                      item.isScrap
+                      item.is_scrap
                         ? 'fill-yellow-400 text-yellow-400'
                         : 'text-gray-300'
                     }`}

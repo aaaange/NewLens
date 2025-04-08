@@ -10,6 +10,7 @@ import {
 import { useScrapNews, News } from '../../hooks/useMypageNews';
 import { toast } from 'react-toastify';
 import Pagination from '../common/Pagination';
+import GlobalSpinner from '../common/GlobalSpinner';
 
 const ClippingNews = () => {
   const [page, setPage] = useState(1);
@@ -28,10 +29,10 @@ const ClippingNews = () => {
       const res = await scrapNews(news_id);
       if (!res) return;
 
-      const { isScrap } = res;
+      const { is_scrap } = res;
 
       // 스크랩이 해제된 경우만 UI에서 제거
-      if (!isScrap) {
+      if (!is_scrap) {
         setArticles((prev) => prev.filter((item) => item.news_id !== news_id));
       }
     } catch (err) {
@@ -62,7 +63,7 @@ const ClippingNews = () => {
     setPage(newPage);
   };
 
-  // if (loading) return <p>로딩 중...</p>;
+  if (loading) return <GlobalSpinner />
 
   return (
     <div>
