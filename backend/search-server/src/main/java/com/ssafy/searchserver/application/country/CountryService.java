@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import com.ssafy.searchserver.common.exeception.CustomException;
 import com.ssafy.searchserver.common.exeception.ErrorCode;
 import com.ssafy.searchserver.common.util.Validation;
+import com.ssafy.searchserver.infrastructure.util.JWTUtil;
 import com.ssafy.searchserver.interfaces.country.dto.*;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,7 @@ public class CountryService {
     @Value("${call_back_url}")
     private String callBackUrl;
     private final int timeout = 60;
+    private final JWTUtil jwtUtil;
 
     public String selectNews(boolean isKorea) {
         return isKorea ? "domestic_news" : "foreign_news";
