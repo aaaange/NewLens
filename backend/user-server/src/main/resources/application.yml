@@ -33,7 +33,7 @@ spring:
             client-secret: ${GOOGLE_SECRET}
 #            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/google
             authorization-grant-type: authorization_code
-            redirect-uri: http://www.newlens.co.kr/api/user/login/oauth2/code/google
+            redirect-uri: https://www.newlens.co.kr/api/user/login/oauth2/code/google
             scope:
               - profile
               - email
