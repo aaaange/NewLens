@@ -1,5 +1,6 @@
 package com.ssafy.staticsserver.domain.user.entity;
 
+import com.ssafy.staticsserver.domain.user.enums.ScrapType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -3,6 +3,7 @@ package com.ssafy.searchserver.interfaces.country.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class NewsDto {
 	private LocalDateTime publishedAt;
 	private String imageUrl;
 	private List<String> keywords;
+	@JsonProperty("is_scrap")
 	private boolean isScrap;
 
 	@Override
