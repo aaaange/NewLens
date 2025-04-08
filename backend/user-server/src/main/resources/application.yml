@@ -46,7 +46,7 @@ spring:
             client-id: ${SSAFY_CLIENT}
             client-secret: ${SSAFY_SECRET}
 #            redirect-uri: https://www.newlens.co.kr/login/oauth2/code/ssafy
-            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/ssafy
+            redirect-uri: http://www.newlens.co.kr/api/user/login/oauth2/code/ssafy
 #            redirect-uri: http://localhost:9001/login/oauth2/code/ssafy
 #            redirect-uri: https://www.newlens.co.kr/login/oauth2/code/ssafy
             authorization-grant-type: authorization_code
