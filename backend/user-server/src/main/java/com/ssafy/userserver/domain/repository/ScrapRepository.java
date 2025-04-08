@@ -12,4 +12,5 @@ import com.ssafy.userserver.domain.entity.User;
 public interface ScrapRepository extends JpaRepository<Scrap, Long> {
 	Optional<Scrap> findByUserAndNewsId(User user, String newsId);
 	Page<Scrap> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+	boolean existsByUserAndNewsId(User user, String newsId);
 }

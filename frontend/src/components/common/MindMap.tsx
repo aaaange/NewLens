@@ -123,10 +123,15 @@ const MindMap = ({
       const targetNode = nodes.find((node) => node.data.label === keyword_mind);
       if (targetNode) {
         setSelectedNodeId(targetNode.id); // 노드 ID 업데이트
-        setKeyword(keyword_mind); // 키워드 상태도 동기화
+        // setKeyword(keyword_mind); // 키워드 상태도 동기화
       }
     }
-  }, [keyword_mind, nodes]); // nodes 배열 변경시에도 재검색
+  }, [keyword_mind, nodes]);
+
+  useEffect(() => {
+    setSelectedNodeId('');
+    // setKeyword('');
+  }, [mainKeyword]);
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
@@ -134,12 +139,12 @@ const MindMap = ({
 
       if (selectedNodeId === node.id) {
         // 동일한 노드를 클릭한 경우 상태 초기화
-        setKeyword('');
+        // setKeyword('');
         setSelectedNodeId('');
         onKeywordChange('');
         // fetchWorldData('');
       } else {
-        setKeyword(node.data.fullLabel);
+        // setKeyword(node.data.fullLabel);
         setSelectedNodeId(node.id);
         onKeywordChange(node.data.fullLabel);
         fetchWorldData(node.data.fullLabel);
