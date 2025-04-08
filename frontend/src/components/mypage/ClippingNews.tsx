@@ -9,100 +9,16 @@ import {
 } from 'lucide-react';
 import { useScrapNews, News } from '../../hooks/useMypageNews';
 import { toast } from 'react-toastify';
-
-// 페이지네이션 (공통 컴포넌트 못찾은 나...)
-interface PaginationPropsType {
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-  onPageChange: (page: number) => void;
-}
-
-const Pagination = ({
-  page,
-  totalPages,
-  hasNext,
-  hasPrevious,
-  onPageChange,
-}: PaginationPropsType) => {
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
-
-    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
-    }
-
-    return pageNumbers;
-  };
-
-  return (
-    <div className="flex justify-center items-center p-4 flex-wrap gap-1">
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(1)}
-        disabled={!hasPrevious}
-        aria-label="첫 페이지"
-      >
-        <ChevronFirst color="black" size={16} />
-      </button>
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(page - 1)}
-        disabled={!hasPrevious}
-        aria-label="이전 페이지"
-      >
-        <ChevronLeft color="black" size={16} />
-      </button>
-
-      {getPageNumbers().map((pageNum) => (
-        <button
-          key={pageNum}
-          className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg ${
-            pageNum === page
-              ? 'bg-slate-300 text-white'
-              : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-gray-100'
-          }`}
-          onClick={() => onPageChange(pageNum)}
-          aria-label={`${pageNum} 페이지`}
-          aria-current={pageNum === page ? 'page' : undefined}
-        >
-          {pageNum}
-        </button>
-      ))}
-
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(page + 1)}
-        disabled={!hasNext}
-        aria-label="다음 페이지"
-      >
-        <ChevronRight color="black" size={16} />
-      </button>
-      <button
-        className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-zinc-200 hover:bg-gray-100 disabled:opacity-50"
-        onClick={() => onPageChange(totalPages)}
-        disabled={!hasNext}
-        aria-label="마지막 페이지"
-      >
-        <ChevronLast color="black" size={16} />
-      </button>
-    </div>
-  );
-};
+import Pagination from '../common/Pagination';
 
 const ClippingNews = () => {
+  const [page, setPage] = useState(1);
+  const [size] = useState(5);
   const [articles, setArticles] = useState<News[]>([]);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
 
   const { scrapNewsList, loading, fetchScrapNews, scrapNews } = useScrapNews();
 
@@ -125,12 +41,26 @@ const ClippingNews = () => {
   };
 
   useEffect(() => {
-    fetchScrapNews();
-  }, []);
+    const loadScrapNews = async () => {
+      const data = await fetchScrapNews(page, size);
+      if (data) {
+        setArticles(data.news);
+        setTotalElements(data.total_elements);
+        setTotalPages(data.total_pages);
+        setHasNext(data.has_next);
+        setHasPrevious(data.has_previous);
+      }
+    };
+    loadScrapNews();
+  }, [page]);
 
   useEffect(() => {
     setArticles(scrapNewsList);
   }, [scrapNewsList]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   // if (loading) return <p>로딩 중...</p>;
 
@@ -172,15 +102,15 @@ const ClippingNews = () => {
         )}
       </div>
       {/* 페이지네이션 -- postman 명세서가 안보여요... */}
-      {/* <Pagination
-        page={currentPage}
-        size={itemsPerPage}
+      <Pagination
+        page={page}
+        size={size}
         totalElements={totalElements}
         totalPages={totalPages}
         hasNext={hasNext}
         hasPrevious={hasPrevious}
         onPageChange={handlePageChange}
-      /> */}
+      />
     </div>
   );
 };
