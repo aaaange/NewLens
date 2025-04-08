@@ -40,9 +40,11 @@ const KoreaAnalysisPage = () => {
   };
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
+    setKeywordMind('');
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
+    setKeywordMind('');
   };
 
   return (
@@ -66,6 +68,7 @@ const KoreaAnalysisPage = () => {
             onChange={keywordInputChangeHandler}
             onSearch={() => {
               setInitialKeyword(keyword);
+              setKeywordMind('');
               userTyped.current = false;
             }}
           />

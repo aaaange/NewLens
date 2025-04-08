@@ -78,6 +78,10 @@ const WorldDetail = () => {
     setKeyword(newKeyword);
   };
 
+  const handleInitKeywordChange = (newKeyword: string) => {
+    setKeyword(newKeyword);
+  };
+
   const handleWordCloudChange = (newKeyword: string) => {
     setKeywordCloud(newKeyword);
   };
@@ -152,7 +156,7 @@ const WorldDetail = () => {
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
-          handleInitKeywordChange={() => {}}
+          handleInitKeywordChange={handleInitKeywordChange}
         />
       </div>
       <div className="flex flex-col items-center gap-3">
