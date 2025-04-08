@@ -31,12 +31,30 @@ spring:
             client-name: google
             client-id: ${GOOGLE_CLIENT}
             client-secret: ${GOOGLE_SECRET}
+#            redirect-uri: https://www.newlens.co.kr/login/oauth2/code/google
 #            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/google
-            authorization-grant-type: authorization_code
+#            redirect-uri: http://localhost:9001/login/oauth2/code/google
+#            redirect-uri: https://postmantest.com/oauth/callback
             redirect-uri: https://www.newlens.co.kr/api/user/login/oauth2/code/google
+            authorization-grant-type: authorization_code           
             scope:
               - profile
               - email
+
+          ssafy: # 이게 registrationId 로서 역할
+            client-name: ssafy
+            client-id: ${SSAFY_CLIENT}
+            client-secret: ${SSAFY_SECRET}
+#            redirect-uri: https://www.newlens.co.kr/login/oauth2/code/ssafy
+            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/ssafy
+#            redirect-uri: http://localhost:9001/login/oauth2/code/ssafy
+#            redirect-uri: https://www.newlens.co.kr/login/oauth2/code/ssafy
+            authorization-grant-type: authorization_code
+            scope:
+              - userId
+              - profile
+              - email
+
 
           kakao: # 이게 registrationId 로서 역할
             client-id: ${KAKAO_CLIENT}
@@ -52,6 +70,12 @@ spring:
 
         # kakao provider 설정 (구글은 provider 설정 필요 x)
         provider:
+          ssafy:
+            authorization-uri: https://project.ssafy.com/oauth/sso-check
+            token-uri: https://project.ssafy.com/ssafy/oauth2/token
+            user-info-uri: https://project.ssafy.com/ssafy/resources/userInfo
+            user-name-attribute: email  # 사용자 식별자 (가이드 확인 후 적합한 필드로)
+
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
