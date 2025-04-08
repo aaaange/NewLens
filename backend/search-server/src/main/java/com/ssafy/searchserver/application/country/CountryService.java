@@ -1,5 +1,6 @@
 package com.ssafy.searchserver.application.country;
 
+import java.net.http.HttpRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,6 +24,8 @@ import com.ssafy.searchserver.common.util.Validation;
 import com.ssafy.searchserver.infrastructure.util.JWTUtil;
 import com.ssafy.searchserver.interfaces.country.dto.*;
 
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -305,7 +308,7 @@ public class CountryService {
 
     public NewsModalResponse getNewsNodal(String category, int period, String keyword, String keywordMind,
                                           String keywordCloud, String country, int page, int size,
-                                          boolean isKorea) {
+                                          boolean isKorea, HttpServletRequest request) {
         try {
             // 유효성 검사
             //            Validation.validateCountryPeriodCategory(country, period, category);
@@ -365,6 +368,9 @@ public class CountryService {
             }));
 
             List<String> idList = sliceScroll(boolQuery, index);
+            String token = request.getHeader("Authorization");
+            String email = jwtUtil.getEmail(token);
+
 
             NewsModalRequest payload = NewsModalRequest.builder()
                 .newsIds(idList)
@@ -379,6 +385,7 @@ public class CountryService {
                 .category(category)
                 .country(country)
                 .period(period)
+                .email(email)
                 .build();
 
             kafkaTemplate.send("news_modal", objectMapper.writeValueAsString(payload));
