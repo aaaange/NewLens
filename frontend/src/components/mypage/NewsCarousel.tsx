@@ -25,10 +25,10 @@ export default function NewsCarousel() {
     const result = await scrapNews(news_id);
 
     if (result) {
-      const { isScrap } = result;
+      const { is_scrap } = result;
       setArticles((prev) =>
         prev.map((news) =>
-          news.news_id === news_id ? { ...news, isScrap } : news
+          news.news_id === news_id ? { ...news, is_scrap } : news
         )
       );
     } else {
