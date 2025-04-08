@@ -86,6 +86,9 @@ const MainPage = () => {
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
       setKeyword(response.data.keyword);
+      if (response.data.keyword !== keyword) {
+        setKeyword(response.data.keyword);
+      }
     } catch (error) {
       console.error('검색 실패:', error);
     }
@@ -98,9 +101,9 @@ const MainPage = () => {
     return () => handler.cancel();
   }, [keyword]);
 
-  useEffect(() => {
-    fetchWorldData('');
-  }, []);
+  // useEffect(() => {
+  //   fetchWorldData('');
+  // }, []);
 
   useEffect(() => {
     if (debouncedKeyword) {
@@ -121,7 +124,7 @@ const MainPage = () => {
     .filter((item) => item && item.trim() !== '')
     .join(' > ');
 
-  // accessToken 세팅
+  ///////////////////////////////////////////////// accessToken 세팅
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -223,7 +226,7 @@ const MainPage = () => {
           </div>
         </div>
 
-        <div>
+        <div className="h-full">
           <Map
             tabId={activeTab}
             keyword={keyword}
