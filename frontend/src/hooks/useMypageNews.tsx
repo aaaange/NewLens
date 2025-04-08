@@ -9,6 +9,7 @@ import {
 } from '../services/api/mypageService';
 
 export interface ScrapNewsGetParams {
+  page: number;
   size: number;
 }
 
@@ -38,13 +39,14 @@ export const useScrapNews = () => {
   const [error, setError] = useState<Error | null>(null);
 
   // GET SCRAP
-  const fetchScrapNews = async (size = 5) => {
+  const fetchScrapNews = async (page = 1, size = 5) => {
     try {
       setLoading(true);
-      const response = await getScrapNewsApi({ size });
-      setScrapNewsList(response.data.news); // 형식 이거 맞는지 확인하기
+      const response = await getScrapNewsApi({ page, size });
+      return response.data; // 전체 데이터 반환
     } catch (err) {
       setError(err as Error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,7 @@ export const useScrapNews = () => {
   ): Promise<{ isScrap: boolean } | null> => {
     try {
       const response = await postScrapNewsApi({ news_id });
-      return response.data.data; // { isScrap: true/false } 리턴
+      return response.data; // { isScrap: true/false } 리턴
     } catch (err) {
       setError(err as Error);
       return null;
@@ -90,9 +92,8 @@ export const useScrapNews = () => {
     try {
       const response = await postAccessLogApi({ news_id });
       console.log(news_id);
-      
-      return response.data;
 
+      return response.data;
     } catch (err) {
       setError(err as Error);
       return null;

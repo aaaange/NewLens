@@ -32,10 +32,11 @@ spring:
             client-id: ${GOOGLE_CLIENT}
             client-secret: ${GOOGLE_SECRET}
 #            redirect-uri: https://www.newlens.co.kr/login/oauth2/code/google
-            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/google
+#            redirect-uri: http://j12a508.p.ssafy.io:9001/login/oauth2/code/google
 #            redirect-uri: http://localhost:9001/login/oauth2/code/google
 #            redirect-uri: https://postmantest.com/oauth/callback
-            authorization-grant-type: authorization_code
+            redirect-uri: https://www.newlens.co.kr/api/user/login/oauth2/code/google
+            authorization-grant-type: authorization_code           
             scope:
               - profile
               - email
