@@ -59,7 +59,7 @@ const RecommendedArticle = () => {
   }, []);
 
   useEffect(() => {
-    setArticles(recommendNewsList); // API에서 받은 데이터로 초기화
+    setArticles(recommendNewsList ?? []); // API에서 받은 데이터로 초기화
   }, [recommendNewsList]);
 
   if (loading) return <GlobalSpinner />;

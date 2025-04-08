@@ -92,8 +92,7 @@ public class SecurityConfig {
 		http
 				.authorizeHttpRequests((auth) -> auth
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers("/test1").permitAll()
-						// .requestMatchers("my").hasRole("USER")
+						.requestMatchers("/api/user/log/access").permitAll()
 						.anyRequest().authenticated());
 
 		//세션 설정 : STATELESS
