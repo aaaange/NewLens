@@ -8,17 +8,16 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.ssafy.staticsserver.domain.news.repository.DomesticNewsRepositoryImpl;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsRepositoryImpl;
 import com.ssafy.staticsserver.domain.news.repository.NewsMongoDBRepository;
+import com.ssafy.staticsserver.domain.user.entity.Scrap;
+import com.ssafy.staticsserver.domain.user.entity.User;
+import com.ssafy.staticsserver.domain.user.repository.ScrapRepository;
+import com.ssafy.staticsserver.domain.user.repository.UserRepository;
 import com.ssafy.staticsserver.infrastructure.client.GoogleClient;
 import com.ssafy.staticsserver.infrastructure.client.GptClient;
 import com.ssafy.staticsserver.infrastructure.client.KakaoClient;
@@ -52,6 +51,8 @@ public class CountryService {
     private final GoogleClient googleClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final int PAGE_GROUP_SIZE = 5;
+    private final UserRepository userRepository;
+    private final ScrapRepository scrapRepository;
 
     // 공통 인터페이스로 isKorea 로 국내, 해외 레포지토리 선택
     private NewsMongoDBRepository repository(boolean isKorea) {
@@ -242,6 +243,7 @@ public class CountryService {
             String country = newsModalRequest.getCountry();
             String category = newsModalRequest.getCategory();
             int period = newsModalRequest.getPeriod();
+            String email = newsModalRequest.getEmail();
 
 
 //            List<ForeignNewsMongo> newsList = repository(isKorea).findByIdIn(newsIds);
@@ -272,7 +274,7 @@ public class CountryService {
             else{
                 List<NewsModalResponse> pageGroup = new ArrayList<>();
                 for (int p = startPage; p <= endPage; p++) {
-                    pageGroup.add(processNews(newsIds, p, size, isKorea));
+                    pageGroup.add(processNews(newsIds, p, size, isKorea, email));
                 }
                 redisTemplate.opsForValue().set(redisKey, pageGroup, Duration.ofMinutes(5));
                 sendCallback(callbackUrl, requestId, pageGroup.get(page - startPage));
@@ -598,11 +600,22 @@ public class CountryService {
     }
 
     // 뉴스 리스트 모달창 출력을 위한 집계 로직
-    public NewsModalResponse processNews(List<String> newsIds, int page, int size, boolean isKorea) {
+    public NewsModalResponse processNews(List<String> newsIds, int page, int size, boolean isKorea, String email) {
 
         Pageable pageable = PageRequest.of(page -1, size, Sort.by("PublishedAt").descending());
-
         Page<ForeignNewsMongo> pagedNews = repository(isKorea).findByIdIn(newsIds, pageable);
+
+        Optional<User> optionalUser;
+        optionalUser = userRepository.findByEmail(email);
+        List<String> scrappedNewsIds;
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            List<Scrap> scraps = scrapRepository.findByUserAndNewsIdIn(user, newsIds);
+            scrappedNewsIds = scraps.stream().map(Scrap::getNewsId).toList();
+        } else {
+            scrappedNewsIds = new ArrayList<>();
+        }
+
 
         List<NewsDto> newsDtos = pagedNews.getContent().stream()
                 .map(item -> {
@@ -630,6 +643,7 @@ public class CountryService {
                             .publishedAt(item.getPublishedAt())
                             .imageUrl(imageUrl)
                             .keywords(keywords)
+                            .isScrap(scrappedNewsIds.contains(item.getId()))
                             .build();
                 })
                 .collect(Collectors.toList());
