@@ -83,8 +83,6 @@ export const getWorldMapDataApi = async (params: WorldMapReqType) => {
 //메인 완
 export const getMindMapApi = async (params: MindMapReqType) => {
   const response = await api.get(`search/extract_related_words`, { params });
-  console.log(response);
-
   return response.data;
 };
 
