@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import ReactFlow, {
   Controls,
   useEdgesState,
@@ -13,6 +19,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { getMindMapApi } from '../../services/api/worldService';
+import CustomNode from './CustomNode';
 
 const getRandomColor = () => {
   const colors = [
@@ -36,57 +43,6 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-const CustomNode: React.FC<NodeProps> = ({ data, id }) => {
-  return (
-    <div
-      title={data.fullLabel}
-      style={{
-        backgroundColor: data.backgroundColor || '#000',
-        color: data.textColor || '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: '5px',
-        fontSize: data.isSelected ? '20px' : '14px',
-        fontWeight: 'bold',
-        borderRadius: '20px',
-        width: data.isSelected ? 90 : 70,
-        height: data.isSelected ? 50 : 40,
-        position: 'relative',
-        cursor: 'pointer',
-        border: '2px solid #ccc', // 선택되지 않은 노드는 연한 테두리
-        boxShadow: data.isSelected ? '0 0 10px rgba(0, 0, 0, 0.2)' : 'none', // 선택된 노드만 그림자 효과
-        opacity: data.isSelected ? 1 : 0.8, // 선택되지 않은 노드는 투명도 낮춤
-        transition: 'all 0.1s ease', // 부드러운 전환 효과
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {data.label}
-      {/* 중앙 노드에 정확히 중앙 핸들 추가 */}
-      {id === '1' && (
-        <Handle
-          type="source"
-          position={Position.Top}
-          id={`source-${id}`}
-          style={{
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            opacity: 0,
-          }}
-        />
-      )}
-      <Handle
-        type="target"
-        position={Position.Bottom}
-        id={`target-${id}`}
-        style={{ opacity: 0 }}
-      />
-    </div>
-  );
-};
-
 interface MindMapProps {
   onKeywordChange: (keyword: string) => void;
   category: string;
@@ -106,10 +62,11 @@ const MindMap = ({
   keyword_mind,
   fetchWorldData,
 }: MindMapProps) => {
+  const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
+
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const [selectedNodeId, setSelectedNodeId] = useState('');
-  const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
   const onConnect = useCallback(
     (params: Connection) =>
       setEdges((eds) =>
@@ -156,7 +113,6 @@ const MindMap = ({
         is_korea: isKorea,
       };
       const response = await getMindMapApi(params);
-
       const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
 
       const truncateLabel = (label: string, maxLength: number = 4) => {
@@ -199,68 +155,19 @@ const MindMap = ({
         type: 'straight',
         style: { stroke: '#e1e6ed', strokeWidth: 1 },
       }));
-
       setNodes(newNodes);
       setEdges(newEdges);
     } catch (error) {
       console.error('마인드맵 데이터 가져오기 실패:', error);
-
-      // API 응답이 없을 때 기본 데이터로 초기화
-      const defaultNodes: Node[] = [
-        {
-          id: '1',
-          type: 'custom',
-          position: { x: 150 - 30, y: 140 - 20 },
-          data: {
-            label: 'it',
-            backgroundColor: '#000',
-            textColor: '#fff',
-            width: 80,
-            height: 50,
-          },
-        },
-        ...Array.from({ length: 10 }, (_, i) => ({
-          id: `${i + 2}`,
-          type: 'custom',
-          position: getCirclePosition(i, 10),
-          data: {
-            label: [
-              '산업',
-              '전략',
-              '교육',
-              '시장',
-              '티라노사우르스',
-              '한국',
-              '기업',
-              '투자',
-              '운영',
-              '전문가',
-            ][i],
-            backgroundColor: getRandomColor(),
-            textColor: '#fff',
-          },
-        })),
-      ];
-
-      const defaultEdges = defaultNodes.slice(1).map((node) => ({
-        id: `e1-${node.id}`,
-        source: '1',
-        target: node.id,
-        sourceHandle: `source-1`,
-        targetHandle: `target-${node.id}`,
-        type: 'straight',
-        style: { stroke: '#e1e6ed', strokeWidth: 1 },
-      }));
-
-      setNodes(defaultNodes);
-      setEdges(defaultEdges);
     }
   };
 
   useEffect(() => {
-    if (mainKeyword.length > 1) {
-      fetchMindMapData();
-    }
+    setTimeout(() => {
+      if (mainKeyword.length > 1) {
+        fetchMindMapData();
+      }
+    }, 1000);
   }, [category, period, mainKeyword]);
 
   const centerX = 150;
@@ -325,7 +232,7 @@ const MindMap = ({
           elementsSelectable={false}
           nodesDraggable={false}
           nodeTypes={nodeTypes}
-          proOptions={{ hideAttribution: true }}
+          proOptions={{ hideAttribution: false }}
           style={{ cursor: 'default' }}
         >
           {/* <Controls showZoom={true} showFitView={true} showInteractive={true} /> */}
