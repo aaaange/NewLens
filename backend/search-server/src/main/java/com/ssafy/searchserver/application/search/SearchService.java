@@ -367,6 +367,53 @@ public class SearchService {
 		}
 	}
 
+	public void triggerHourlyKeywordRanking(String category, boolean isKorea) {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+			LocalDateTime to = LocalDateTime.now();
+			LocalDateTime from = to.minusHours(1); //
+
+			String gte = from.format(formatter);
+			String lte = to.format(formatter);
+
+			Query boolQuery = Query.of(q -> q.bool(b -> {
+				List<Query> mustQueries = new ArrayList<>();
+				if (!category.equalsIgnoreCase("all")) {
+					mustQueries.add(Query.of(m -> m.term(t -> t
+						.field("categories")
+						.value(FieldValue.of(category))
+					)));
+				}
+				mustQueries.add(Query.of(m -> m.range(r -> r
+					.date(d -> d
+						.field("published_at")
+						.gte(gte)
+						.lte(lte)
+					)
+				)));
+				return b.must(mustQueries);
+			}));
+
+			String index = isKorea ? "domestic_news" : "foreign_news";
+			String requestId = UUID.randomUUID().toString();
+
+			sliceScrollSendPartition(
+				boolQuery,
+				requestId,
+				"/api/search/keyword_ranking_callback",
+				index,
+				category,
+				isKorea,
+				0
+			);
+
+		} catch (Exception e) {
+			log.error("실시간 키워드 랭킹 요청 실패", e);
+			throw new RuntimeException("실시간 키워드 랭킹 요청 실패", e);
+		}
+	}
+
+
 	public void sliceScrollSendPartition(Query query, String requestId, String callBackPath, String index,
 		String category,
 		boolean isKorea, int period) {
