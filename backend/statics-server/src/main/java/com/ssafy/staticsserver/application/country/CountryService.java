@@ -266,7 +266,43 @@ public class CountryService {
             Object cached = redisTemplate.opsForValue().get(redisKey);
             if (cached != null) {
                 List<NewsModalResponse> cachedPages = objectMapper.convertValue(cached, new TypeReference<>() {});
-                sendCallback(callbackUrl, requestId, cachedPages.get(page - startPage));
+                NewsModalResponse cachedResponse = cachedPages.get(page - startPage);
+
+                Optional<User> optionalUser;
+                optionalUser = userRepository.findByEmail(email);
+                List<String> scrappedNewsIds;
+                if (optionalUser.isPresent()) {
+                    User user = optionalUser.get();
+                    List<Scrap> scraps = scrapRepository.findByUserAndNewsIdIn(user, newsIds);
+                    scrappedNewsIds = scraps.stream().map(Scrap::getNewsId).toList();
+                } else {
+                    scrappedNewsIds = new ArrayList<>();
+                }
+
+                List<NewsDto> updatedNewsDtos = cachedResponse.getNews().stream()
+                    .map(news -> NewsDto.builder()
+                        .newsId(news.getNewsId())
+                        .title(news.getTitle())
+                        .url(news.getUrl())
+                        .publishedAt(news.getPublishedAt())
+                        .imageUrl(news.getImageUrl())
+                        .keywords(news.getKeywords())
+                        .isScrap(scrappedNewsIds.contains(news.getNewsId()))
+                        .build()
+                    )
+                    .collect(Collectors.toList());
+
+                NewsModalResponse updatedResponse = NewsModalResponse.builder()
+                    .news(updatedNewsDtos)
+                    .page(cachedResponse.getPage())
+                    .size(cachedResponse.getSize())
+                    .totalElements(cachedResponse.getTotalElements())
+                    .totalPages(cachedResponse.getTotalPages())
+                    .hasNext(cachedResponse.isHasNext())
+                    .hasPrevious(cachedResponse.isHasPrevious())
+                    .build();
+
+                sendCallback(callbackUrl, requestId, updatedResponse);
                 System.out.println("캐싱된: 페이지 " + page);
                 return;
             }
