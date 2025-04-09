@@ -1,6 +1,7 @@
 package com.ssafy.userserver.infrastructure.security;
 
 import com.ssafy.userserver.domain.dto.GoogleResponse;
+import com.ssafy.userserver.domain.dto.KakaoResponse;
 import com.ssafy.userserver.domain.dto.OAuth2Response;
 import com.ssafy.userserver.domain.dto.SsafyResponse;
 import com.ssafy.userserver.domain.dto.UserDTO;
@@ -35,12 +36,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
 		OAuth2User oAuth2User = super.loadUser(userRequest);
-		// System.out.println(oAuth2User);
 
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		OAuth2Response oAuth2Response = null;
 		if (registrationId.equals("kakao")) {
-			// oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
+			oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
 		}
 		else if (registrationId.equals("google")) {
 			oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
@@ -100,7 +100,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.equalsIgnoreCase(oAuth2Response.getProviderName())) {
 				throw new OAuth2AuthenticationException(
 					new OAuth2Error("provider_mismatch",
-						"이미 " + existUserProvider.getProviderName() + "로 회원가입 된 이력이 있습니다.", null)
+						existUserProvider.getProviderName().toString(), null)
 				);
 			}
 
