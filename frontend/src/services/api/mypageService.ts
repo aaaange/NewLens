@@ -6,12 +6,12 @@ import {
 import { api } from './Api';
 
 export const getScrapNewsApi = async (params: ScrapNewsGetParams) => {
-  const response = await api.get('scrap/news', { params });
+  const response = await api.get('user/scrap/news', { params });
   return response.data;
 };
 
 export const postScrapNewsApi = async (data: ScrapNewsActionParams) => {
-  const response = await api.post('scrap/news/toggle', data);
+  const response = await api.post('user/scrap/news/toggle', data);
   return response.data;
 };
 
@@ -22,7 +22,7 @@ export const postScrapNewsApi = async (data: ScrapNewsActionParams) => {
 
 // recommend 관련 api
 export const getRecommendNewsApi = async () => {
-  const response = await api.get('recommend/news');
+  const response = await api.get('user/recommend/news');
   return response.data;
 };
 
@@ -34,7 +34,7 @@ export const postNewslogApi = async () => {
 };
 
 // log 기록
-export const postAccessLogApi = async (data:ScrapNewsActionParams) => {
+export const postAccessLogApi = async (data: ScrapNewsActionParams) => {
   const response = await api.post('user/log/access', data);
   return response.data;
 };

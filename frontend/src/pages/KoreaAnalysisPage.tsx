@@ -48,21 +48,32 @@ const KoreaAnalysisPage = () => {
   };
 
   return (
-    <div className="relative flex gap-10 mt-5 transition-all justify-center duration-500 ease-in-out">
+    <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
+      {/* 버튼 */}
+      <div className="flex flex-col items-start justify-start pt-1 px-4">
+        <button
+          className="w-10 h-10 cursor-pointer"
+          onClick={() => setIsSidebarOpen((prev) => !prev)}
+        >
+          <img
+            src={
+              isSidebarOpen
+                ? '/assets/images/slide_left.png'
+                : '/assets/images/slide_right.png'
+            }
+            alt="사이드바 토글"
+            className="w-10 h-10 m-auto"
+          />
+        </button>
+      </div>
+
       {/* 사이드바 */}
       <div
-        className={`
-        absolute left-22 overflow-hidden transition-all duration-500 ease-in-out
-        ${isSidebarOpen ? 'w-[21rem]' : 'w-0'}
-      `}
+        className={`transition-all duration-500 ease-in-out overflow-hidden
+      ${isSidebarOpen ? 'w-[24rem] px-8 opacity-100' : 'w-0 px-0 opacity-0 pointer-events-none'}
+      flex flex-col gap-5`}
       >
-        <div
-          className={`
-          transition-all duration-500 ease-in-out
-          ${isSidebarOpen ? 'opacity-100 px-4' : 'opacity-0 px-0 py-0 pointer-events-none'}
-          flex flex-col gap-5
-        `}
-        >
+        <div className="flex items-center gap-2">
           <SearchInput
             value={keyword}
             onChange={keywordInputChangeHandler}
@@ -72,53 +83,31 @@ const KoreaAnalysisPage = () => {
               userTyped.current = false;
             }}
           />
-          <MindMap
-            keyword_mind={keyword_mind}
-            fetchWorldData={() => {}}
-            onKeywordChange={handleMindMapKeywordChange}
-            category={category}
-            period={period}
-            mainKeyword={keyword}
-            isKorea={true}
-          />
-          <KeywordRanking
-            category={category}
-            period={period}
-            is_korea={true}
-            onKeywordChange={handleRankingKeywordChange}
-            handleMindMapKeywordChange={handleMindMapKeywordChange}
-            handleInitKeywordChange={handleInitKeywordChange}
-          />
         </div>
+
+        <MindMap
+          keyword_mind={keyword_mind}
+          fetchWorldData={() => {}}
+          onKeywordChange={handleMindMapKeywordChange}
+          category={category}
+          period={period}
+          mainKeyword={keyword}
+          isKorea={true}
+        />
+        <KeywordRanking
+          fetchWorldData={() => {}}
+          category={category}
+          period={period}
+          is_korea={true}
+          onKeywordChange={handleRankingKeywordChange}
+          handleMindMapKeywordChange={handleMindMapKeywordChange}
+          handleInitKeywordChange={handleInitKeywordChange}
+        />
       </div>
 
-      {/* 토글 버튼 */}
-      <button
-        className={`
-        absolute  z-10 text-black rounded shadow
-        transition-all duration-500 ease-in-out
-        ${isSidebarOpen ? 'left-[1rem] px-2' : 'left-2 px-20'}
-      `}
-        onClick={() => setIsSidebarOpen((prev) => !prev)}
-      >
-        {isSidebarOpen ? (
-          <img
-            src="/assets/images/curtain_left_expand_left.png"
-            alt=""
-            className="w-12 h-12"
-          />
-        ) : (
-          <img
-            src="/assets/images/curtain_right_expand_right.png"
-            alt=""
-            className="w-12 h-12"
-          />
-        )}
-      </button>
-
-      {/* 메인 콘텐츠 */}
+      {/* 메인 콘텐츠 영역 */}
       <div
-        className={`flex flex-col items-center  gap-3 transition-all duration-500 ease-in-out ${isSidebarOpen ? 'ml-[23rem]' : 'ml-0'}`}
+        className={`flex flex-col items-center gap-3 flex-grow transition-all duration-500 ease-in-out ${isSidebarOpen ? 'ml-[-3rem]' : 'ml-0'}`}
       >
         <Category
           isCategory={category}

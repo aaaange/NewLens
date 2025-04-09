@@ -1,6 +1,7 @@
 package com.ssafy.userserver.infrastructure.security;
 
 import com.ssafy.userserver.domain.dto.GoogleResponse;
+import com.ssafy.userserver.domain.dto.KakaoResponse;
 import com.ssafy.userserver.domain.dto.OAuth2Response;
 import com.ssafy.userserver.domain.dto.SsafyResponse;
 import com.ssafy.userserver.domain.dto.UserDTO;
@@ -13,11 +14,13 @@ import com.ssafy.userserver.domain.repository.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,12 +36,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
 		OAuth2User oAuth2User = super.loadUser(userRequest);
-		// System.out.println(oAuth2User);
 
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		OAuth2Response oAuth2Response = null;
 		if (registrationId.equals("kakao")) {
-			// oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
+			oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
 		}
 		else if (registrationId.equals("google")) {
 			oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
@@ -88,7 +90,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 			return new CustomOAuth2User(userDTO);
 		}
+		// 이미 회원가입 되어 있는 경우
 		else {
+			UserProvider existUserProvider = userProviderRepository.findByUser(existUser)
+				.orElseThrow(() -> new NoSuchElementException("조회되는 정보가 없습니다."));
+
+			// 이미 다른 provider로 회원가입한 경우
+			if (!existUserProvider.getProviderName().toString()
+				.equalsIgnoreCase(oAuth2Response.getProviderName())) {
+				throw new OAuth2AuthenticationException(
+					new OAuth2Error("provider_mismatch",
+						existUserProvider.getProviderName().toString(), null)
+				);
+			}
+
 			UserDTO userDTO = new UserDTO();
 			userDTO.setEmail(email);
 			userDTO.setNickname(oAuth2Response.getNickname());

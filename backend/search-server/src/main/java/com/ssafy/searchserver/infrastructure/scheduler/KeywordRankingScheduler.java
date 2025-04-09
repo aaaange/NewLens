@@ -21,7 +21,7 @@ public class KeywordRankingScheduler {
 	/**
 	 * 매일 새벽 4시에 키워드 랭킹 통계 요청을 실행합니다.
 	 */
-	@Scheduled(cron = "0 47 19 * * ?")
+	@Scheduled(cron = "50 57 10 * * ?")
 	public void scheduleKeywordRanking() {
 		List<String> categories = Arrays.asList(
 			"general", "science", "sports", "business", "health",
@@ -42,5 +42,23 @@ public class KeywordRankingScheduler {
 				}
 			}
 		}
+	}
+
+
+	@Scheduled(cron = "0 0 * * * ?") // 정각 마다
+	public void scheduleHourlyKoreaRanking() {
+		List<String> categories = Arrays.asList(
+			"general", "science", "sports", "business", "health",
+			"entertainment", "tech", "politics", "food", "travel", "all"
+		);
+
+		for (String category : categories) {
+			try {
+				searchService.triggerHourlyKeywordRanking(category, true);
+			} catch (Exception e) {
+				log.error("실시간 키워드 랭킹 실패: {}", category, e);
+			}
+		}
+
 	}
 }

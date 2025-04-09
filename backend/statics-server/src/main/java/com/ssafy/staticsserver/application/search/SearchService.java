@@ -59,22 +59,33 @@ public class SearchService {
 			int period = (int) payload.get("period");
 			boolean isKorea = (Boolean) payload.get("isKorea");
 			boolean isLastBatch = Boolean.parseBoolean(payload.get("isLastBatch").toString());
-			// 해당 배치의 뉴스 데이터 조회
-			List<KeywordsOnly> batchNewsList = repository(isKorea).findKeywordsOnly(newsIds);
-			System.out.println("뉴스사이즈: "+ batchNewsList.size() +"period: " + period + "isKorea: " + isKorea + "category: " + category);
-			// 배치별 집계 업데이트
-			processKeywordRankingBatch(batchNewsList);
+			// 한국 실시간 데이터가 아닌 경우
+			if(period < 100) {
+				// 해당 배치의 뉴스 데이터 조회
+				List<KeywordsOnly> batchNewsList = repository(isKorea).findKeywordsOnly(newsIds);
+				System.out.println("뉴스사이즈: "+ batchNewsList.size() +"period: " + period + "isKorea: " + isKorea + "category: " + category);
+				// 배치별 집계 업데이트
+				processKeywordRankingBatch(batchNewsList);
 
-			if (isLastBatch) {
-				// 최종 집계 후 결과 생성
-				KeywordRankingResponse finalResponse = finalizeKeywordRanking(category, period, isKorea);
-				String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
-				redisTemplate.opsForValue().set(redisKey, finalResponse);
-				log.info("최종 집계 완료 및 Redis 업데이트, key: {}", redisKey);
+				if (isLastBatch) {
+					// 최종 집계 후 결과 생성
+					KeywordRankingResponse finalResponse = finalizeKeywordRanking(category, period, isKorea);
+					String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
+					redisTemplate.opsForValue().set(redisKey, finalResponse);
+					log.info("최종 집계 완료 및 Redis 업데이트, key: {}", redisKey);
 
-				// 다음 요청을 위해 집계 변수 초기화
-				aggregateCounts.clear();
+					// 다음 요청을 위해 집계 변수 초기화
+					aggregateCounts.clear();
+				}
 			}
+			// 한국 실시간 데이터인 경우 period가 현재 시간 기준 + 100으로 넘어옴
+			// ex 오전 9시 => period = 109
+			else{
+
+			}
+
+
+
 		} catch (Exception e) {
 			log.error("키워드 랭킹 메시지 처리 실패", e);
 		}
@@ -91,7 +102,10 @@ public class SearchService {
 			"다운로드", "인터뷰", "서비스", "온라인", "진행", "계획", "영향", "박사", "기능", "개발", "기술", "포함", "도시", "업체",
 			"제품", "브랜드", "식품", "산업", "가격", "포인트", "리트", "레스", "사랑", "공개", "스마트", "기자", "제안", "모델",
 			"대학", "연구", "과학자", "관광객", "관광", "최고", "최신", "결과", "사진", "분야", "개최", "상승", "증가", "기업",
-			"리뷰", "감독", "완벽", "생산", "설명", "발견", "효과", "가지", "지침", "혁신", "시스템", "출연", "여성"
+			"리뷰", "감독", "완벽", "생산", "설명", "발견", "효과", "가지", "지침", "혁신", "시스템", "출연", "여성", "월요일",
+			"화요일" ,"수요일", "목요일", "금요일", "토요일", "일요일", "형식", "있다", "이날", "지난", "밝혔다", "방송된", "통해", "있는",
+			"에서는", "자신의", "특히", "빠르게", "열린", "경기에서", "신한", "이번", "위한", "최근", "논문이", "위해", "오전", "오후",
+			"헌법재판소의", "헌법재판소가", "대통령이", "정관장은", "있습니다", "다시", "있었다"
 		));
 
 		for (KeywordsOnly dto : batchNewsList) {
@@ -203,7 +217,7 @@ public class SearchService {
 			"다운로드", "인터뷰", "서비스", "온라인", "진행", "계획", "영향", "박사", "기능", "개발", "기술", "포함", "도시", "업체",
 			"제품", "브랜드", "식품", "산업", "가격", "포인트", "리트", "레스", "사랑", "공개", "스마트", "기자", "제안", "모델",
 			"대학", "연구", "과학자", "관광객", "관광", "최고", "최신", "결과", "사진", "분야", "개최", "상승", "증가", "기업",
-			"리뷰", "감독", "완벽", "생산", "설명", "발견", "효과", "가지", "지침", "혁신", "시스템", "출연", "여성"
+			"리뷰", "감독", "완벽", "생산", "설명", "발견", "효과", "가지", "지침", "혁신", "시스템", "출연", "여성", "함께"
 		));
 
 		// 각 키워드의 등장 횟수를 저장할 맵

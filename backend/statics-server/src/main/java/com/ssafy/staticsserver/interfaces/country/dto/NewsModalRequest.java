@@ -24,4 +24,5 @@ public class NewsModalRequest {
 	private String category;
 	private String country;
 	private int period;
+	private String email;
 }

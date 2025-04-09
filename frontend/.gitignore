@@ -125,3 +125,5 @@ package-lock.json
 .vite/
 
 .env
+
+*.tsbuildinfo
