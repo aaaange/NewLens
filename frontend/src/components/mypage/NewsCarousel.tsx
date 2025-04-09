@@ -105,6 +105,10 @@ export default function NewsCarousel() {
                     />
                   </button>
                   <img
+                    onError={(e) => {
+                      e.currentTarget.onerror = null; // 무한 루프 방지
+                      e.currentTarget.src = '/assets/images/logo-newLens.png'; // Vite, CRA 공통으로 사용 가능
+                    }}
                     src={news.image_url}
                     alt={news.title}
                     className="w-full h-40 object-cover"
