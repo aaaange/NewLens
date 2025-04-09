@@ -72,8 +72,9 @@ export default function NewsCarousel() {
       {/* 슬라이더 본체 */}
       <div ref={sliderRef} className="keen-slider">
         {articles.length === 0 ? (
-          <div className=" flex items-center justify-center w-full h-60 rounded text-white text-lg">
-            최근 본 뉴스가 없어요 🗞️
+          <div className="flex flex-col items-center justify-center w-full h-60 rounded">
+            <p className="headline-xlarge">🗞️</p>
+            <p className="text-gray-500">최근 본 뉴스가 없어요!</p>
           </div>
         ) : (
           articles.map((news) => (
