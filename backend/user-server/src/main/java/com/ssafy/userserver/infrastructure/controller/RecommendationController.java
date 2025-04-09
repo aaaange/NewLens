@@ -31,13 +31,11 @@ public class RecommendationController {
 	 * - 지난 7주간(누적) 추천된 뉴스 내역을 반환합니다.
 	 */
 	@GetMapping("/news")
-	public ResponseEntity<CommonResponse<NewsListResponse>> getRecommendedNews(
+	public ResponseEntity<CommonResponse<List<NewsResponse>>> getRecommendedNews(
 		@AuthenticationPrincipal CustomOAuth2User customUser) {
 		// CustomOAuth2User 에서 이메일 정보로 사용자 엔티티 조회
 		User user = userRepository.findByEmail(customUser.getEmail());
-//		List<RecommendedNews> recommendations = recommendationService.getRecommendationsForUser(user);
-		NewsListResponse responses = recommendationService.getRecommendationResponseForUser(user);
-
+		List<NewsResponse> responses = recommendationService.getRecommendationResponseForUser(user);
 		return ResponseEntity.ok(CommonResponse.success(responses));
 	}
 }
