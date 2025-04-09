@@ -91,8 +91,8 @@ public class RecommendationService {
 
 		// 2. 후보 뉴스 조회: 최근 48시간 전 ~ 24시간 전 뉴스만 대상으로 함
 		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime startTime = now.minusHours(48);
-		LocalDateTime endTime = now.minusHours(24);
+		LocalDateTime startTime = now.minusHours(72);
+		LocalDateTime endTime = now.minusHours(0);
 		List<CandidateNews> candidates = queryCandidateNews(startTime, endTime);
 		if (candidates.isEmpty()) {
 			return;
