@@ -21,7 +21,7 @@ public class KeywordRankingScheduler {
 	/**
 	 * 매일 새벽 4시에 키워드 랭킹 통계 요청을 실행합니다.
 	 */
-	@Scheduled(cron = "0 47 19 * * ?")
+	@Scheduled(cron = "50 57 10 * * ?")
 	public void scheduleKeywordRanking() {
 		List<String> categories = Arrays.asList(
 			"general", "science", "sports", "business", "health",
