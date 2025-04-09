@@ -7,6 +7,7 @@ import {
   getRecommendNewsApi,
   postAccessLogApi,
 } from '../services/api/mypageService';
+import { getUserInfoApi, patchNicknameApi } from '../services/api/AuthService';
 
 export interface ScrapNewsGetParams {
   page: number;
@@ -113,6 +114,28 @@ export const useScrapNews = () => {
     }
   };
 
+  // 마이페이지 관련
+  // PATCH 닉네임 변경
+  const fetchNickname = async (nickname: string) => {
+    try {
+      const response = await patchNicknameApi(nickname);
+      return response.data;
+    } catch (err) {
+      setError(err as Error);
+    }
+  };
+
+  // GET 회원 정보 조회
+  const fetchUserInfo = async () => {
+    try {
+      const response = await getUserInfoApi();
+      console.log('회원 정보 :', response.data);
+      return response.data;
+    } catch (err) {
+      setError(err as Error);
+    }
+  };
+
   return {
     scrapNewsList,
     recommendNewsList,
@@ -124,5 +147,7 @@ export const useScrapNews = () => {
     fetchNewsLog,
     fetchtAccessLog,
     fetchRecommendNews,
+    fetchNickname,
+    fetchUserInfo,
   };
 };
