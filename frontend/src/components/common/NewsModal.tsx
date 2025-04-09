@@ -8,6 +8,13 @@ import { formatDate } from '../../utils/formatDateUtils';
 import Pagination from './Pagination';
 import classes from './Common.module.css';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import GlobalSpinner from './GlobalSpinner';
+import { useAuthStore } from '../../stores/useAuthStore';
+import {
+  postAccessLogApi,
+  postScrapNewsApi,
+} from '../../services/api/mypageService';
+import { useScrapNews } from '../../hooks/useMypageNews';
 interface itemPropsType {
   date: string;
   title: string;
@@ -16,6 +23,8 @@ interface itemPropsType {
   tags: string[];
   bookmarked: boolean;
   onToggleBookmark: () => void;
+  isScrap: boolean;
+  news_id: string;
 }
 
 const NewsItem = ({
@@ -25,23 +34,49 @@ const NewsItem = ({
   sentiment,
   tags,
   bookmarked,
+  isScrap,
+  news_id,
   onToggleBookmark,
 }: itemPropsType) => {
+  console.log(isScrap);
+
+  const { accessToken } = useAuthStore();
+  const isLogin = !!accessToken;
+  const [scrap, setScrap] = useState(isScrap);
+
+  const postScrapApi = async (newsId: string) => {
+    try {
+      const response = await postScrapNewsApi({
+        news_id: newsId,
+      });
+      setScrap(response.data.scrap);
+    } catch (error) {
+      console.error('북마크 추가/제거 실패:', error);
+    }
+  };
+
+  const fetchtAccessLog = (newsId: string) => {
+    const response = postAccessLogApi({
+      news_id: newsId,
+    });
+    console.log(response);
+  };
+
   const getSentimentStyle = (sentiment: string) => {
-    const sentimentValue = parseInt(sentiment, 10); // 문자열을 숫자로 변환
+    const sentimentValue = parseInt(sentiment, 10);
     if (sentimentValue >= 0 && sentimentValue <= 33) {
-      return 'bg-negative text-white'; // 부정적 스타일
+      return 'bg-negative text-white';
     } else if (sentimentValue >= 34 && sentimentValue <= 66) {
-      return 'bg-neutral text-white'; // 중립적 스타일
+      return 'bg-neutral text-white';
     } else if (sentimentValue >= 67 && sentimentValue <= 100) {
-      return 'bg-positive text-white'; // 긍정적 스타일
+      return 'bg-positive text-white';
     } else {
-      return 'bg-gray-500 text-white'; // 예외 처리 스타일
+      return 'bg-gray-500 text-white';
     }
   };
 
   const getSentimentText = (sentiment: string) => {
-    const sentimentValue = parseInt(sentiment, 10); // 문자열을 숫자로 변환
+    const sentimentValue = parseInt(sentiment, 10);
     if (sentimentValue >= 0 && sentimentValue <= 33) {
       return '부정적';
     } else if (sentimentValue >= 34 && sentimentValue <= 66) {
@@ -49,12 +84,17 @@ const NewsItem = ({
     } else if (sentimentValue >= 67 && sentimentValue <= 100) {
       return '긍정적';
     } else {
-      return '알 수 없음'; // 예외 처리
+      return '알 수 없음';
     }
   };
 
   return (
-    <div className="flex items-start md:items-center mb-2 hover:bg-gray-50 p-2 rounded transition-colors">
+    <div
+      className="flex items-start md:items-center mb-2 hover:bg-gray-50 p-2 rounded transition-colors"
+      onClick={() => {
+        fetchtAccessLog(news_id);
+      }}
+    >
       <img className="w-20 h-14 mr-4 object-fit" src={image} alt={title} />
       <div className="flex-grow">
         <p className="text-slate-400 text-xs mb-1">
@@ -79,21 +119,23 @@ const NewsItem = ({
           ))}
         </div>
       </div>
-      <button
-        className="flex items-center justify-center rounded-full cursor-pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleBookmark();
-        }}
-        aria-label={bookmarked ? '북마크 제거' : '북마크 추가'}
-      >
-        <Bookmark
-          size={18}
-          className={
-            bookmarked ? 'fill-amount-300 text-amount-300' : 'text-gray-300'
-          }
-        />
-      </button>
+      {isLogin && (
+        <button
+          className="flex items-center justify-center rounded-full cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            postScrapApi(news_id);
+          }}
+          aria-label={bookmarked ? '북마크 제거' : '북마크 추가'}
+        >
+          <Bookmark
+            size={18}
+            className={
+              scrap ? 'fill-amount-300 text-amount-300' : 'text-gray-300'
+            }
+          />
+        </button>
+      )}
     </div>
   );
 };
@@ -128,6 +170,7 @@ const NewsModal = ({
   interface NewsItemType {
     news_id: string;
     published_at: string;
+    is_scrap: boolean;
     title: string;
     image_url: string;
     keywords: string[];
@@ -139,7 +182,10 @@ const NewsModal = ({
   const [hasPrevious, setHasPrevious] = useState(false);
   const itemsPerPage = 5;
 
+  const [loading, setLoading] = useState(false);
+
   const fetchNewsList = async () => {
+    setLoading(true);
     try {
       const params = {
         category: category,
@@ -162,6 +208,8 @@ const NewsModal = ({
       setHasPrevious(response.data.hasPrevious);
     } catch (error) {
       console.error('뉴스 목록 가져오기 실패:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -253,7 +301,9 @@ const NewsModal = ({
           </div>
 
           {/* 뉴스 리스트 또는 알림 메시지 */}
-          {newsItems.length === 0 ? (
+          {loading ? (
+            <GlobalSpinner /> // ✅ 여기서 로딩 보여주기!
+          ) : newsItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
               <SentimentDissatisfiedIcon
                 className="text-gray-400"
@@ -273,10 +323,14 @@ const NewsModal = ({
                 {newsItems.map((item, index) => (
                   <div
                     key={index}
-                    onClick={() => handleNewsClick(item.url)}
+                    onClick={() => {
+                      handleNewsClick(item.url);
+                    }}
                     className="cursor-pointer"
                   >
                     <NewsItem
+                      news_id={item.news_id}
+                      isScrap={item.is_scrap}
                       date={item.published_at}
                       title={item.title}
                       image={item.image_url}
