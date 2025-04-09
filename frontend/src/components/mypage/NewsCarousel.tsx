@@ -7,8 +7,14 @@ import GlobalSpinner from '../common/GlobalSpinner';
 import { formatDate } from '../../utils/formatDateUtils';
 
 export default function NewsCarousel() {
-  const { logNewsList, loading, error, scrapNews, fetchNewsLog } =
-    useScrapNews();
+  const {
+    logNewsList,
+    loading,
+    error,
+    scrapNews,
+    fetchNewsLog,
+    fetchtAccessLog,
+  } = useScrapNews();
   const [articles, setArticles] = useState<News[]>([]);
 
   // 슬라이더 ref, 인스턴스 참조 가져오기
@@ -75,7 +81,12 @@ export default function NewsCarousel() {
               key={news.news_id}
               className="keen-slider__slide rounded overflow-hidden shadow bg-primary-900 w-lg"
             >
-              <a href={news.url} target="_blank" rel="noopener noreferrer">
+              <a
+                href={news.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => fetchtAccessLog(news.news_id)}
+              >
                 <div className="relative">
                   <button
                     onClick={(e) => {
