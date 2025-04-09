@@ -372,7 +372,6 @@ public class SearchService {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime to = LocalDateTime.now();
 			LocalDateTime from = to.minusHours(1); //
-			int currentHour = to.getHour() + 100;
 
 			String gte = from.format(formatter);
 			String lte = to.format(formatter);
@@ -405,7 +404,7 @@ public class SearchService {
 				index,
 				category,
 				isKorea,
-				currentHour
+				0
 			);
 
 		} catch (Exception e) {

@@ -21,7 +21,9 @@ public class RecommendationScheduler {
 	}
 
 	// 매일 6시, 12시, 18시에 모든 활성 사용자에 대해 추천 생성
-	@Scheduled(cron = "0 0 6,12,18 * * ?")
+	// @Scheduled(cron = "0 0 6,12,18 * * ?")
+	// @Scheduled(cron = "0 0 * * * ?")
+	@Scheduled(cron = "0 */5 * * * ?")
 	public void scheduleRecommendations() {
 		List<User> users = userRepository.findAll();
 		for (User user : users) {
