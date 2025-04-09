@@ -13,4 +13,6 @@ public interface LogRepository extends JpaRepository<Log, Long> {
 	List<Log> findTop10ByUserOrderByVisitedAtDesc(User user);
 
 	Optional<Log> findByUserAndNewsId(User user, String newsId);
+
+	List<Log> findByUserAndNewsIdIn(User user, List<String> newsIds);
 }

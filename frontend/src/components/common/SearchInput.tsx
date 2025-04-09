@@ -5,9 +5,10 @@ interface propsType {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearch: (keyword: string, mind: string) => void;
   value: string;
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-const SearchInput = ({ onChange, onSearch, value }: propsType) => {
+const SearchInput = ({ onChange, onSearch, value, onKeyDown }: propsType) => {
   const [inputValue, setInputValue] = useState(value);
 
   useEffect(() => {
@@ -41,6 +42,18 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
     console.log(inputValue);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 기존 Enter 키 처리 로직
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+
+    // props로 전달받은 onKeyDown 호출
+    if (onKeyDown) {
+      onKeyDown(e);
+    }
+  };
+
   return (
     <div>
       <div className="relative flex items-center w-[305px] h-[50px] overflow-hidden">
@@ -50,11 +63,7 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
           type="text"
           value={inputValue}
           onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSearch(); // Enter 키로만 검색 실행
-            }
-          }}
+          onKeyDown={handleKeyDown}
         />
         <button
           onClick={handleSearch}
