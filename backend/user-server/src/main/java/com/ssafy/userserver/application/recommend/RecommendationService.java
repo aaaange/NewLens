@@ -13,8 +13,10 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,8 +80,8 @@ public class RecommendationService {
 	 * 사용자 한 명에 대해 추천 생성.
 	 * 로직 개요:
 	 * 1. 사용자의 최근 7일간 클릭/검색 로그에서 관심 키워드를 추출.
-	 * 2. MongoDB의 domestic_news, foreign_news 컬렉션에서 [now-48h, now-24h] 뉴스 후보 조회.
-	 * 3. 최근 3일 내에 이미 추천된 뉴스는 후보에서 제외.
+	 * 2. MongoDB의 domestic_news, foreign_news 컬렉션에서 72시간 전부터 현재까지의 뉴스 후보를 병렬 조회.
+	 * 3. 최근 3일 내에 이미 추천된 뉴스는 후보에서 한 번의 DB 조회로 필터링.
 	 * 4. 각 후보 뉴스에 대해 사용자의 키워드와의 Jaccard 유사도 계산.
 	 * 5. 유사도 + 소량의 랜덤 노이즈로 정렬한 후 상위 3개 선택.
 	 * 6. 선택된 뉴스는 추천 내역(RecommendedNews)로 저장.
@@ -96,7 +98,7 @@ public class RecommendationService {
 			return;
 		}
 
-		// 2. 후보 뉴스 조회: 여기서는 최근 72시간 전부터 현재까지로 변경함 (예제)
+		// 2. 후보 뉴스 조회: 최근 72시간 내의 뉴스 (필요 필드만 조회)
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime startTime = now.minusHours(72);
 		LocalDateTime endTime = now;
@@ -108,13 +110,17 @@ public class RecommendationService {
 			return;
 		}
 
-		// 3. 최근 3일 내에 이미 추천된 뉴스는 후보에서 제외
+		// 3. 최근 3일 내에 이미 추천된 뉴스는 후보에서 한 번의 DB 조회로 필터링 (findByUserAndRecommendedAtBetween 사용)
 		LocalDateTime limitTime = now.minusDays(3);
+		Set<String> recentlyRecommendedNewsIds = recommendedNewsRepository
+			.findByUserAndRecommendedAtBetween(user, limitTime, now)
+			.stream()
+			.map(RecommendedNews::getNewsId)
+			.collect(Collectors.toSet());
+
 		candidates = candidates.stream()
 			.filter(candidate -> {
-				boolean notRecommended = recommendedNewsRepository
-					.findByUserAndNewsIdAndRecommendedAtAfter(user, candidate.getNewsId(), limitTime)
-					.isEmpty();
+				boolean notRecommended = !recentlyRecommendedNewsIds.contains(candidate.getNewsId());
 				if (!notRecommended) {
 					log.info("뉴스 {} 는 최근 3일 내에 이미 추천됨.", candidate.getNewsId());
 				}
@@ -144,13 +150,15 @@ public class RecommendationService {
 			.collect(Collectors.toList());
 		log.info("정렬 완료 후 후보 뉴스 순서:");
 		for (CandidateNews candidate : sortedCandidates) {
-			log.info("뉴스 {} - 제목: {}, 유사도: {}", candidate.getNewsId(), candidate.getTitle(), similarityMap.get(candidate));
+			log.info("뉴스 {} - 제목: {}, 유사도: {}",
+				candidate.getNewsId(), candidate.getTitle(), similarityMap.get(candidate));
 		}
 
 		// 6. 상위 3개 뉴스 선택 (3개 미만이면 가능한 만큼 선택)
 		int recommendationCount = Math.min(3, sortedCandidates.size());
 		List<CandidateNews> selectedRecommendations = sortedCandidates.subList(0, recommendationCount);
-		log.info("최종 추천 뉴스 수: {}건, 선택된 뉴스 ID들: {}", recommendationCount,
+		log.info("최종 추천 뉴스 수: {}건, 선택된 뉴스 ID들: {}",
+			recommendationCount,
 			selectedRecommendations.stream().map(CandidateNews::getNewsId).collect(Collectors.toList()));
 
 		// 7. 추천 내역 저장
@@ -165,7 +173,8 @@ public class RecommendationService {
 
 	/**
 	 * 사용자의 관심 키워드 추출.
-	 * 예시로 최근 7일간 사용자가 클릭한 뉴스의 "keywords" 값을 MongoDB에서 조회하여 빈도수 높은 상위 5개 키워드를 산출.
+	 * 예시로 최근 7일간 사용자가 클릭한 뉴스의 "keywords" 값을 MongoDB에서 조회하여,
+	 * 빈도수 높은 상위 5개 키워드를 산출.
 	 */
 	private List<String> extractUserInterestKeywords(User user) {
 		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
@@ -203,35 +212,52 @@ public class RecommendationService {
 	/**
 	 * 후보 뉴스 조회.
 	 * MongoDB의 domestic_news와 foreign_news 컬렉션에서 published_at이 [startTime, endTime]에 해당하는 뉴스 조회.
+	 * – 필요한 필드만 조회하고, 두 컬렉션은 병렬 처리하여 조회 속도를 개선.
 	 */
 	private List<CandidateNews> queryCandidateNews(LocalDateTime startTime, LocalDateTime endTime) {
 		List<CandidateNews> candidates = new ArrayList<>();
 		Query query = new Query();
-		// published_at은 ISO 형식의 문자열로 저장되어 있다고 가정
 		query.addCriteria(Criteria.where("published_at")
 			.gte(startTime.toString())
 			.lte(endTime.toString()));
+		query.fields().include("id").include("keywords").include("title").include("url").include("published_at");
 		log.info("MongoDB Query: {}", query);
 
-		// domestic_news 조회
-		List<Map> domesticNews = mongoTemplate.find(query, Map.class, "domestic_news");
+		// 두 컬렉션 조회를 병렬 처리
+		CompletableFuture<List<Map>> domesticFuture =
+			CompletableFuture.supplyAsync(() -> mongoTemplate.find(query, Map.class, "domestic_news"));
+		CompletableFuture<List<Map>> foreignFuture =
+			CompletableFuture.supplyAsync(() -> mongoTemplate.find(query, Map.class, "foreign_news"));
+
+		List<Map> domesticNews = domesticFuture.join();
 		for (Map doc : domesticNews) {
 			String newsId = (String) doc.get("id");
 			List<String> keywords = (List<String>) doc.get("keywords");
 			String title = (String) doc.get("title");
 			String url = (String) doc.get("url");
-			LocalDateTime publishedAt = LocalDateTime.parse((String) doc.get("published_at"));
+			LocalDateTime publishedAt;
+			try {
+				publishedAt = LocalDateTime.parse((String) doc.get("published_at"));
+			} catch (Exception e) {
+				log.error("날짜 파싱 오류 for 뉴스 ID {}: {}", newsId, e.getMessage());
+				continue;
+			}
 			candidates.add(new CandidateNews(newsId, keywords, publishedAt, title, url));
 		}
 
-		// foreign_news 조회
-		List<Map> foreignNews = mongoTemplate.find(query, Map.class, "foreign_news");
+		List<Map> foreignNews = foreignFuture.join();
 		for (Map doc : foreignNews) {
 			String newsId = (String) doc.get("id");
 			List<String> keywords = (List<String>) doc.get("keywords");
 			String title = (String) doc.get("title");
 			String url = (String) doc.get("url");
-			LocalDateTime publishedAt = LocalDateTime.parse((String) doc.get("published_at"));
+			LocalDateTime publishedAt;
+			try {
+				publishedAt = LocalDateTime.parse((String) doc.get("published_at"));
+			} catch (Exception e) {
+				log.error("날짜 파싱 오류 for 뉴스 ID {}: {}", newsId, e.getMessage());
+				continue;
+			}
 			candidates.add(new CandidateNews(newsId, keywords, publishedAt, title, url));
 		}
 		return candidates;
