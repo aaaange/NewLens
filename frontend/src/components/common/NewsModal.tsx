@@ -42,13 +42,14 @@ const NewsItem = ({
 
   const { accessToken } = useAuthStore();
   const isLogin = !!accessToken;
+  const [scrap, setScrap] = useState(isScrap);
 
   const postScrapApi = async (newsId: string) => {
     try {
       const response = await postScrapNewsApi({
         news_id: newsId,
       });
-      console.log('북마크 추가/제거 성공:', response.data);
+      setScrap(response.data.scrap);
     } catch (error) {
       console.error('북마크 추가/제거 실패:', error);
     }
@@ -130,7 +131,7 @@ const NewsItem = ({
           <Bookmark
             size={18}
             className={
-              isScrap ? 'fill-green-500 text-green-500' : 'text-gray-300'
+              scrap ? 'fill-amount-300 text-amount-300' : 'text-gray-300'
             }
           />
         </button>
