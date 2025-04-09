@@ -52,7 +52,7 @@ public class SecurityConfig {
 
 					configuration.setAllowedOrigins(
 						Arrays.asList("http://localhost:5173", "https://newlens.co.kr", "https://www.newlens.co.kr"));
-					configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+					configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 					configuration.setAllowCredentials(false);
 					configuration.setAllowedHeaders(Collections.singletonList("*"));
 					configuration.setMaxAge(3600L);
