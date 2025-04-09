@@ -302,28 +302,38 @@ public class RecommendationService {
 	}
 
 
-	public NewsListResponse getRecommendationResponseForUser(User user) {
+
+	public List<NewsResponse> getRecommendationResponseForUser(User user) {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime sevenWeeksAgo = now.minusWeeks(7);
 
-		List<RecommendedNews> recommendedList = recommendedNewsRepository.findByUserAndRecommendedAtBetween(user, sevenWeeksAgo, now);
+		List<RecommendedNews> recommendedList =
+				recommendedNewsRepository.findByUserAndRecommendedAtBetween(user, sevenWeeksAgo, now);
 
 		List<String> newsIds = recommendedList.stream()
 				.map(RecommendedNews::getNewsId)
 				.toList();
 
-		// 스크랩 여부 한 번에 조회
+		if (newsIds.isEmpty()) {
+			return List.of();
+		}
+
+		// 스크랩 여부 조회
 		List<String> scrappedNewsIds = scrapRepository.findByUserAndNewsIdIn(user, newsIds)
 				.stream()
 				.map(scrap -> scrap.getNewsId())
 				.collect(Collectors.toList());
 
+		// 방문 기록 조회
+		Map<String, LocalDateTime> visitedAtMap = logRepository.findByUserAndNewsIdIn(user, newsIds)
+				.stream()
+				.collect(Collectors.toMap(
+						log -> log.getNewsId(),
+						log -> log.getVisitedAt(),
+						(existing, replacement) -> existing // 중복 시 첫 번째 값 유지
+				));
 
-
-		if (newsIds.isEmpty()) {
-			return NewsListResponse.builder().news(List.of()).build();
-		}
-
+		// 뉴스 본문 조회
 		Query batchQuery = new Query(Criteria.where("id").in(newsIds));
 		List<Map> domesticDocs = mongoTemplate.find(batchQuery, Map.class, "domestic_news");
 		List<Map> foreignDocs = mongoTemplate.find(batchQuery, Map.class, "foreign_news");
@@ -337,11 +347,10 @@ public class RecommendationService {
 			newsMap.put((String) doc.get("id"), doc);
 		}
 
-		List<NewsResponse> responseList = recommendedList.stream()
+		return recommendedList.stream()
 				.map(r -> {
 					String newsId = r.getNewsId();
 					Map<String, Object> doc = newsMap.get(newsId);
-
 					if (doc == null) return null;
 
 					return NewsResponse.builder()
@@ -351,17 +360,15 @@ public class RecommendationService {
 							.publishedAt(LocalDateTime.parse((String) doc.getOrDefault("published_at", now.toString())))
 							.country((String) doc.getOrDefault("country", ""))
 							.keywords((List<String>) doc.getOrDefault("keywords", List.of()))
-							.isScrap(scrappedNewsIds.contains((String) doc.getOrDefault("id", "")))
+							.isScrap(scrappedNewsIds.contains(newsId))
 							.imageUrl((String) doc.getOrDefault("image_url", null))
+							.visitedAt(visitedAtMap.getOrDefault(newsId, null)) // ⬅️ 추가
 							.build();
 				})
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-
-		return NewsListResponse.builder()
-				.news(responseList)
-				.build();
 	}
+
 
 
 }
