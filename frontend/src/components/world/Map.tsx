@@ -262,6 +262,13 @@ const Map = ({
       centerY: am5.percent(100), // 기준점도 아래쪽
     });
 
+    const background = am5.RoundedRectangle.new(root, {
+      fill: am5.color('#011728'),
+      fillOpacity: 0.5,
+    });
+
+    legend.set('background', background);
+
     legend.itemContainers.template.setAll({
       layout: root.verticalLayout,
     });

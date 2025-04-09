@@ -63,7 +63,7 @@ const Section1 = forwardRef<HTMLDivElement, Section1Props>(
           </div>
           {/* button */}
           <Link
-            to="/main"
+            to="/login"
             className="flex items-center justify-center w-[270px] h-[60px] rounded-[20px] z-20 text-gray-0 body-medium-bold mb-[20px] border-2 border-amount-300 hover:bg-amount-300 hover:text-gray-700"
             onClick={() => window.scrollTo(0, 0)}
           >
