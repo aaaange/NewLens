@@ -1,4 +1,3 @@
-// File: src/main/java/com/ssafy/userserver/application/recommend/RecommendationService.java
 package com.ssafy.userserver.application.recommend;
 
 import com.ssafy.userserver.domain.entity.Log;
@@ -7,6 +6,8 @@ import com.ssafy.userserver.domain.entity.User;
 import com.ssafy.userserver.domain.repository.LogRepository;
 import com.ssafy.userserver.domain.repository.RecommendedNewsRepository;
 import com.ssafy.userserver.domain.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,6 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class RecommendationService {
+
+	private static final Logger log = LoggerFactory.getLogger(RecommendationService.class);
 
 	private final UserRepository userRepository;
 	private final LogRepository logRepository;
@@ -83,29 +86,44 @@ public class RecommendationService {
 	 */
 	@Transactional
 	public void generateRecommendationsForUser(User user) {
+		log.info("추천 생성 시작 - 사용자: {}", user.getEmail());
+
 		// 1. 사용자 관심 키워드 추출
 		List<String> userKeywords = extractUserInterestKeywords(user);
+		log.info("사용자 관심 키워드 추출 결과: {}", userKeywords);
 		if (userKeywords.isEmpty()) {
+			log.info("7일 내에 클릭 로그가 없어 추천 진행하지 않음.");
 			return;
 		}
 
-		// 2. 후보 뉴스 조회: 최근 48시간 전 ~ 24시간 전 뉴스만 대상으로 함
+		// 2. 후보 뉴스 조회: 여기서는 최근 72시간 전부터 현재까지로 변경함 (예제)
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime startTime = now.minusHours(72);
-		LocalDateTime endTime = now.minusHours(0);
+		LocalDateTime endTime = now;
+		log.info("후보 뉴스 조회 - 검색 기간: {} ~ {}", startTime, endTime);
 		List<CandidateNews> candidates = queryCandidateNews(startTime, endTime);
+		log.info("후보 뉴스 조회 결과: {}건 발견", candidates.size());
 		if (candidates.isEmpty()) {
+			log.info("후보 뉴스 없음. 추천 종료.");
 			return;
 		}
 
 		// 3. 최근 3일 내에 이미 추천된 뉴스는 후보에서 제외
 		LocalDateTime limitTime = now.minusDays(3);
 		candidates = candidates.stream()
-			.filter(candidate -> recommendedNewsRepository
-				.findByUserAndNewsIdAndRecommendedAtAfter(user, candidate.getNewsId(), limitTime)
-				.isEmpty())
+			.filter(candidate -> {
+				boolean notRecommended = recommendedNewsRepository
+					.findByUserAndNewsIdAndRecommendedAtAfter(user, candidate.getNewsId(), limitTime)
+					.isEmpty();
+				if (!notRecommended) {
+					log.info("뉴스 {} 는 최근 3일 내에 이미 추천됨.", candidate.getNewsId());
+				}
+				return notRecommended;
+			})
 			.collect(Collectors.toList());
+		log.info("최근 3일 추천 뉴스 제외 후 후보 뉴스 수: {}", candidates.size());
 		if (candidates.isEmpty()) {
+			log.info("필터링 후 후보 뉴스 없음. 추천 종료.");
 			return;
 		}
 
@@ -114,6 +132,7 @@ public class RecommendationService {
 		for (CandidateNews candidate : candidates) {
 			double similarity = computeJaccardSimilarity(userKeywords, candidate.getKeywords());
 			similarityMap.put(candidate, similarity);
+			log.info("뉴스 {} 의 유사도: {}", candidate.getNewsId(), similarity);
 		}
 
 		// 5. 유사도 + 약간의 랜덤 노이즈를 더해 내림차순 정렬 (다양성 확보)
@@ -123,16 +142,25 @@ public class RecommendationService {
 				e1.getValue() + Math.random() * 0.01))
 			.map(Map.Entry::getKey)
 			.collect(Collectors.toList());
+		log.info("정렬 완료 후 후보 뉴스 순서:");
+		for (CandidateNews candidate : sortedCandidates) {
+			log.info("뉴스 {} - 제목: {}, 유사도: {}", candidate.getNewsId(), candidate.getTitle(), similarityMap.get(candidate));
+		}
 
 		// 6. 상위 3개 뉴스 선택 (3개 미만이면 가능한 만큼 선택)
 		int recommendationCount = Math.min(3, sortedCandidates.size());
 		List<CandidateNews> selectedRecommendations = sortedCandidates.subList(0, recommendationCount);
+		log.info("최종 추천 뉴스 수: {}건, 선택된 뉴스 ID들: {}", recommendationCount,
+			selectedRecommendations.stream().map(CandidateNews::getNewsId).collect(Collectors.toList()));
 
 		// 7. 추천 내역 저장
 		for (CandidateNews candidate : selectedRecommendations) {
 			RecommendedNews recommendation = RecommendedNews.of(user, candidate.getNewsId(), now);
 			recommendedNewsRepository.save(recommendation);
+			log.info("추천 뉴스 저장 완료 - 뉴스 ID: {}", candidate.getNewsId());
 		}
+
+		log.info("추천 생성 완료 - 사용자: {}", user.getEmail());
 	}
 
 	/**
@@ -141,16 +169,15 @@ public class RecommendationService {
 	 */
 	private List<String> extractUserInterestKeywords(User user) {
 		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
-		// 여기서는 LogRepository의 findTop10ByUserOrderByVisitedAtDesc() 메서드로 최근 로그를 가져온다고 가정
 		List<Log> logs = logRepository.findTop10ByUserOrderByVisitedAtDesc(user);
 		List<Log> recentLogs = logs.stream()
 			.filter(log -> log.getVisitedAt() != null && log.getVisitedAt().isAfter(sevenDaysAgo))
 			.collect(Collectors.toList());
+		log.info("최근 7일 내 로그 수: {}", recentLogs.size());
 
 		Map<String, Integer> keywordFrequency = new HashMap<>();
 		for (Log log : recentLogs) {
 			String newsId = log.getNewsId();
-			// 우선 domestic_news에서 조회, 없으면 foreign_news 조회
 			Query query = new Query(Criteria.where("id").is(newsId));
 			Map<String, Object> newsDoc = mongoTemplate.findOne(query, Map.class, "domestic_news");
 			if (newsDoc == null) {
@@ -164,11 +191,13 @@ public class RecommendationService {
 			}
 		}
 		// 빈도수 높은 상위 5개 키워드 반환
-		return keywordFrequency.entrySet().stream()
+		List<String> topKeywords = keywordFrequency.entrySet().stream()
 			.sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
 			.limit(5)
 			.map(Map.Entry::getKey)
 			.collect(Collectors.toList());
+		log.info("상위 5개 키워드: {}", topKeywords);
+		return topKeywords;
 	}
 
 	/**
@@ -182,6 +211,7 @@ public class RecommendationService {
 		query.addCriteria(Criteria.where("published_at")
 			.gte(startTime.toString())
 			.lte(endTime.toString()));
+		log.info("MongoDB Query: {}", query);
 
 		// domestic_news 조회
 		List<Map> domesticNews = mongoTemplate.find(query, Map.class, "domestic_news");
