@@ -97,7 +97,9 @@ const RecommendedArticle = () => {
     <div>
       <div>
         <h1 className="text-2xl mb-2">추천 기사</h1>
-        <p className='body-small text-primary-500'>읽었던 기사를 기반으로 관심사 기사를 추천해드려요!</p>
+        <p className="body-small text-primary-500">
+          읽었던 기사를 기반으로 관심사 기사를 추천해드려요!
+        </p>
       </div>
       {articles.length === 0 ? (
         // 뉴스가 없을 때 메시지 표시
