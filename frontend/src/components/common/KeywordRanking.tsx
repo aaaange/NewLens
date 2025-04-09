@@ -15,6 +15,7 @@ interface PropsType {
   onKeywordChange: (keyword: string) => void;
   handleMindMapKeywordChange: (keyword: string) => void;
   handleInitKeywordChange: (keyword: string) => void;
+  fetchWorldData: (keyword: string, mind: string) => void; // 추가된 prop
 }
 
 const KeywordRanking = ({
@@ -24,6 +25,7 @@ const KeywordRanking = ({
   onKeywordChange,
   handleMindMapKeywordChange,
   handleInitKeywordChange,
+  fetchWorldData,
 }: PropsType) => {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [currentTime] = useState(() => {
@@ -41,16 +43,16 @@ const KeywordRanking = ({
 
   const handleKeywordClick = (keyword: string) => {
     onKeywordChange(keyword);
+    console.log(keyword);
     handleMindMapKeywordChange('');
+    // fetchWorldData(keyword, '');
   };
 
   const fetchKeywordRanking = async () => {
     try {
       const response = await getKeywordRankingApi(category, period, is_korea);
       const { keywords: apiKeywords } = response.data;
-      if (apiKeywords.length > 0) {
-        handleInitKeywordChange(apiKeywords[0].name); // 기간 1일 선택 시 data가 빈 배열로 넘어올 경우 대비
-      } // 첫 번째 키워드로 초기화
+      handleInitKeywordChange(apiKeywords[0].name); // 기간 1일 선택 시 data가 빈 배열로 넘어올 경우 대비
 
       const newKeywords: Keyword[] = apiKeywords.map(
         (keyword: { name: string; state: string }, index: number) => {
@@ -96,8 +98,6 @@ const KeywordRanking = ({
       setKeywords(defaultKeywords);
     }
   };
-
-  console.log('키워드 랭킹:', keywords);
 
   useEffect(() => {
     fetchKeywordRanking();

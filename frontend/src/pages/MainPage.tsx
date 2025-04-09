@@ -5,10 +5,11 @@ import SearchInput from '../components/common/SearchInput';
 import Map from '../components/world/Map';
 import { debounce, set } from 'lodash';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getWorldMapDataApi } from '../services/api/worldService';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLocation, useNavigate } from 'react-router';
+import GlobalSpinner from '../components/common/GlobalSpinner';
 
 const MainPage = () => {
   //==============================================
@@ -35,9 +36,12 @@ const MainPage = () => {
   const [keyword_mind, setKeywordMind] = useState('');
   const [firstRanking, setFirstRanking] = useState('');
   const [mapData, setMapData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
+    setKeywordMind('');
+    setDebouncedKeyword('');
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
@@ -56,22 +60,9 @@ const MainPage = () => {
     setKeyword(newKeyword);
   };
 
-  const handleFirstRankingChange = (newKeyword: string) => {
-    setFirstRanking(newKeyword);
-  };
-
-  useEffect(() => {
-    setKeywordMind('');
-  }, [debouncedKeyword]);
-
-  const fetchWorldData = async (mind: string) => {
-    console.log(keyword);
-    console.log(firstRanking);
-    // if (mind || keyword_mind) {
-    // } else if (keyword === firstRanking && keyword !== '') {
-    //   return;
-    // }
-
+  const isFirstRender = useRef(true);
+  const fetchWorldData = async (keyword: string, mind: string) => {
+    setLoading(true);
     try {
       if (debouncedKeyword.length == 1) {
         setDebouncedKeyword('');
@@ -80,19 +71,24 @@ const MainPage = () => {
       const params = {
         category: category,
         period: period,
-        keyword: debouncedKeyword,
-        keyword_mind: mind ? mind : keyword_mind,
+        keyword: keyword != '' ? keyword : debouncedKeyword,
+        keyword_mind: mind,
       };
+
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
-      setKeyword(response.data.keyword);
       if (response.data.keyword !== keyword) {
         setKeyword(response.data.keyword);
       }
     } catch (error) {
       console.error('검색 실패:', error);
+    } finally {
+      setLoading(false);
+      isFirstRender.current = false;
     }
   };
+  console.log(keyword_mind);
+
   useEffect(() => {
     const handler = debounce(() => {
       setDebouncedKeyword(keyword);
@@ -101,24 +97,29 @@ const MainPage = () => {
     return () => handler.cancel();
   }, [keyword]);
 
+  useEffect(() => {
+    setKeywordMind('');
+  }, [debouncedKeyword]);
+
+  useEffect(() => {
+    if (isFirstRender.current == true) {
+      fetchWorldData('', '');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (debouncedKeyword && isFirstRender.current == false) {
+      fetchWorldData('', keyword_mind);
+    }
+  }, [debouncedKeyword, category, period]);
+
   // useEffect(() => {
-  //   fetchWorldData('');
-  // }, []);
-
-  useEffect(() => {
-    if (debouncedKeyword) {
-      fetchWorldData('');
-    }
-  }, [debouncedKeyword, category, period, keyword_mind]);
-  console.log(keyword_mind);
-
-  useEffect(() => {
-    if (firstRanking) {
-      setKeyword(firstRanking);
-      setKeywordMind('');
-      setDebouncedKeyword(firstRanking);
-    }
-  }, [firstRanking]);
+  //   if (firstRanking) {
+  //     setKeyword(firstRanking);
+  //     setKeywordMind('');
+  //     setDebouncedKeyword(firstRanking);
+  //   }
+  // }, [firstRanking]);
 
   const headerString = [keyword, keyword_mind]
     .filter((item) => item && item.trim() !== '')
@@ -157,16 +158,17 @@ const MainPage = () => {
           onKeywordChange={handleMindMapKeywordChange}
           category={category}
           period={period}
-          mainKeyword={keyword}
+          mainKeyword={debouncedKeyword}
           isKorea={false}
         />
         <KeywordRanking
+          fetchWorldData={fetchWorldData}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           category={category}
           period={period}
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
-          handleInitKeywordChange={handleFirstRankingChange}
+          handleInitKeywordChange={handleRankingKeywordChange}
         />
       </div>
       <div className="flex flex-col items-end">
@@ -191,11 +193,12 @@ const MainPage = () => {
               )}
             </div>
             <div>
-              {firstRanking == keyword && (
-                <div className="body-small text-gray-0">
-                  실시간 가장 핫한 키워드!
-                </div>
-              )}
+              {firstRanking == keyword ||
+                (keyword !== '' && (
+                  <div className="body-small text-gray-0">
+                    실시간 가장 핫한 키워드!
+                  </div>
+                ))}
               <div className="flex items-center">
                 <span className="text-amount-300 headline-xlarge">
                   {headerString}
@@ -226,16 +229,22 @@ const MainPage = () => {
           </div>
         </div>
 
-        <div className="h-full">
-          <Map
-            tabId={activeTab}
-            keyword={keyword}
-            keyword_mind={keyword_mind}
-            category={category}
-            period={period}
-            mapData={mapData || undefined}
-          />
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center w-full h-4/8">
+            <GlobalSpinner />
+          </div>
+        ) : (
+          <div className="h-full">
+            <Map
+              tabId={activeTab}
+              keyword={keyword}
+              keyword_mind={keyword_mind}
+              category={category}
+              period={period}
+              mapData={mapData || undefined}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
