@@ -11,6 +11,7 @@ import {
   videos,
 } from '../worldDetail/MockData';
 import NewsCarousel from './NewsCarousel';
+import MyProfile from './MyProfile';
 
 const safeData = {
   keywords: words,
@@ -40,7 +41,7 @@ const MyActivities = () => {
           <img src="/assets/images/blank_profile.png" className="w-24 h-24" />
           <div className="pl-4 w-full">
             <div className="flex gap-2 items-center">
-              <div className='text-lg'>열정_두배</div>
+              <div className="text-lg">열정_두배</div>
               <img src="/assets/images/update_pen.png" className="w-2 h-4" />
             </div>
             <div className="flex justify-between">
@@ -57,7 +58,7 @@ const MyActivities = () => {
                 </div>
               </div>
               <div className="flex items-end">
-                <button className='transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer'>
+                <button className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
                   <div className=" border-1 rounded-lg p-1.5 text-sm border-system-danger text-system-danger">
                     탈퇴하기
                   </div>
@@ -66,6 +67,9 @@ const MyActivities = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div>
+        <MyProfile />
       </div>
       <div>
         <h2 className="text-2xl mb-4">최근 본 NEWS</h2>
