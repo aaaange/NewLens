@@ -100,7 +100,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.equalsIgnoreCase(oAuth2Response.getProviderName())) {
 				throw new OAuth2AuthenticationException(
 					new OAuth2Error("provider_mismatch",
-						"이미 " + existUserProvider.getProviderName() + "로 회원가입 된 이력이 있습니다.", null)
+						existUserProvider.getProviderName().toString(), null)
 				);
 			}
 
