@@ -51,8 +51,6 @@ const Map = ({
       mention: mentionResType;
       sentiment: sentimentResType;
     } = mapData;
-    // console.log('mention', mention);
-    // console.log('sentiment', sentiment);
 
     // 언급량 데이터 가공: 배열 -> 객체로 변환
     const mentionObj: { [key: string]: number } = {};
@@ -60,11 +58,9 @@ const Map = ({
       mentionObj[item.country] = item.count;
     });
     setMentionData(mentionObj);
-    console.log('mentionObj', mentionObj);
 
     // 긍부정 데이터 가공
     const sentimentObj: sentimentObjType = {};
-    console.log('sentimentObj', sentimentObj);
 
     // primarySentiment 판별 함수
     const getPrimarySentiment = (

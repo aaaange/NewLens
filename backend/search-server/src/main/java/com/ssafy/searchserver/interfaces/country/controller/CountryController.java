@@ -1,6 +1,7 @@
 package com.ssafy.searchserver.interfaces.country.controller;
 
 import com.ssafy.searchserver.interfaces.country.dto.AnalysisData;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -185,10 +186,11 @@ public class CountryController {
             @Parameter(description = "국가", example = "ko") @RequestParam String country,
             @Parameter(description = "페이지", example = "1") @RequestParam int page,
             @Parameter(description = "페이지 당 보여줄 개수", example = "5") @RequestParam int size,
-            @Parameter(description = "한국 특화 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea
+            @Parameter(description = "한국 특화 여부", example = "false") @RequestParam(name = "is_korea") boolean isKorea,
+            HttpServletRequest request
 
     ) {
-        NewsModalResponse data = countryService.getNewsNodal(category, period, keyword, keywordMind, keywordCloud, country, page, size, isKorea);
+        NewsModalResponse data = countryService.getNewsNodal(category, period, keyword, keywordMind, keywordCloud, country, page, size, isKorea, request);
         CommonResponse<NewsModalResponse> response = CommonResponse.success(data);
         return ResponseEntity.ok(response);
     }

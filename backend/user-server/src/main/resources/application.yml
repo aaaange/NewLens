@@ -55,11 +55,11 @@ spring:
               - profile
               - email
 
-
           kakao: # 이게 registrationId 로서 역할
             client-id: ${KAKAO_CLIENT}
             client-secret: ${KAKAO_SECRET}
-            redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
+#            redirect-uri: "{baseUrl}/api/user/login/oauth2/code/kakao"
+            redirect-uri: http://www.newlens.co.kr/api/user/login/oauth2/code/kakao
             client-authentication-method: client_secret_post # kakao는 인증 토큰 발급 요청 메서드가 post이다.
             authorization-grant-type: authorization_code
             scope: # kakao 개인 정보 동의 항목 설정의 ID 값

@@ -3,7 +3,7 @@ import { notify } from './Toast';
 
 interface propsType {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSearch: (keyword: string) => void;
+  onSearch: (keyword: string, mind: string) => void;
   value: string;
 }
 
@@ -11,7 +11,6 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
   const [inputValue, setInputValue] = useState(value);
 
   useEffect(() => {
-    // 부모 컴포넌트로부터 전달된 value가 변경될 때 상태를 업데이트
     setInputValue(value);
   }, [value]);
 
@@ -29,9 +28,8 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
       return;
     }
 
-    // 상태 업데이트
     setInputValue(newValue);
-    onChange(e);
+    onChange(e); // 부모 컴포넌트 상태 업데이트
   };
 
   const handleSearch = () => {
@@ -39,28 +37,27 @@ const SearchInput = ({ onChange, onSearch, value }: propsType) => {
       notify({ type: 'warning', text: '두 글자 이상 입력해 주세요.' });
       return;
     }
-    onSearch(''); // 한 글자가 아닌 경우에만 검색 실행
+    onSearch(inputValue, ''); // Enter 키나 버튼 클릭 시 검색 실행
+    console.log(inputValue);
   };
 
   return (
     <div>
-      <div
-        className={`relative flex items-center w-[305px] h-[50px] overflow-hidden`}
-      >
+      <div className="relative flex items-center w-[305px] h-[50px] overflow-hidden">
         <input
-          className={`w-full h-full pl-5 pr-10 border text-primary-950 border-gray-500 outline-none rounded-[20px] placeholder-primary-900 body-medium bg-gray-0`}
+          className="w-full h-full pl-5 pr-10 border text-primary-950 border-gray-500 outline-none rounded-[20px] placeholder-primary-900 body-medium bg-gray-0"
           placeholder="궁금한 키워드를 검색하세요!"
           type="text"
-          value={value}
+          value={inputValue}
           onChange={handleChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              handleSearch();
+              handleSearch(); // Enter 키로만 검색 실행
             }
           }}
         />
         <button
-          onClick={() => handleSearch()}
+          onClick={handleSearch}
           className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
         >
           <svg
