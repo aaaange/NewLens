@@ -83,13 +83,13 @@ const RecommendedArticle = () => {
   return (
     <div>
       {articles.length === 0 ? (
-      // ✅ 뉴스가 없을 때 메시지 표시
+      // 뉴스가 없을 때 메시지 표시
       <div className="flex flex-col justify-center items-center h-screen gap-2">
         <p className="headline-xlarge">😢</p>
         <p className="text-gray-500">아직 추천 뉴스가 없어요</p>
       </div>
     ) : (
-      // ✅ 뉴스가 있을 때 기존 UI 렌더
+      // 뉴스가 있을 때 기존 UI 렌더
       <div className="rounded-lg space-y-6">
         {Object.entries(groupedArticles).map(([date, articles]) => (
           <div key={date}>
