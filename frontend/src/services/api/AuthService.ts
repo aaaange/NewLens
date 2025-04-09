@@ -6,8 +6,8 @@ export const logOutApi = async () => {
 };
 
 // PATCH 닉네임 변경
-export const patchNicknameApi = async (nickname:string) => {
-  const response = await api.patch('user/auth/nickname', nickname);
+export const patchNicknameApi = async (nickname: string) => {
+  const response = await api.patch('user/auth/nickname', { nickname });
   return response.data;
 };
 
