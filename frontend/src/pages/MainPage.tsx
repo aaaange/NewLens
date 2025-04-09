@@ -151,6 +151,7 @@ const MainPage = () => {
           value={keyword}
           onChange={keywordInputChangeHandler}
           onSearch={fetchWorldData}
+          onKeyDown={() => {}}
         />
         <MindMap
           fetchWorldData={fetchWorldData}
