@@ -63,7 +63,7 @@ const ClippingNews = () => {
     setPage(newPage);
   };
 
-  if (loading) return <GlobalSpinner />
+  if (loading) return <GlobalSpinner />;
 
   return (
     <div>
