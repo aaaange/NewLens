@@ -95,6 +95,7 @@ const KoreaAnalysisPage = () => {
           isKorea={true}
         />
         <KeywordRanking
+          fetchWorldData={() => {}}
           category={category}
           period={period}
           is_korea={true}

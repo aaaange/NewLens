@@ -35,6 +35,7 @@ const WorldDetail = () => {
     initialPeriod ? parseInt(initialPeriod) : 1
   );
   const [keyword, setKeyword] = useState(initialKeyword ?? '');
+
   const [keyword_mind, setKeywordMind] = useState(initialKeywordMind ?? '');
   const [keyword_cloud, setKeywordCloud] = useState('');
 
@@ -178,6 +179,7 @@ const WorldDetail = () => {
           isKorea={firstCountry === 'KR'}
         />
         <KeywordRanking
+          fetchWorldData={() => {}}
           category={category}
           period={period}
           is_korea={false}
