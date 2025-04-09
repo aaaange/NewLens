@@ -106,7 +106,7 @@ export const useScrapNews = () => {
     try {
       setLoading(true);
       const response = await getRecommendNewsApi();
-      setRecommendNewsList(response.data); // 응답 형식 다시 확인하기
+      setRecommendNewsList(response.data); // 응답 형식 다시 확인하기 
     } catch (err) {
       setError(err as Error);
     } finally {
