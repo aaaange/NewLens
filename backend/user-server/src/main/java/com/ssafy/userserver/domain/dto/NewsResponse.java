@@ -31,4 +31,7 @@ public class NewsResponse {
 
 	@JsonProperty("image_url")
 	private String imageUrl;
+
+	@JsonProperty("visited_at")
+	private LocalDateTime visitedAt;
 }
