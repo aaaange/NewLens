@@ -50,9 +50,9 @@ const LoginPage = () => {
         </div>
         <div
           onClick={handleBackpage}
-          className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer"
+          className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer underline"
         >
-          ← 돌아가기
+          비회원으로 이용하기
         </div>
       </div>
       <div className="absolute right-0 top-0 translate-x-[20vw] -translate-y-[3vh] z-0 ">
