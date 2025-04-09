@@ -43,4 +43,23 @@ public class KeywordRankingScheduler {
 			}
 		}
 	}
+
+
+	@Scheduled(cron = "0 0 * * * ?") // 정각 마다
+	public void scheduleHourlyKoreaRanking() {
+		List<String> categories = Arrays.asList(
+			"general", "science", "sports", "business", "health",
+			"entertainment", "tech", "politics", "food", "travel", "all"
+		);
+
+		for (String category : categories) {
+			try {
+				searchService.triggerHourlyKeywordRanking(category, true);
+			} catch (Exception e) {
+				log.error("실시간 키워드 랭킹 실패: {}", category, e);
+			}
+		}
+
+
+
 }
