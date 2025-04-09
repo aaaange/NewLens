@@ -142,10 +142,17 @@ public class RecommendationService {
 		}
 
 		// 5. 유사도 + 약간의 랜덤 노이즈를 더해 내림차순 정렬 (다양성 확보)
-		List<CandidateNews> sortedCandidates = similarityMap.entrySet().stream()
-			.sorted((e1, e2) -> Double.compare(
-				e2.getValue() + Math.random() * 0.01,
-				e1.getValue() + Math.random() * 0.01))
+		// 각 후보 뉴스에 대해 한 번만 랜덤 노이즈를 계산하여 합산 점수를 구한다.
+		Map<CandidateNews, Double> noisySimilarityMap = new HashMap<>();
+		for (Map.Entry<CandidateNews, Double> entry : similarityMap.entrySet()) {
+			// 각 뉴스마다 고정된 랜덤 노이즈를 더해준다.
+			double noisyScore = entry.getValue() + Math.random() * 0.01;
+			noisySimilarityMap.put(entry.getKey(), noisyScore);
+		}
+
+		// 고정된 noisySimilarityMap을 사용하여 정렬한다.
+		List<CandidateNews> sortedCandidates = noisySimilarityMap.entrySet().stream()
+			.sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
 			.map(Map.Entry::getKey)
 			.collect(Collectors.toList());
 		log.info("정렬 완료 후 후보 뉴스 순서:");
