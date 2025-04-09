@@ -93,13 +93,13 @@ public class SearchService {
 			// 한국 실시간 데이터인 경우 period가 현재 시간 기준 + 100으로 넘어옴
 			// ex 오전 9시 => period = 109
 			else {
-				if (isLastBatch) {
-					// 최종 집계 후 결과 생성
-					KeywordRankingResponse finalResponse = finalizeKeywordRanking(category, period, isKorea);
-					String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
-					redisTemplate.opsForValue().set(redisKey, finalResponse);
-					log.info("최종 집계 완료 및 Redis 업데이트, key: {}", redisKey);
-				}
+//				if (isLastBatch) {
+//					// 최종 집계 후 결과 생성
+//					KeywordRankingResponse finalResponse = finalizeKeywordRanking(category, period, isKorea);
+//					String redisKey = String.format("keyword_ranking:%s:%d:%b", category, period, isKorea);
+//					redisTemplate.opsForValue().set(redisKey, finalResponse);
+//					log.info("최종 집계 완료 및 Redis 업데이트, key: {}", redisKey);
+//				}
 			}
 
 			// 다음 요청을 위해 집계 변수 초기화
