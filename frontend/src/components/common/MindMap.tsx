@@ -94,7 +94,7 @@ interface MindMapProps {
   mainKeyword: string;
   isKorea: boolean;
   keyword_mind: string;
-  fetchWorldData: (keyword: string) => void; // 추가된 prop
+  fetchWorldData: (keyword: string, mind: string) => void; // 추가된 prop
 }
 
 const MindMap = ({
@@ -108,7 +108,6 @@ const MindMap = ({
 }: MindMapProps) => {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const [keyword, setKeyword] = useState('');
   const [selectedNodeId, setSelectedNodeId] = useState('');
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
   const onConnect = useCallback(
@@ -123,14 +122,12 @@ const MindMap = ({
       const targetNode = nodes.find((node) => node.data.label === keyword_mind);
       if (targetNode) {
         setSelectedNodeId(targetNode.id); // 노드 ID 업데이트
-        // setKeyword(keyword_mind); // 키워드 상태도 동기화
       }
     }
   }, [keyword_mind, nodes]);
 
   useEffect(() => {
     setSelectedNodeId('');
-    // setKeyword('');
   }, [mainKeyword]);
 
   const onNodeClick = useCallback(
@@ -138,16 +135,13 @@ const MindMap = ({
       if (node.id === '1') return;
 
       if (selectedNodeId === node.id) {
-        // 동일한 노드를 클릭한 경우 상태 초기화
-        // setKeyword('');
         setSelectedNodeId('');
         onKeywordChange('');
-        // fetchWorldData('');
+        fetchWorldData('', '');
       } else {
-        // setKeyword(node.data.fullLabel);
         setSelectedNodeId(node.id);
         onKeywordChange(node.data.fullLabel);
-        fetchWorldData(node.data.fullLabel);
+        fetchWorldData('', node.data.fullLabel);
       }
     },
     [selectedNodeId, onKeywordChange, fetchWorldData]
@@ -262,8 +256,11 @@ const MindMap = ({
       setEdges(defaultEdges);
     }
   };
+
   useEffect(() => {
-    fetchMindMapData();
+    if (mainKeyword.length > 1) {
+      fetchMindMapData();
+    }
   }, [category, period, mainKeyword]);
 
   const centerX = 150;
@@ -323,7 +320,7 @@ const MindMap = ({
           minZoom={0.8} // 최소 줌 제한
           maxZoom={2} // 최대 줌 제한
           panOnDrag={false}
-          zoomOnScroll={true}
+          zoomOnScroll={false}
           zoomOnDoubleClick={false}
           elementsSelectable={false}
           nodesDraggable={false}
