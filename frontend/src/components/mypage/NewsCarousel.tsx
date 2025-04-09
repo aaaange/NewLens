@@ -7,8 +7,14 @@ import GlobalSpinner from '../common/GlobalSpinner';
 import { formatDate } from '../../utils/formatDateUtils';
 
 export default function NewsCarousel() {
-  const { logNewsList, loading, error, scrapNews, fetchNewsLog } =
-    useScrapNews();
+  const {
+    logNewsList,
+    loading,
+    error,
+    scrapNews,
+    fetchNewsLog,
+    fetchtAccessLog,
+  } = useScrapNews();
   const [articles, setArticles] = useState<News[]>([]);
 
   // 슬라이더 ref, 인스턴스 참조 가져오기
@@ -66,8 +72,9 @@ export default function NewsCarousel() {
       {/* 슬라이더 본체 */}
       <div ref={sliderRef} className="keen-slider">
         {articles.length === 0 ? (
-          <div className=" flex items-center justify-center w-full h-60 rounded text-white text-lg">
-            최근 본 뉴스가 없어요 🗞️
+          <div className="flex flex-col items-center justify-center w-full h-60 rounded">
+            <p className="headline-xlarge">🗞️</p>
+            <p className="text-gray-500">최근 본 뉴스가 없어요!</p>
           </div>
         ) : (
           articles.map((news) => (
@@ -75,7 +82,12 @@ export default function NewsCarousel() {
               key={news.news_id}
               className="keen-slider__slide rounded overflow-hidden shadow bg-primary-900 w-lg"
             >
-              <a href={news.url} target="_blank" rel="noopener noreferrer">
+              <a
+                href={news.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => fetchtAccessLog(news.news_id)}
+              >
                 <div className="relative">
                   <button
                     onClick={(e) => {
@@ -94,6 +106,10 @@ export default function NewsCarousel() {
                     />
                   </button>
                   <img
+                    onError={(e) => {
+                      e.currentTarget.onerror = null; // 무한 루프 방지
+                      e.currentTarget.src = '/assets/images/logo-newLens.png'; // Vite, CRA 공통으로 사용 가능
+                    }}
                     src={news.image_url}
                     alt={news.title}
                     className="w-full h-40 object-cover"

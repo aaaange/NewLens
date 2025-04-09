@@ -7,7 +7,7 @@ import NewsList from '../worldDetail/NewsList';
 import KoreaVideoList from './KoreaVideoList';
 import NewsSummary from '../worldDetail/NewsSummary';
 import NewsModal from '../common/NewsModal';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import {
   words,
@@ -38,44 +38,41 @@ const KoreaAnalysis = ({
   period,
   is_korea,
 }: KoreaAnalysisProps) => {
-  const koreaParams = {
-    country: country,
-    category: category,
-    period: period,
-    keyword: keyword,
-    keyword_mind: keyword_mind,
-    is_korea: true,
-  };
+  const memoizedParams = useMemo(
+    () => ({
+      country,
+      category,
+      period,
+      keyword,
+      keyword_mind,
+      is_korea: country === 'kr',
+    }),
+    [country, keyword_mind, keyword, category, period]
+  );
+  const [keyword_cloud, setKeywordCloud] = useState('');
   const [isModal, setIsModal] = useState(false);
   const [selectCountry, setSelectCountry] = useState('');
 
-  const handleModalOpen = (country: string) => {
-    setIsModal(true);
-    setSelectCountry('KR');
-  };
-  const handleModalClose = () => {
-    setIsModal(false);
-  };
-  const [keyword_cloud, setKeywordCloud] = useState('');
-  const handleWordCloudChange = (newKeyword: string) => {
-    setKeywordCloud(newKeyword);
-  };
-
-  const { data, isLoading, error } = useCountryData(koreaParams);
+  const { data, isLoading, error } = useCountryData(memoizedParams);
   console.log('KoreaAnalysis data:', data);
 
   const {
     data: gpt_data,
     isLoading: isLoading_GPT,
     error: error_GPT,
-  } = useDescription(koreaParams);
+  } = useDescription(memoizedParams);
 
   if (isLoading) return <GlobalSpinner />;
-  // if (error) return <div>Error! {error.message}</div>; // mock 데이터 제거 시 주석 풀어주기.
+  if (error)
+    return (
+      <div className="text-center mt-10 text-system-danger">
+        오류가 발생했습니다: {error.message}
+      </div>
+    );
 
   // 서버 응답 없을 경우 목데이터로 대체
   const safeData = data ?? {
-    keywords: words,
+    keywords: words.map((word) => ({ text: word.text, value: word.value })),
     // description: description,
     sentimentData: sentimentData,
     mentions: mentionData,
@@ -84,67 +81,96 @@ const KoreaAnalysis = ({
   };
 
   const description = gpt_data || '뉴스 요약을 불러오는 중입니다...🔥';
+
+  const isAllDataEmpty =
+    safeData.keywords?.length === 0 &&
+    safeData.sentimentData?.length === 0 &&
+    safeData.mentions?.length === 0 &&
+    safeData.articles?.length === 0 &&
+    safeData.videos?.length === 0;
+
+  const handleModalOpen = (country: string) => {
+    setIsModal(true);
+    setSelectCountry('KR');
+  };
+  const handleModalClose = () => {
+    setIsModal(false);
+  };
+  const handleWordCloudChange = (newKeyword: string) => {
+    setKeywordCloud(newKeyword);
+  };
+
   return (
     <div className="flex flex-col gap-5 mb-5">
-      <WordCloud
-        keywords={safeData.keywords}
-        keyword_mind={keyword_mind}
-        width={900}
-        height={400}
-        keyword={keyword}
-        country_name={country_name}
-        country_code={'KR'}
-        handleWordCloudChange={handleWordCloudChange}
-        handleModalOpen={handleModalOpen} // 모달 열기 함수
-      />
-      <NewsSummary
-        description={description}
-        width={900}
-        height={100}
-        keyword={keyword}
-        keyword_mind={keyword_mind}
-        country_name={country_name}
-        country_code={'KR'}
-      />
+      {isAllDataEmpty ? (
+        // 키워드에 대한 뉴스가 0건일 경우 안내
+        <div className="text-center flex flex-col gap-2">
+          <div className="headline-xlarge">😢</div>
+          <div>현재 선택한 키워드에 대한 뉴스가 없습니다.</div>
+        </div>
+      ) : (
+        <>
+          <WordCloud
+            keywords={safeData.keywords}
+            keyword_mind={keyword_mind}
+            width={900}
+            height={400}
+            keyword={keyword}
+            country_name={country_name}
+            country_code={'KR'}
+            handleWordCloudChange={handleWordCloudChange}
+            handleModalOpen={handleModalOpen} // 모달 열기 함수
+          />
+          <NewsSummary
+            description={description}
+            width={900}
+            height={100}
+            keyword={keyword}
+            keyword_mind={keyword_mind}
+            country_name={country_name}
+            country_code={'KR'}
+          />
 
-      <div className="flex">
-        <StackedColumns
-          data={safeData.sentimentData}
-          width={450}
-          height={250}
-          keyword={keyword}
-          keyword_mind={keyword_mind}
-          country_name={country_name}
-          country_code={'KR'}
-        />
-        <MentionChart
-          data={safeData.mentions}
-          width={450}
-          height={250}
-          keyword={keyword}
-          keyword_mind={keyword_mind}
-          country_name={country_name}
-          country_code={'KR'}
-        />
-      </div>
-      <NewsList
-        news={safeData.articles}
-        width={900}
-        keyword={keyword}
-        keyword_mind={keyword_mind}
-        country_name={country_name}
-        country_code={'KR'}
-        handleModalOpen={handleModalOpen}
-      />
-      <KoreaVideoList
-        videos={safeData.videos}
-        width={900}
-        height={300}
-        keyword={keyword}
-        keyword_mind={keyword_mind}
-        country_name={country_name}
-        country_code={'KR'}
-      />
+          <div className="flex">
+            <StackedColumns
+              data={safeData.sentimentData}
+              width={450}
+              height={250}
+              keyword={keyword}
+              keyword_mind={keyword_mind}
+              country_name={country_name}
+              country_code={'KR'}
+            />
+            <MentionChart
+              data={safeData.mentions}
+              width={450}
+              height={250}
+              keyword={keyword}
+              keyword_mind={keyword_mind}
+              country_name={country_name}
+              country_code={'KR'}
+            />
+          </div>
+          <NewsList
+            news={safeData.articles}
+            width={900}
+            keyword={keyword}
+            keyword_mind={keyword_mind}
+            country_name={country_name}
+            country_code={'KR'}
+            handleModalOpen={handleModalOpen}
+          />
+          <KoreaVideoList
+            videos={safeData.videos}
+            width={900}
+            height={300}
+            keyword={keyword}
+            keyword_mind={keyword_mind}
+            country_name={country_name}
+            country_code={'KR'}
+          />
+        </>
+      )}
       {isModal && (
         <NewsModal
           handleModalClose={handleModalClose}
