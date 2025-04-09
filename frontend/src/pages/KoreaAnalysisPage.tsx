@@ -3,12 +3,14 @@ import SearchInput from '../components/common/SearchInput';
 import MindMap from '../components/common/MindMap';
 import KeywordRanking from '../components/common/KeywordRanking';
 import Category from '../components/common/Category';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const KoreaAnalysisPage = () => {
   const [category, setCategory] = useState('all');
   const [period, setPeriod] = useState(30);
   const [keyword, setKeyword] = useState('');
+  const [inputKeyword, setInputKeyword] = useState('');
+  const [apiKeyword, setApiKeyword] = useState('');
   const [keyword_mind, setKeywordMind] = useState('');
   const [initialKeyword, setInitialKeyword] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -18,12 +20,31 @@ const KoreaAnalysisPage = () => {
 
   const userTyped = useRef(false); // 사용자가 직접 입력했는지 여부
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setApiKeyword(inputKeyword);
+    }, 200);
+
+    return () => clearTimeout(timeoutId);
+  }, [inputKeyword]);
+
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    userTyped.current = true;
-    setKeyword(e.target.value);
+    setInputKeyword(e.target.value);
+    setKeywordMind('');
   };
+
+  const keywordInputKeyDownHandler = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === 'Enter') {
+      setKeyword(inputKeyword); // Enter 키로만 키워드 업데이트
+      userTyped.current = false;
+      console.log(inputKeyword);
+    }
+  };
+
   const handleMindMapKeywordChange = (newKeyword: string) => {
     setKeywordMind(newKeyword);
   };
@@ -76,11 +97,12 @@ const KoreaAnalysisPage = () => {
         <div className="flex items-center gap-2">
           <SearchInput
             value={keyword}
+            onKeyDown={keywordInputKeyDownHandler}
             onChange={keywordInputChangeHandler}
             onSearch={() => {
               setInitialKeyword(keyword);
-              setKeywordMind('');
-              userTyped.current = false;
+
+              // setKeywordMind('');
             }}
           />
         </div>

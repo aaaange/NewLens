@@ -41,6 +41,9 @@ const WorldDetail = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  const [inputKeyword, setInputKeyword] = useState('');
+  const [apiKeyword, setApiKeyword] = useState('');
+
   const shouldCallCompare =
     secondCountry !== '' && category && period && keyword;
 
@@ -49,7 +52,7 @@ const WorldDetail = () => {
       ? {
           category,
           period,
-          keyword: keyword,
+          keyword: apiKeyword,
           keyword_mind: keyword_mind,
           country1: firstCountry,
           country2: secondCountry,
@@ -67,11 +70,27 @@ const WorldDetail = () => {
     setKeywordMind('');
   };
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setApiKeyword(inputKeyword);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [inputKeyword]);
+
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setKeyword(e.target.value);
+    setInputKeyword(e.target.value);
     setKeywordMind('');
+  };
+
+  const keywordInputKeyDownHandler = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === 'Enter') {
+      setKeyword(inputKeyword); // Enter 키로만 키워드 업데이트
+    }
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
@@ -123,19 +142,6 @@ const WorldDetail = () => {
     setIsModal(false);
   };
 
-  const [openMenu, setOpenMenu] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-
-  const handleMenuOpen = () => {
-    if (!openMenu) {
-      setIsVisible(true); // 먼저 보여주고
-      setOpenMenu(true); // 슬라이드 인
-    } else {
-      setOpenMenu(false); // 슬라이드 아웃
-      setTimeout(() => setIsVisible(false), 300); // 트랜지션 끝나고 DOM 제거
-    }
-  };
-
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
       {/* 버튼 */}
@@ -166,7 +172,8 @@ const WorldDetail = () => {
           <SearchInput
             value={keyword}
             onChange={keywordInputChangeHandler}
-            onSearch={() => console.log('Search triggered')}
+            onSearch={() => {}}
+            onKeyDown={keywordInputKeyDownHandler}
           />
         </div>
         <MindMap
