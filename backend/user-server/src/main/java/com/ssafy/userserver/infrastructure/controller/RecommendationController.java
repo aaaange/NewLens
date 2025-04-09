@@ -36,6 +36,7 @@ public class RecommendationController {
 		// CustomOAuth2User 에서 이메일 정보로 사용자 엔티티 조회
 		User user = userRepository.findByEmail(customUser.getEmail());
 		List<NewsResponse> responses = recommendationService.getRecommendationResponseForUser(user);
+
 		return ResponseEntity.ok(CommonResponse.success(responses));
 	}
 }
