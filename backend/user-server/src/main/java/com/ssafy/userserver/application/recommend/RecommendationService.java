@@ -1,10 +1,13 @@
 package com.ssafy.userserver.application.recommend;
 
+import com.ssafy.userserver.domain.dto.NewsListResponse;
+import com.ssafy.userserver.domain.dto.NewsResponse;
 import com.ssafy.userserver.domain.entity.Log;
 import com.ssafy.userserver.domain.entity.RecommendedNews;
 import com.ssafy.userserver.domain.entity.User;
 import com.ssafy.userserver.domain.repository.LogRepository;
 import com.ssafy.userserver.domain.repository.RecommendedNewsRepository;
+import com.ssafy.userserver.domain.repository.ScrapRepository;
 import com.ssafy.userserver.domain.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,15 +31,18 @@ public class RecommendationService {
 	private final LogRepository logRepository;
 	private final RecommendedNewsRepository recommendedNewsRepository;
 	private final MongoTemplate mongoTemplate;
+	private final ScrapRepository scrapRepository;
 
 	public RecommendationService(UserRepository userRepository,
 		LogRepository logRepository,
 		RecommendedNewsRepository recommendedNewsRepository,
+		ScrapRepository scrapRepository,
 		MongoTemplate mongoTemplate) {
 		this.userRepository = userRepository;
 		this.logRepository = logRepository;
 		this.recommendedNewsRepository = recommendedNewsRepository;
 		this.mongoTemplate = mongoTemplate;
+		this.scrapRepository = scrapRepository;
 	}
 
 	// 내부 클래스 – MongoDB에서 조회한 후보 뉴스 정보를 담는 객체
@@ -138,7 +144,7 @@ public class RecommendationService {
 		for (CandidateNews candidate : candidates) {
 			double similarity = computeJaccardSimilarity(userKeywords, candidate.getKeywords());
 			similarityMap.put(candidate, similarity);
-			log.info("뉴스 {} 의 유사도: {}", candidate.getNewsId(), similarity);
+//			log.info("뉴스 {} 의 유사도: {}", candidate.getNewsId(), similarity);
 		}
 
 		// 5. 유사도 + 약간의 랜덤 노이즈를 더해 내림차순 정렬 (다양성 확보)
@@ -155,11 +161,11 @@ public class RecommendationService {
 			.sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
 			.map(Map.Entry::getKey)
 			.collect(Collectors.toList());
-		log.info("정렬 완료 후 후보 뉴스 순서:");
-		for (CandidateNews candidate : sortedCandidates) {
-			log.info("뉴스 {} - 제목: {}, 유사도: {}",
-				candidate.getNewsId(), candidate.getTitle(), similarityMap.get(candidate));
-		}
+//		log.info("정렬 완료 후 후보 뉴스 순서:");
+//		for (CandidateNews candidate : sortedCandidates) {
+//			log.info("뉴스 {} - 제목: {}, 유사도: {}",
+//				candidate.getNewsId(), candidate.getTitle(), similarityMap.get(candidate));
+//		}
 
 		// 6. 상위 3개 뉴스 선택 (3개 미만이면 가능한 만큼 선택)
 		int recommendationCount = Math.min(3, sortedCandidates.size());
@@ -294,4 +300,68 @@ public class RecommendationService {
 		LocalDateTime sevenWeeksAgo = now.minusWeeks(7);
 		return recommendedNewsRepository.findByUserAndRecommendedAtBetween(user, sevenWeeksAgo, now);
 	}
+
+
+	public NewsListResponse getRecommendationResponseForUser(User user) {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime sevenWeeksAgo = now.minusWeeks(7);
+
+		List<RecommendedNews> recommendedList = recommendedNewsRepository.findByUserAndRecommendedAtBetween(user, sevenWeeksAgo, now);
+
+		List<String> newsIds = recommendedList.stream()
+				.map(RecommendedNews::getNewsId)
+				.toList();
+
+		// 스크랩 여부 한 번에 조회
+		List<String> scrappedNewsIds = scrapRepository.findByUserAndNewsIdIn(user, newsIds)
+				.stream()
+				.map(scrap -> scrap.getNewsId())
+				.collect(Collectors.toList());
+
+
+
+		if (newsIds.isEmpty()) {
+			return NewsListResponse.builder().news(List.of()).build();
+		}
+
+		Query batchQuery = new Query(Criteria.where("id").in(newsIds));
+		List<Map> domesticDocs = mongoTemplate.find(batchQuery, Map.class, "domestic_news");
+		List<Map> foreignDocs = mongoTemplate.find(batchQuery, Map.class, "foreign_news");
+
+		Map<String, Map<String, Object>> newsMap = new HashMap<>();
+		for (Map doc : domesticDocs) {
+			doc.put("country", "KR");
+			newsMap.put((String) doc.get("id"), doc);
+		}
+		for (Map doc : foreignDocs) {
+			newsMap.put((String) doc.get("id"), doc);
+		}
+
+		List<NewsResponse> responseList = recommendedList.stream()
+				.map(r -> {
+					String newsId = r.getNewsId();
+					Map<String, Object> doc = newsMap.get(newsId);
+
+					if (doc == null) return null;
+
+					return NewsResponse.builder()
+							.newsId(newsId)
+							.title((String) doc.getOrDefault("title", ""))
+							.url((String) doc.getOrDefault("url", ""))
+							.publishedAt(LocalDateTime.parse((String) doc.getOrDefault("published_at", now.toString())))
+							.country((String) doc.getOrDefault("country", ""))
+							.keywords((List<String>) doc.getOrDefault("keywords", List.of()))
+							.isScrap(scrappedNewsIds.contains((String) doc.getOrDefault("id", "")))
+							.imageUrl((String) doc.getOrDefault("image_url", null))
+							.build();
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+
+		return NewsListResponse.builder()
+				.news(responseList)
+				.build();
+	}
+
+
 }
