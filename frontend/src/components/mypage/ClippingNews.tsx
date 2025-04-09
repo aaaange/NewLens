@@ -70,7 +70,7 @@ const ClippingNews = () => {
       <h2 className="text-2xl mb-4">스크랩 NEWS</h2>
       <div className="rounded-lg">
         {articles.length === 0 ? (
-          <div className="flex flex-col justify-center items-center h-screen gap-2">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-280px)] py-12 gap-2">
             <p className="headline-xlarge">📰</p>
             <p className="text-gray-500">아직 스크랩한 뉴스가 없어요!</p>
           </div>
