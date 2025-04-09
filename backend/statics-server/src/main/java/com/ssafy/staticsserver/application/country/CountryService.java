@@ -11,6 +11,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.ssafy.staticsserver.infrastructure.client.YoutubeService;
 import com.ssafy.staticsserver.domain.news.repository.DomesticNewsRepositoryImpl;
 import com.ssafy.staticsserver.domain.news.repository.ForeignNewsRepositoryImpl;
 import com.ssafy.staticsserver.domain.news.repository.NewsMongoDBRepository;
@@ -21,7 +22,6 @@ import com.ssafy.staticsserver.domain.user.repository.UserRepository;
 import com.ssafy.staticsserver.infrastructure.client.GoogleClient;
 import com.ssafy.staticsserver.infrastructure.client.GptClient;
 import com.ssafy.staticsserver.infrastructure.client.KakaoClient;
-import com.ssafy.staticsserver.infrastructure.client.YouTubeClient;
 import com.ssafy.staticsserver.interfaces.country.dto.*;
 
 import org.springframework.data.domain.Page;
@@ -44,7 +44,7 @@ import lombok.RequiredArgsConstructor;
 public class CountryService {
     private final ObjectMapper objectMapper;
     private final GptClient gptClient;
-    private final YouTubeClient youTubeClient;
+    private final YoutubeService youtubeService;
     private final ForeignNewsRepositoryImpl foreignRepo;
     private final DomesticNewsRepositoryImpl domesticRepo;
     private final KakaoClient kakaoClient;
@@ -604,7 +604,7 @@ public class CountryService {
     // 영상 목록
     private List<VideoResponse> processVideos(String keyword, String keywordMind, String country) {
 
-        return youTubeClient.searchVideos(keyword, keywordMind, country);
+        return youtubeService.searchVideos(keyword, keywordMind, country);
     }
 
     //  GPT 한줄 요약
