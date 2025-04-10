@@ -34,7 +34,7 @@ const NewsItem = ({
           e.currentTarget.onerror = null; // 무한 루프 방지
           e.currentTarget.src = '/assets/images/newlens-logo.png'; // Vite, CRA 공통으로 사용 가능
         }}
-        src={image_url}
+        src={image_url || '/assets/images/newlens-logo.png'}
         alt={title}
         className="w-20 h-20 object-cover mr-4"
       />
