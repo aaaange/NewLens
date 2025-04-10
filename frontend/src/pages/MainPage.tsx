@@ -10,6 +10,7 @@ import { getWorldMapDataApi } from '../services/api/worldService';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLocation, useNavigate } from 'react-router';
 import GlobalSpinner from '../components/common/GlobalSpinner';
+import { is } from '@babel/types';
 
 const MainPage = () => {
   //==============================================
@@ -47,10 +48,12 @@ const MainPage = () => {
     setPeriod(period);
   };
 
+  const [isText, setIsText] = useState(false);
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setKeyword(e.target.value);
+    setIsText(true);
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
@@ -62,21 +65,24 @@ const MainPage = () => {
 
   const isFirstRender = useRef(true);
   const fetchWorldData = async (keyword: string, mind: string) => {
-    if (loading) return; // 중복 호출 방지
-    if (keyword.length === 1) return; // 1글자 키워드는 무시
-
     setLoading(true);
     try {
+      if (debouncedKeyword.length == 1) {
+        setDebouncedKeyword('');
+        return;
+      }
       const params = {
-        category,
-        period,
-        keyword,
+        category: category,
+        period: period,
+        keyword: keyword != '' ? keyword : debouncedKeyword,
         keyword_mind: mind,
       };
 
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
-      setKeyword(response.data.keyword);
+      if (response.data.keyword !== keyword) {
+        setKeyword(response.data.keyword);
+      }
     } catch (error) {
       console.error('검색 실패:', error);
     } finally {
@@ -99,30 +105,22 @@ const MainPage = () => {
   }, [debouncedKeyword]);
 
   useEffect(() => {
+    // if (!debouncedKeyword || isFirstRender.current) return;
+    // fetchWorldData(debouncedKeyword, keyword_mind);
     if (isFirstRender.current == true) {
       fetchWorldData('', '');
     }
   }, []);
 
   useEffect(() => {
-    if (!debouncedKeyword || isFirstRender.current) return;
-
-    fetchWorldData(debouncedKeyword, keyword_mind);
+    if (debouncedKeyword && isFirstRender.current == false) {
+      fetchWorldData('', keyword_mind);
+    }
   }, [debouncedKeyword, category, period]);
-
-  // useEffect(() => {
-  //   if (firstRanking) {
-  //     setKeyword(firstRanking);
-  //     setKeywordMind('');
-  //     setDebouncedKeyword(firstRanking);
-  //   }
-  // }, [firstRanking]);
 
   const headerString = [keyword, keyword_mind]
     .filter((item) => item && item.trim() !== '')
     .join(' > ');
-
-  ///////////////////////////////////////////////// accessToken 세팅
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -140,6 +138,10 @@ const MainPage = () => {
       navigate('/main', { replace: true });
     }
   }, [location, setAccessToken, navigate]);
+
+  const handleFirstRanking = (keyword: string) => {
+    setFirstRanking(keyword);
+  };
 
   return (
     <div className="mt-5 flex gap-20 justify-center overflow-hidden pb-[32px]">
@@ -160,6 +162,7 @@ const MainPage = () => {
           isKorea={false}
         />
         <KeywordRanking
+          initDetail={false}
           fetchWorldData={fetchWorldData}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           category={category}
@@ -167,7 +170,7 @@ const MainPage = () => {
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
           handleInitKeywordChange={handleRankingKeywordChange}
-          initDetail={false}
+          onFirstRankingChange={handleFirstRanking}
         />
       </div>
       <div className="flex flex-col items-end">
@@ -192,12 +195,11 @@ const MainPage = () => {
               )}
             </div>
             <div>
-              {firstRanking == keyword ||
-                (keyword !== '' && (
-                  <div className="body-small text-gray-0">
-                    실시간 가장 핫한 키워드!
-                  </div>
-                ))}
+              {firstRanking == keyword && (
+                <div className="body-small text-gray-0">
+                  실시간 가장 핫한 키워드!
+                </div>
+              )}
               <div className="flex items-center">
                 <span className="text-amount-300 headline-xlarge">
                   {headerString}

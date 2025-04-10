@@ -114,50 +114,48 @@ const MindMap = ({
       const response = await getMindMapApi(params);
       const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
 
-      if (relatedKeywords && relatedKeywords.length > 0) {
-        const truncateLabel = (label: string, maxLength: number = 4) => {
-          return label.length > maxLength
-            ? label.slice(0, maxLength) + '…'
-            : label;
-        };
-        const newNodes: Node[] = [
-          {
-            id: '1',
-            type: 'custom',
-            position: { x: 150 - 30, y: 140 - 20 },
-            data: {
-              label: mainKeywordLabel,
-              backgroundColor: '#000',
-              textColor: '#fff',
-              width: 70,
-              height: 50,
-            },
+      const truncateLabel = (label: string, maxLength: number = 4) => {
+        return label.length > maxLength
+          ? label.slice(0, maxLength) + '…'
+          : label;
+      };
+      const newNodes: Node[] = [
+        {
+          id: '1',
+          type: 'custom',
+          position: { x: 150 - 30, y: 140 - 20 },
+          data: {
+            label: mainKeywordLabel,
+            backgroundColor: '#000',
+            textColor: '#fff',
+            width: 70,
+            height: 50,
           },
-          ...relatedKeywords.map((label: string, index: number) => ({
-            id: `${index + 2}`,
-            type: 'custom',
-            position: getCirclePosition(index, relatedKeywords.length),
-            data: {
-              label: truncateLabel(label),
-              fullLabel: label,
-              backgroundColor: getRandomColor(),
-              textColor: '#fff',
-            },
-          })),
-        ];
+        },
+        ...relatedKeywords.map((label: string, index: number) => ({
+          id: `${index + 2}`,
+          type: 'custom',
+          position: getCirclePosition(index, relatedKeywords.length),
+          data: {
+            label: truncateLabel(label),
+            fullLabel: label,
+            backgroundColor: getRandomColor(),
+            textColor: '#fff',
+          },
+        })),
+      ];
 
-        const newEdges = newNodes.slice(1).map((node) => ({
-          id: `e1-${node.id}`,
-          source: '1',
-          target: node.id,
-          sourceHandle: `source-1`,
-          targetHandle: `target-${node.id}`,
-          type: 'straight',
-          style: { stroke: '#e1e6ed', strokeWidth: 1 },
-        }));
-        setNodes(newNodes);
-        setEdges(newEdges);
-      }
+      const newEdges = newNodes.slice(1).map((node) => ({
+        id: `e1-${node.id}`,
+        source: '1',
+        target: node.id,
+        sourceHandle: `source-1`,
+        targetHandle: `target-${node.id}`,
+        type: 'straight',
+        style: { stroke: '#e1e6ed', strokeWidth: 1 },
+      }));
+      setNodes(newNodes);
+      setEdges(newEdges);
     } catch (error) {
       console.error('마인드맵 데이터 가져오기 실패:', error);
     }

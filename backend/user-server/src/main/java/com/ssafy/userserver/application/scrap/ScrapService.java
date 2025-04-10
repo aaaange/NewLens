@@ -131,7 +131,6 @@ public class ScrapService {
 			dbRecord.ifPresent(scrapRepository::delete);
 		}
 	}
-
 	/**
 	 * 스크랩 뉴스 목록 조회 (페이징)
 	 * **목록 조회는 Redis가 아닌 MySQL DB의 scraps 테이블에서 페이징 처리하여 가져옵니다.**

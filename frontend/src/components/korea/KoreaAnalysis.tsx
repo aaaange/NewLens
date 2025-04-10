@@ -54,7 +54,7 @@ const KoreaAnalysis = ({
   const [selectCountry, setSelectCountry] = useState('');
 
   const { data, isLoading, error } = useCountryData(memoizedParams);
-  console.log('KoreaAnalysis data:', data);
+  console.log(keyword);
 
   const {
     data: gpt_data,
@@ -62,7 +62,7 @@ const KoreaAnalysis = ({
     error: error_GPT,
   } = useDescription(memoizedParams);
 
-  if (isLoading) return <GlobalSpinner />;
+  if (isLoading || !data) return <GlobalSpinner />;
   if (error)
     return (
       <div className="text-center mt-10 text-system-danger">
@@ -70,35 +70,26 @@ const KoreaAnalysis = ({
       </div>
     );
 
-  // 서버 응답 없을 경우 목데이터로 대체
-  const safeData = data ?? {
-    keywords: words.map((word) => ({ text: word.text, value: word.value })),
-    // description: description,
-    sentimentData: sentimentData,
-    mentions: mentionData,
-    articles: newsData,
-    videos: videos,
-  };
-
   const description = gpt_data || '뉴스 요약을 불러오는 중입니다...🔥';
 
   const isAllDataEmpty =
-    safeData.keywords?.length === 0 &&
-    safeData.sentimentData?.length === 0 &&
-    safeData.mentions?.length === 0 &&
-    safeData.articles?.length === 0 &&
-    safeData.videos?.length === 0;
+    data.keywords?.length === 0 &&
+    data.sentimentData?.length === 0 &&
+    data.mentions?.length === 0 &&
+    data.articles?.length === 0 &&
+    data.videos?.length === 0;
 
-  const handleModalOpen = (country: string) => {
-    setIsModal(true);
-    setSelectCountry('KR');
-  };
-  const handleModalClose = () => {
-    setIsModal(false);
-  };
-  const handleWordCloudChange = (newKeyword: string) => {
-    setKeywordCloud(newKeyword);
-  };
+    const handleModalOpen = (country: string) => {
+      setIsModal(true);
+      setSelectCountry('KR');
+    };
+    const handleModalClose = () => {
+      setIsModal(false);
+      setKeywordCloud('');
+    };
+    const handleWordCloudChange = (newKeyword: string) => {
+      setKeywordCloud(newKeyword);
+    };
 
   return (
     <div className="flex flex-col gap-5 mb-5">
@@ -111,10 +102,10 @@ const KoreaAnalysis = ({
       ) : (
         <>
           <WordCloud
-            keywords={safeData.keywords}
+            keywords={data.keywords}
             keyword_mind={keyword_mind}
             width={900}
-            height={400}
+            height={200}
             keyword={keyword}
             country_name={country_name}
             country_code={'KR'}
@@ -133,7 +124,7 @@ const KoreaAnalysis = ({
 
           <div className="flex">
             <StackedColumns
-              data={safeData.sentimentData}
+              data={data.sentimentData}
               width={450}
               height={250}
               keyword={keyword}
@@ -142,7 +133,7 @@ const KoreaAnalysis = ({
               country_code={'KR'}
             />
             <MentionChart
-              data={safeData.mentions}
+              data={data.mentions}
               width={450}
               height={250}
               keyword={keyword}
@@ -152,7 +143,7 @@ const KoreaAnalysis = ({
             />
           </div>
           <NewsList
-            news={safeData.articles}
+            news={data.articles}
             width={900}
             keyword={keyword}
             keyword_mind={keyword_mind}
@@ -161,7 +152,7 @@ const KoreaAnalysis = ({
             handleModalOpen={handleModalOpen}
           />
           <KoreaVideoList
-            videos={safeData.videos}
+            videos={data.videos}
             width={900}
             height={300}
             keyword={keyword}
@@ -179,7 +170,8 @@ const KoreaAnalysis = ({
           keyword={keyword}
           keyword_mind={keyword_mind}
           keyword_cloud={keyword_cloud}
-          country={selectCountry}
+          country=""
+          isKorea={true}
         />
       )}
     </div>
@@ -187,7 +179,3 @@ const KoreaAnalysis = ({
 };
 
 export default KoreaAnalysis;
-// const KoreaAnalysis = () => {
-//   return <div>KoreaAnalysis</div>;
-// };
-// export default KoreaAnalysis;

@@ -100,7 +100,7 @@ export default function NewsCarousel() {
                       size={20}
                       className={`transition-colors ${
                         news.is_scrap
-                          ? 'fill-yellow-400 text-yellow-400'
+                          ? 'fill-amount-300 text-amount-300'
                           : 'text-gray-300'
                       }`}
                     />
@@ -108,7 +108,7 @@ export default function NewsCarousel() {
                   <img
                     onError={(e) => {
                       e.currentTarget.onerror = null; // 무한 루프 방지
-                      e.currentTarget.src = '/assets/images/logo-newLens.png'; // Vite, CRA 공통으로 사용 가능
+                      e.currentTarget.src = '/assets/images/newlens-logo.png'; // Vite, CRA 공통으로 사용 가능
                     }}
                     src={news.image_url}
                     alt={news.title}

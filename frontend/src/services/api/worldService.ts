@@ -54,7 +54,7 @@ export interface NewsModalReqType {
   country: string;
   page: number;
   size: number;
-  is_korea: boolean;
+  is_korea: boolean | undefined;
 }
 
 interface MindMapReqType {

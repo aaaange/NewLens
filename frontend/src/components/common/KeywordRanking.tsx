@@ -17,6 +17,7 @@ interface PropsType {
   handleInitKeywordChange: (keyword: string) => void;
   fetchWorldData: (keyword: string, mind: string) => void; // 추가된 prop
   initDetail: boolean;
+  onFirstRankingChange: (keyword: string) => void; // 추가된 prop
 }
 
 const KeywordRanking = ({
@@ -27,6 +28,7 @@ const KeywordRanking = ({
   handleMindMapKeywordChange,
   handleInitKeywordChange,
   fetchWorldData,
+  onFirstRankingChange,
   initDetail,
 }: PropsType) => {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -47,7 +49,6 @@ const KeywordRanking = ({
     onKeywordChange(keyword);
     console.log(keyword);
     handleMindMapKeywordChange('');
-    // fetchWorldData(keyword, '');
   };
 
   const fetchKeywordRanking = async () => {
@@ -57,7 +58,9 @@ const KeywordRanking = ({
       if (!initDetail) {
         handleInitKeywordChange(apiKeywords[0].name); // 기간 1일 선택 시 data가 빈 배열로 넘어올 경우 대비
       }
-
+      if (apiKeywords.length > 0) {
+        onFirstRankingChange(apiKeywords[0].name); // 첫 번째 키워드 변경
+      }
       const newKeywords: Keyword[] = apiKeywords.map(
         (keyword: { name: string; state: string }, index: number) => {
           let tagColor = '';
@@ -79,27 +82,6 @@ const KeywordRanking = ({
       setKeywords(newKeywords);
     } catch (error) {
       console.error('키워드 랭킹 데이터 가져오기 실패:', error);
-
-      // API 호출 실패 시 임시 데이터로 초기화
-      const defaultKeywords: Keyword[] = [
-        {
-          id: 1,
-          text: '삼성 청년 SW 아카데미',
-          tag: 'HOT',
-          tagColor: 'text-red-600',
-        },
-        { id: 2, text: '김싸피', tag: null, tagColor: '' },
-        { id: 3, text: '삼성 채용', tag: null, tagColor: '' },
-        { id: 4, text: 'IT', tag: null, tagColor: '' },
-        { id: 5, text: '청년 취업', tag: null, tagColor: '' },
-        { id: 6, text: '오픽 접수', tag: null, tagColor: '' },
-        { id: 7, text: '상반기 채용', tag: 'NEW', tagColor: 'text-blue-400' },
-        { id: 8, text: '인공지능', tag: null, tagColor: '' },
-        { id: 9, text: 'Chat GPT', tag: 'NEW', tagColor: 'text-blue-400' },
-        { id: 10, text: '삼성 전자 채용', tag: null, tagColor: '' },
-      ];
-
-      setKeywords(defaultKeywords);
     }
   };
 
