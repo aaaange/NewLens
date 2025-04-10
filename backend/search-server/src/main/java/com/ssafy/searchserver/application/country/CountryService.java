@@ -74,9 +74,9 @@ public class CountryService {
             String gte = from.format(formatter);
             String lte = now.format(formatter);
             String requestId = UUID.randomUUID().toString();
-            int tempSize = keywordMind.isEmpty() ? 21 : 22;
+            int tempSize = keywordMind.isEmpty() ? 31 : 32;
             if (isKorea && keyword.equals("윤석열")) tempSize += 90;
-            else if (isKorea) tempSize += 20;
+            else if (isKorea) tempSize += 40;
             int size = tempSize;
 
             // 필터링 Query
