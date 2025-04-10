@@ -298,7 +298,7 @@ public class CountryService {
             var searchRequest = SearchRequest.of(s -> s
                     .index(index)
                     .query(boolQuery)
-                    .size(3)
+                    .size(50)
                     .source(src -> src.filter(f -> f.includes("id")))
             );
 
