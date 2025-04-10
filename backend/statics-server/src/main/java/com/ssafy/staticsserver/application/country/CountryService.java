@@ -166,10 +166,12 @@ public class CountryService {
 
             String description;
             if (!newsList.isEmpty()) {
-                String prompt = makeDescription(keyword, keywordMind, countryName, period, category);
+                String prompt = buildNewsSummaryPrompt(keyword, keywordMind, countryName, period, category, newsList);
                 description = gptClient.ask(prompt);
-            } else
+            } else {
                 description = "관련된 뉴스가 없습니다.";
+            }
+
 
             HttpClient httpClient = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -353,26 +355,40 @@ public class CountryService {
 
 
 
-    // 언론 반응 요약
-    private String makeDescription(String keyword, String keywordMind,
-                                   String countryName, int period, String category) {
+    private String buildNewsSummaryPrompt(
+        String keyword, String keywordMind, String countryName,
+        int period, String category, List<ForeignNewsMongo> newsList
+    ) {
         StringBuilder prompt = new StringBuilder();
-
         prompt.append("[국가 뉴스 여론 분석 요청]\n\n");
         prompt.append("다음은 \"").append(keyword);
         if (keywordMind != null && !keywordMind.isBlank()) {
-            prompt.append("와 ").append(keywordMind);
+            prompt.append("\"와 \"").append(keywordMind);
         }
-        prompt.append("\" 키워드와 관련된 ").append(countryName);
-        prompt.append(" 뉴스를 참고하여, ")
-                .append(countryName).append("에서 ")
-                .append(category).append("카테고리에 대해")
-                .append("오늘을 기준으로 ").append(period).append("일전까지")
-                .append(keyword)
-                .append("에 대해 어떤 여론이 나타나는지 세 문장으로 간략히 요약해 주세요.(1,2,3 이렇게 말고 그냥 한번에")
-                .append("단, 여론이 언제 형성되었는지에 대한 기간 정보 ex)30일 과 카테고리 ex)all, sports 정보는 절대 포함하지 마세요. ");
+        prompt.append("\" 키워드와 관련된 ").append(countryName).append(" 뉴스를 참고하여, ");
+        prompt.append("이 키워드에 대해 ").append(countryName)
+            .append("에서 어떤 여론이 나타나는지 세 문장으로 요약해 주세요.\n");
+        prompt.append("1,2,3 이렇게 나누지 말고 한번에 말해주세요");
+        prompt.append("절대 날짜나 카테고리 등은 포함하지 마세요.\n\n");
+
+        prompt.append("관련 뉴스 목록:\n");
+
+        newsList.stream()
+            .sorted(Comparator.comparing(ForeignNewsMongo::getPublishedAt).reversed())
+            .limit(50)
+            .forEach(news -> {
+                prompt.append("- 제목: ").append(news.getTitle()).append("\n");
+                if (news.getDescription() != null && !news.getDescription().isBlank()) {
+                    prompt.append("  요약: ").append(news.getDescription()).append("\n");
+                }
+                System.out.println(news.getTitle());
+                System.out.println(news.getDescription());
+                System.out.println();
+            });
+
         return prompt.toString();
     }
+
 
     // 하루치 감정 분석 (4시간 단위)
     private List<SentimentResponse> processDailySentiment(List<ForeignNewsMongo> newsList) {
