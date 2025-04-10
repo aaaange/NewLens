@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import com.ssafy.searchserver.common.exeception.CustomException;
 import com.ssafy.searchserver.common.exeception.ErrorCode;
 import com.ssafy.searchserver.common.util.Validation;
@@ -298,6 +299,10 @@ public class CountryService {
             var searchRequest = SearchRequest.of(s -> s
                     .index(index)
                     .query(boolQuery)
+                    .sort(so -> so.field(f -> f
+                            .field("published_at")
+                            .order(SortOrder.Desc)
+                    ))
                     .size(50)
                     .source(src -> src.filter(f -> f.includes("id")))
             );
