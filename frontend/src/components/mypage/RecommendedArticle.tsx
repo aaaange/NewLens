@@ -97,7 +97,7 @@ const RecommendedArticle = () => {
     <div>
       <div>
         <h1 className="text-2xl mb-2">추천 기사</h1>
-        <p className="body-small text-primary-500">
+        <p className="body-small text-primary-500 mb-2">
           읽었던 기사를 기반으로 관심사 기사를 추천해드려요!
         </p>
       </div>
@@ -143,6 +143,8 @@ const RecommendedArticle = () => {
                       url={item.url}
                       published_at={item.published_at}
                       image_url={item.image_url}
+                      country={item.country}
+                      keywords={item.keywords}
                       onClick={() => handleNewsClick(item.news_id)}
                     />
                   </div>
