@@ -74,7 +74,8 @@ public class CountryService {
             String lte = now.format(formatter);
             String requestId = UUID.randomUUID().toString();
             int tempSize = keywordMind.isEmpty() ? 21 : 22;
-            if (isKorea) tempSize += 20;
+            if (isKorea && keyword.equals("윤석열")) tempSize += 90;
+            else if (isKorea) tempSize += 20;
             int size = tempSize;
 
             // 필터링 Query
@@ -138,16 +139,23 @@ public class CountryService {
                     .get("word_cloud")
                     .sterms();
 
+
+            List<String> excludeWords = getExcludeWords(keyword, keywordMind);
+
+
             List<KeywordResponse> wordCloud = aggregation.buckets().array().stream()
-                    .filter(bucket -> {
-                        String key = bucket.key().stringValue();
-                        return !key.equals(keyword) && !key.equals(keywordMind);
-                    })
-                    .map(bucket -> KeywordResponse.builder()
-                            .name(bucket.key().stringValue())
-                            .count(bucket.docCount())
-                            .build())
-                    .toList();
+                .filter(bucket -> {
+                    String key = bucket.key().stringValue();
+                    return !excludeWords.contains(key);
+                })
+                .map(bucket -> KeywordResponse.builder()
+                    .name(bucket.key().stringValue())
+                    .count(bucket.docCount())
+                    .build())
+                .toList();
+
+            System.out.println("워드클라우드 사이즈: " + wordCloud.size());
+
 
             List<String> idList = sliceScroll(boolQuery, index);
 
@@ -482,6 +490,97 @@ public class CountryService {
         int size = idList.size();
         System.out.println("뉴스 " + size + "개 ====> 조회 시간: " + (end - start) + "ms");
         return idList;
+    }
+
+
+    public List<String> getExcludeWords(String keyword, String keywordMind) {
+        List<String> excludeWords = new ArrayList<>();
+        excludeWords.add(keyword);
+        if (!keywordMind.isEmpty()) excludeWords.add(keywordMind);
+
+        excludeWords.add("헌법재판소의");
+        excludeWords.add("헌법재판소가");
+        excludeWords.add("오전");
+        excludeWords.add("대통령의");
+        excludeWords.add("이날");
+        excludeWords.add("파면을");
+        excludeWords.add("대한");
+        excludeWords.add("밝혔다");
+        excludeWords.add("지난");
+        excludeWords.add("대해");
+        excludeWords.add("이후");
+        excludeWords.add("통해");
+        excludeWords.add("대통령에");
+        excludeWords.add("오늘");
+        excludeWords.add("대통령은");
+        excludeWords.add("대통령을");
+        excludeWords.add("선고를");
+        excludeWords.add("헌재의");
+        excludeWords.add("파면된");
+        excludeWords.add("의원은");
+        excludeWords.add("자신의");
+        excludeWords.add("파면에");
+        excludeWords.add("열린");
+        excludeWords.add("헌법재판소는");
+        excludeWords.add("이번");
+        excludeWords.add("있다");
+        excludeWords.add("대통령이");
+        excludeWords.add("직후");
+        excludeWords.add("있는");
+        excludeWords.add("파면으로");
+        excludeWords.add("오후");
+        excludeWords.add("인용");
+        excludeWords.add("4일");
+        excludeWords.add("선고가");
+        excludeWords.add("9일");
+        excludeWords.add("10일");
+        excludeWords.add("11일");
+        excludeWords.add("선고가");
+        excludeWords.add("말했다");
+        excludeWords.add("힘을");
+        excludeWords.add("존중한다");
+        excludeWords.add("위해");
+        excludeWords.add("한다");
+        excludeWords.add("한다고");
+        excludeWords.add("의견으로");
+        excludeWords.add("지난해");
+        excludeWords.add("우리");
+        excludeWords.add("이라고");
+        excludeWords.add("입장을");
+        excludeWords.add("탄핵을");
+        excludeWords.add("파면됐다");
+        excludeWords.add("의혹을");
+        excludeWords.add("있습니다");
+        excludeWords.add("앞두고");
+        excludeWords.add("하루");
+        excludeWords.add("이동욱은");
+        excludeWords.add("함께");
+        excludeWords.add("결정을");
+        excludeWords.add("모아야");
+        excludeWords.add("이제야");
+        excludeWords.add("받는");
+        excludeWords.add("위한");
+        excludeWords.add("친분을");
+        excludeWords.add("파면한다");
+        excludeWords.add("선고한");
+        excludeWords.add("씨가");
+        excludeWords.add("이제");
+        excludeWords.add("조속한");
+        excludeWords.add("헌재는");
+        excludeWords.add("대한상공회의소는");
+        excludeWords.add("만에");
+        excludeWords.add("만장일치로");
+        excludeWords.add("부부와의");
+        excludeWords.add("이어");
+        excludeWords.add("전했다");
+        excludeWords.add("라고");
+        excludeWords.add("않고");
+        excludeWords.add("이권에");
+        excludeWords.add("주요");
+        excludeWords.add("따라");
+        excludeWords.add("아휴");
+
+        return excludeWords;
     }
 
 }
