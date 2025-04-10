@@ -37,11 +37,15 @@ const Header = () => {
   }, []);
 
   const handleLogout = () => {
-    const response = logOutApi(); // 로그아웃 API 호출
-    console.log(response);
-    clearAccessToken(); // Zustand에서 토큰 제거
-    setIsModalOpen(false); // 모달 닫기
-    navigate('/'); // 메인 페이지로 이동
+    try {
+      const response = logOutApi(); // 로그아웃 API 호출
+      setIsModalOpen(false); // 모달 닫기
+      console.log(response);
+    } catch (error) {
+    } finally {
+      navigate('/'); // 메인 페이지로 이동
+      clearAccessToken(); // Zustand에서 토큰 제거
+    }
   };
 
   return (
@@ -71,6 +75,11 @@ const Header = () => {
               </div>
               {isLogin ? (
                 <div className="flex items-center gap-4">
+                  <div className="w-[30px]">
+                    <Link to="/mypage">
+                      <img src="/assets/images/notifi.png" alt="알람" />
+                    </Link>
+                  </div>
                   {/* 프로필 사진 및 드롭다운 */}
                   <div
                     className="w-[40px] cursor-pointer relative"

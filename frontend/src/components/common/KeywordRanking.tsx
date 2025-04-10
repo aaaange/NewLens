@@ -17,6 +17,7 @@ interface PropsType {
   handleInitKeywordChange: (keyword: string) => void;
   fetchWorldData: (keyword: string, mind: string) => void; // 추가된 prop
   initDetail: boolean;
+  onFirstRankingChange: (keyword: string) => void; // 추가된 prop
 }
 
 const KeywordRanking = ({
@@ -27,6 +28,7 @@ const KeywordRanking = ({
   handleMindMapKeywordChange,
   handleInitKeywordChange,
   fetchWorldData,
+  onFirstRankingChange,
   initDetail,
 }: PropsType) => {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -47,7 +49,6 @@ const KeywordRanking = ({
     onKeywordChange(keyword);
     console.log(keyword);
     handleMindMapKeywordChange('');
-    // fetchWorldData(keyword, '');
   };
 
   const fetchKeywordRanking = async () => {
@@ -57,7 +58,9 @@ const KeywordRanking = ({
       if (!initDetail) {
         handleInitKeywordChange(apiKeywords[0].name); // 기간 1일 선택 시 data가 빈 배열로 넘어올 경우 대비
       }
-
+      if (apiKeywords.length > 0) {
+        onFirstRankingChange(apiKeywords[0].name); // 첫 번째 키워드 변경
+      }
       const newKeywords: Keyword[] = apiKeywords.map(
         (keyword: { name: string; state: string }, index: number) => {
           let tagColor = '';
