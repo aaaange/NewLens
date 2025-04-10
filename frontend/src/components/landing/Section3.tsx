@@ -11,7 +11,7 @@ const Section3 = forwardRef<HTMLDivElement>((_, ref) => {
       imgStyle: 'w-[30vw] h-[30vh]',
     },
     {
-      title: '실시간 인기 검색어',
+      title: '실시간 인기 키워드',
       subtitle: '실시간으로 가장 핫한 키워드!',
       image: '/assets/images/keywordranking.png',
       bottomText: '실시간 키워드 랭킹',
