@@ -309,7 +309,7 @@ public class CountryService {
                             .field("published_at")
                             .order(SortOrder.Desc)
                     ))
-                    .size(50)
+                    .size(100)
                     .source(src -> src.filter(f -> f.includes("id")))
             );
 
