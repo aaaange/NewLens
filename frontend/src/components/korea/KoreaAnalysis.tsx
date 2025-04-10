@@ -45,7 +45,7 @@ const KoreaAnalysis = ({
       period,
       keyword,
       keyword_mind,
-      is_korea: country === 'kr',
+      is_korea,
     }),
     [country, keyword_mind, keyword, category, period]
   );
