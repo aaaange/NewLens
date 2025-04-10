@@ -287,6 +287,7 @@ const WorldDetail = () => {
           keyword_mind={keyword_mind}
           keyword_cloud={keyword_cloud}
           country={selectCountry}
+          isKorea={false}
         />
       )}
     </div>
