@@ -114,7 +114,7 @@ const Map = ({
       Germany: 'DE',
       France: 'FR',
       Italy: 'IT',
-      Spain: 'ES',
+      // Spain: 'ES',
       Canada: 'CA',
       Australia: 'AU',
       Brazil: 'BR',
@@ -415,7 +415,7 @@ const Map = ({
           polygon.set(
             'tooltipText',
             sentiment
-              ? `${fullName}\n긍정: ${positive}\n중립: ${neutral}\n부정: ${negative}`
+              ? `${fullName}\n긍정: ${Math.round(positive * 100)}%\n중립: ${Math.round(neutral * 100)}%\n부정: ${Math.round(negative * 100)}%`
               : `${fullName}`
           );
           legend.data.setAll([

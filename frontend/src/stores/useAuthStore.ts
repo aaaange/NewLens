@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface AuthState {
   accessToken: string | null;
@@ -6,14 +7,17 @@ interface AuthState {
   clearAccessToken: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: localStorage.getItem('accessToken'),
-  setAccessToken: (token) => {
-    localStorage.setItem('accessToken', token);
-    set({ accessToken: token });
-  },
-  clearAccessToken: () => {
-    localStorage.removeItem('accessToken');
-    set({ accessToken: null });
-  },
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    // persist 미들웨어 추가
+    (set) => ({
+      accessToken: null,
+      setAccessToken: (token) => set({ accessToken: token }),
+      clearAccessToken: () => set({ accessToken: null }),
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);

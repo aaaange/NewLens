@@ -33,54 +33,86 @@ const MentionChart = ({
   );
   const seriesData = data.map((item) => item.count);
   const FixedFlag = Flag as any;
-  const options: ApexOptions = {
-    chart: {
-      type: 'area',
-      background: 'transparent',
-      toolbar: {
-        show: false, // 툴바 비활성화
-      },
-    },
-    dataLabels: {
-      enabled: false, // 데이터 라벨(숫자 박스) 숨기기
-    },
 
-    xaxis: {
-      categories: categories,
-      labels: {
-        style: {
-          colors: '#fff', // X축 라벨 색상 (화이트)
+  const isSingle = data.length === 1;
+
+  const options: ApexOptions = isSingle
+    ? {
+        chart: {
+          type: 'bar',
+          background: 'transparent',
+          toolbar: { show: false },
         },
-      },
-    },
-    yaxis: {
-      labels: {
-        style: {
-          colors: '#fff', // Y축 라벨 색상 (화이트)
+        plotOptions: {
+          bar: {
+            borderRadius: 4,
+            columnWidth: '40%',
+          },
         },
-      },
-    },
-    grid: {
-      borderColor: 'rgba(255,255,255,0.05)', // 격자 선을 흐리게
-    },
-    stroke: {
-      curve: 'smooth',
-      width: 2,
-      colors: ['#ffffff'], // 라인 색상
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shade: 'dark',
-        type: 'vertical',
-        gradientToColors: ['rgba(255, 255, 255, 0.1)'], // 반투명 그라디언트
-        stops: [0, 100],
-      },
-    },
-    tooltip: {
-      theme: 'dark', // 툴팁 다크 테마 적용
-    },
-  };
+        dataLabels: { enabled: false },
+        xaxis: {
+          categories,
+          labels: {
+            style: { colors: '#fff' },
+          },
+        },
+        yaxis: {
+          labels: {
+            style: { colors: '#fff' },
+          },
+        },
+        grid: {
+          borderColor: 'rgba(255,255,255,0.05)',
+        },
+        tooltip: { theme: 'dark' },
+        colors: undefined, // 막대 색상
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            type: 'vertical',
+            gradientToColors: ['rgba(255, 255, 255, 0.1)'],
+            stops: [0, 100],
+          },
+        },
+      }
+    : {
+        chart: {
+          type: 'area',
+          background: 'transparent',
+          toolbar: { show: false },
+        },
+        dataLabels: { enabled: false },
+        xaxis: {
+          categories,
+          labels: {
+            style: { colors: '#fff' },
+          },
+        },
+        yaxis: {
+          labels: {
+            style: { colors: '#fff' },
+          },
+        },
+        grid: {
+          borderColor: 'rgba(255,255,255,0.05)',
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 2,
+          colors: ['#ffffff'],
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            type: 'vertical',
+            gradientToColors: ['rgba(255, 255, 255, 0.1)'],
+            stops: [0, 100],
+          },
+        },
+        tooltip: { theme: 'dark' },
+      };
 
   const series: { name: string; data: number[] }[] = [
     {
@@ -107,7 +139,7 @@ const MentionChart = ({
       <Chart
         options={options}
         series={series}
-        type="area"
+        type={isSingle ? 'bar' : 'area'}
         width={width}
         height={height}
       />

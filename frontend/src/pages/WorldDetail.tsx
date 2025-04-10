@@ -21,10 +21,16 @@ const WorldDetail = () => {
     keyword_mind: initialKeywordMind,
   } = useParams();
   const upperCaseCountry = (country ?? '').toUpperCase();
+  const getInitialCountry = () => {
+    const saved = localStorage.getItem('firstCountry');
+    return saved ?? (country ?? '').toUpperCase();
+  };
 
-  const [firstCountry, setFirstCountry] = useState(upperCaseCountry);
+  const [isReady, setIsReady] = useState(false);
+
+  const [firstCountry, setFirstCountry] = useState(getInitialCountry());
   const [firstCountryName, setFirstCountryName] = useState(
-    getCountryName(firstCountry)
+    getCountryName(getInitialCountry())
   );
 
   const [secondCountry, setSecondCountry] = useState('');
@@ -44,6 +50,9 @@ const WorldDetail = () => {
   const [inputKeyword, setInputKeyword] = useState('');
   const [apiKeyword, setApiKeyword] = useState('');
 
+  const [isPeriodSelected, setIsPeriodSelected] = useState<boolean>(false);
+  const [isCategorySelected, setIsCategorySelected] = useState(false);
+
   const shouldCallCompare =
     secondCountry !== '' && category && period && keyword;
 
@@ -52,22 +61,25 @@ const WorldDetail = () => {
       ? {
           category,
           period,
-          keyword: apiKeyword,
+          keyword: keyword,
           keyword_mind: keyword_mind,
           country1: firstCountry,
           country2: secondCountry,
         }
       : null
   );
+
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
     setKeywordMind('');
-    console.log(category);
+    setIsCategorySelected(true);
   };
+  console.log(keyword);
+
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
-    console.log(period);
-    setKeywordMind('');
+    // setKeywordMind('');
+    setIsPeriodSelected(true);
   };
 
   useEffect(() => {
@@ -142,6 +154,44 @@ const WorldDetail = () => {
     setIsModal(false);
   };
 
+  const [initDetail, setInitDetail] = useState(true);
+
+  useEffect(() => {
+    // 컴포넌트가 처음 렌더링될 때 실행
+    if (initDetail) {
+      setInitDetail(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const savedSecond = localStorage.getItem('secondCountry');
+
+    if (savedSecond) {
+      setSecondCountry(savedSecond);
+      setSecondCountryName(getCountryName(savedSecond));
+    }
+
+    setIsReady(true); // 준비 완료 됐을 때만 진행
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // 예: 사이드바(384px) + 메인 콘텐츠 최소 600px 필요 → 최소 984px
+      if (window.innerWidth < 1400) {
+        setIsSidebarOpen(false); // 공간 부족하면 사이드바 닫음
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // 처음에도 바로 확인
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const onSearch = (keyword: string, mind: string) => {
+    setKeyword(keyword);
+  };
+
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
       {/* 버튼 */}
@@ -172,7 +222,7 @@ const WorldDetail = () => {
           <SearchInput
             value={keyword}
             onChange={keywordInputChangeHandler}
-            onSearch={() => {}}
+            onSearch={onSearch}
             onKeyDown={keywordInputKeyDownHandler}
           />
         </div>
@@ -193,6 +243,12 @@ const WorldDetail = () => {
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
+          initDetail={initDetail}
+          onFirstRankingChange={() => {}}
+          isCategorySelected={isCategorySelected}
+          setIsCategorySelected={setIsCategorySelected}
+          isPeriodSelected={isPeriodSelected}
+          setIsPeriodSelected={setIsPeriodSelected}
         />
       </div>
 
@@ -237,19 +293,22 @@ const WorldDetail = () => {
           keyword={keyword}
         />
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
-          <div className="p-5 min-w-[430px]">
-            <FirstCountryBoard
-              country={firstCountry}
-              country_name={firstCountryName}
-              keyword={keyword}
-              keyword_mind={keyword_mind}
-              category={category}
-              period={period}
-              handleWordCloudChange={handleWordCloudChange}
-              handleModalOpen={handleModalOpen}
-              handleModalClose={handleModalClose}
-            />
-          </div>
+          {isReady && (
+            <div className="p-5 min-w-[430px]">
+              <FirstCountryBoard
+                country={firstCountry}
+                country_name={firstCountryName}
+                keyword={keyword}
+                keyword_mind={keyword_mind}
+                category={category}
+                period={period}
+                handleWordCloudChange={handleWordCloudChange}
+                handleModalOpen={handleModalOpen}
+                handleModalClose={handleModalClose}
+              />
+            </div>
+          )}
+
           <div className="p-5 w-[410px] min-h-[800px]">
             {secondCountry ? (
               <SecondCountryBoard
@@ -278,6 +337,7 @@ const WorldDetail = () => {
           keyword_mind={keyword_mind}
           keyword_cloud={keyword_cloud}
           country={selectCountry}
+          isKorea={false}
         />
       )}
     </div>
