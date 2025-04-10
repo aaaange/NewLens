@@ -21,7 +21,8 @@ const ClippingNews = () => {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
 
-  const { scrapNewsList, loading, fetchScrapNews, scrapNews } = useScrapNews();
+  const { scrapNewsList, loading, fetchScrapNews, scrapNews, fetchtAccessLog } =
+    useScrapNews();
 
   // 뉴스 삭제
   const deleteArticle = async (news_id: string) => {
@@ -38,6 +39,24 @@ const ClippingNews = () => {
     } catch (err) {
       console.error('스크랩 해제 실패:', err);
       toast.error('스크랩 해제에 실패했어요. 다시 시도해주세요!');
+    }
+  };
+
+  // 뉴스 클릭 시 읽음 처리 (visited_at 반영)
+  const handleNewsClick = async (news_id: string) => {
+    try {
+      const res = await fetchtAccessLog(news_id);
+
+      // 서버에서 visited_at 반환 시 아래와 같이 설정
+      const visited_at = res?.visited_at ?? new Date().toISOString();
+
+      setArticles((prev) =>
+        prev.map((item) =>
+          item.news_id === news_id ? { ...item, visited_at } : item
+        )
+      );
+    } catch (err) {
+      console.error('접근 로그 저장 실패:', err);
     }
   };
 
@@ -85,7 +104,7 @@ const ClippingNews = () => {
                   size={20}
                   className={`transition-colors duration-200 ${
                     item.is_scrap
-                      ? 'fill-yellow-400 text-yellow-400'
+                      ? 'fill-amount-300 text-amount-300'
                       : 'text-gray-300'
                   }`}
                 />
@@ -96,6 +115,9 @@ const ClippingNews = () => {
                   url={item.url}
                   published_at={item.published_at}
                   image_url={item.image_url}
+                  country={item.country}
+                  keywords={item.keywords}
+                  onClick={() => handleNewsClick(item.news_id)}
                 />
               </div>
             </div>
