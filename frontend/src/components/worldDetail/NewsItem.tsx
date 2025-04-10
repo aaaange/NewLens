@@ -39,37 +39,39 @@ const NewsItem = ({
         className="w-20 h-20 object-cover mr-4"
       />
       <div className="flex flex-col w-full justify-between">
-        <div>
-          {/* 뉴스 제목 */}
-          <h3 className="body-medium font-semibold">
-            {title.length > 48 ? title.slice(0, 46) + '...' : title}
-          </h3>
+        {/* 뉴스 제목 */}
+        <h3 className="body-medium font-semibold">
+          {title.length > 48 ? title.slice(0, 46) + '...' : title}
+        </h3>
 
-          {/* 국가명 및 키워드 태그 */}
-          {(country || (keywords && keywords.length > 0)) && (
-            <div className="flex flex-wrap items-center gap-1 mt-1">
+        {/* 국가명 및 키워드 태그 */}
+        <div className="flex justify-between items-end mt-2">
+          {/* 태그들 (있을 때만 출력) */}
+          {country || (keywords && keywords.length > 0) ? (
+            <div className="flex flex-wrap items-center gap-1">
               {country && (
-                <span className="text-xs text-gray-700 bg-primary-100 px-2 py-1 rounded-full font-medium">
+                <span className="text-xs text-gray-700 bg-primary-100 bg-opacity-50 px-2 py-1 rounded-full font-medium">
                   #{getCountryName(country.toUpperCase())}
                 </span>
               )}
-              {keywords &&
-                keywords.map((keyword, idx) => (
-                  <span
-                    key={idx}
-                    className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
-                  >
-                    #{keyword}
-                  </span>
-                ))}
+              {keywords?.map((keyword, idx) => (
+                <span
+                  key={idx}
+                  className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
+                >
+                  #{keyword}
+                </span>
+              ))}
             </div>
+          ) : (
+            <div /> // flex 균형을 맞추기 위해 비어있는 div
           )}
-        </div>
 
-        {/* 뉴스 발행 날짜 */}
-        <span className="text-sm text-gray-500 text-end">
-          {formatDate(published_at, '')}
-        </span>
+          {/* 날짜는 항상 출력 */}
+          <span className="text-sm text-gray-500 whitespace-nowrap">
+            {formatDate(published_at, '')}
+          </span>
+        </div>
       </div>
     </a>
   );
