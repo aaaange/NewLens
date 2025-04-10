@@ -45,6 +45,7 @@ const Header = () => {
       console.log(error);
     } finally {
       clearAccessToken(); // Zustand에서 토큰 제거
+      navigate('/login');
     }
   };
 
