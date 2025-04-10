@@ -74,6 +74,8 @@ const WorldDetail = () => {
     setKeywordMind('');
     setIsCategorySelected(true);
   };
+  console.log(keyword);
+
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
     // setKeywordMind('');
@@ -186,6 +188,10 @@ const WorldDetail = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const onSearch = (keyword: string, mind: string) => {
+    setKeyword(keyword);
+  };
+
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
       {/* 버튼 */}
@@ -216,7 +222,7 @@ const WorldDetail = () => {
           <SearchInput
             value={keyword}
             onChange={keywordInputChangeHandler}
-            onSearch={() => {}}
+            onSearch={onSearch}
             onKeyDown={keywordInputKeyDownHandler}
           />
         </div>
