@@ -95,7 +95,11 @@ public class CountryService {
             List<SentimentResponse> sentiment;
             List<MentionResponse> mentions;
 
-            if (period == 1) {
+            if (period == 0) {
+                sentiment = processHourlySentiment(newsList);
+                mentions = processHourlyMentions(newsList);
+            }
+            else if (period == 1) {
                 sentiment = processDailySentiment(newsList);
                 mentions = processDailyMentions(newsList);
             } else if (period == 7) {
@@ -393,6 +397,73 @@ public class CountryService {
 
         return prompt.toString();
     }
+    // 1시간 단위 6시간 전까지
+    private List<SentimentResponse> processHourlySentiment(List<ForeignNewsMongo> newsList) {
+        Map<LocalDateTime, List<ForeignNewsMongo>> groups = new HashMap<>();
+        LocalDateTime now = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+
+        for (ForeignNewsMongo news : newsList) {
+            LocalDateTime publishedAt = news.getPublishedAt().withMinute(0).withSecond(0).withNano(0);
+            if (!publishedAt.isBefore(now.minusHours(6))) {
+                groups.computeIfAbsent(publishedAt, k -> new ArrayList<>()).add(news);
+            }
+        }
+
+        List<SentimentResponse> result = new ArrayList<>();
+        for (Map.Entry<LocalDateTime, List<ForeignNewsMongo>> entry : groups.entrySet()) {
+            List<ForeignNewsMongo> group = entry.getValue();
+            int total = group.size();
+            int positive = 0, neutral = 0, negative = 0;
+
+            for (ForeignNewsMongo news : group) {
+                int score = news.getSentiment();
+                if (score <= 33) negative++;
+                else if (score <= 66) neutral++;
+                else positive++;
+            }
+
+            double posRatio = total > 0 ? (double) positive / total : 0.0;
+            double neuRatio = total > 0 ? (double) neutral / total : 0.0;
+            double negRatio = total > 0 ? (double) negative / total : 0.0;
+
+            posRatio = Math.round(posRatio * 100.0) / 100.0;
+            neuRatio = Math.round(neuRatio * 100.0) / 100.0;
+            negRatio = Math.round(negRatio * 100.0) / 100.0;
+
+            result.add(SentimentResponse.builder()
+                    .publishedAt(entry.getKey())
+                    .positive(posRatio)
+                    .neutral(neuRatio)
+                    .negative(negRatio)
+                    .build());
+        }
+
+        result.sort(Comparator.comparing(SentimentResponse::getPublishedAt));
+        return result;
+    }
+
+
+    private List<MentionResponse> processHourlyMentions(List<ForeignNewsMongo> newsList) {
+        Map<LocalDateTime, Integer> counts = new HashMap<>();
+        LocalDateTime now = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+
+        for (ForeignNewsMongo news : newsList) {
+            LocalDateTime hour = news.getPublishedAt().withMinute(0).withSecond(0).withNano(0);
+            if (!hour.isBefore(now.minusHours(6))) {
+                counts.put(hour, counts.getOrDefault(hour, 0) + 1);
+            }
+        }
+
+        return counts.entrySet().stream()
+                .map(e -> MentionResponse.builder()
+                        .publishedAt(e.getKey())
+                        .count(e.getValue())
+                        .build())
+                .sorted(Comparator.comparing(MentionResponse::getPublishedAt))
+                .collect(Collectors.toList());
+    }
+
+
 
 
     // 하루치 감정 분석 (4시간 단위)
