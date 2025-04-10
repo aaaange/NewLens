@@ -59,7 +59,7 @@ public class SearchService {
 			"에서는", "자신의", "특히", "빠르게", "열린", "경기에서", "신한", "이번", "위한", "최근", "논문이", "위해", "오전", "오후",
 			"헌법재판소의", "헌법재판소가", "대통령이", "정관장은", "있습니다", "다시", "있었다", "함께", "이하", "에서", "오는",
 			"에는", "대한", "9일", "현지시간", "채널", "대해", "따르면", "출연했다", "전했다", "이후", "방송되는", "제목의", "라는",
-			"영상이", "했다", "한다"
+			"영상이", "했다", "한다", "동안", "1월", "앉아", "가막만", "건지", "걸려", "마지막"
 	)));
 
 	private static final List<String> G20_COUNTRIES = Collections.unmodifiableList(Arrays.asList(
@@ -120,7 +120,13 @@ public class SearchService {
 			List<String> keywords = dto.getKeywords();
 			if (keywords != null) {
 				for (String keyword : keywords) {
-					if (STOP_WORDS.contains(keyword)) {
+					if (STOP_WORDS.contains(keyword) ||
+							keyword.matches(".*[a-zA-Z].*")  ||
+							keyword.matches(".*(은|데|서|고|다|는|이|가|을|를|에|의|로|과|와|도|부터|까지|처럼|조차|마저)$") ||
+							keyword.matches("^[0-9]+월$") ||   // "1월", "12월" 등 제거
+							keyword.matches("^[0-9]+일$")
+					) {
+						// 영어가 **조금이라도 포함된 단어**
 						continue;
 					}
 					// 각 키워드의 등장 횟수를 누적 업데이트
