@@ -21,10 +21,16 @@ const WorldDetail = () => {
     keyword_mind: initialKeywordMind,
   } = useParams();
   const upperCaseCountry = (country ?? '').toUpperCase();
+  const getInitialCountry = () => {
+    const saved = localStorage.getItem('firstCountry');
+    return saved ?? (country ?? '').toUpperCase();
+  };
 
-  const [firstCountry, setFirstCountry] = useState(upperCaseCountry);
+  const [isReady, setIsReady] = useState(false);
+
+  const [firstCountry, setFirstCountry] = useState(getInitialCountry());
   const [firstCountryName, setFirstCountryName] = useState(
-    getCountryName(firstCountry)
+    getCountryName(getInitialCountry())
   );
 
   const [secondCountry, setSecondCountry] = useState('');
@@ -151,6 +157,17 @@ const WorldDetail = () => {
   }, []);
 
   useEffect(() => {
+    const savedSecond = localStorage.getItem('secondCountry');
+
+    if (savedSecond) {
+      setSecondCountry(savedSecond);
+      setSecondCountryName(getCountryName(savedSecond));
+    }
+
+    setIsReady(true); // 준비 완료 됐을 때만 진행
+  }, []);
+
+  useEffect(() => {
     const handleResize = () => {
       // 예: 사이드바(384px) + 메인 콘텐츠 최소 600px 필요 → 최소 984px
       if (window.innerWidth < 1400) {
@@ -216,6 +233,7 @@ const WorldDetail = () => {
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
           initDetail={initDetail}
+          onFirstRankingChange={() => {}}
         />
       </div>
 
@@ -260,19 +278,22 @@ const WorldDetail = () => {
           keyword={keyword}
         />
         <div className="flex flex-row gap-3 divide-x divide-gray-300 justify-between">
-          <div className="p-5 min-w-[430px]">
-            <FirstCountryBoard
-              country={firstCountry}
-              country_name={firstCountryName}
-              keyword={keyword}
-              keyword_mind={keyword_mind}
-              category={category}
-              period={period}
-              handleWordCloudChange={handleWordCloudChange}
-              handleModalOpen={handleModalOpen}
-              handleModalClose={handleModalClose}
-            />
-          </div>
+          {isReady && (
+            <div className="p-5 min-w-[430px]">
+              <FirstCountryBoard
+                country={firstCountry}
+                country_name={firstCountryName}
+                keyword={keyword}
+                keyword_mind={keyword_mind}
+                category={category}
+                period={period}
+                handleWordCloudChange={handleWordCloudChange}
+                handleModalOpen={handleModalOpen}
+                handleModalClose={handleModalClose}
+              />
+            </div>
+          )}
+
           <div className="p-5 w-[410px] min-h-[800px]">
             {secondCountry ? (
               <SecondCountryBoard
@@ -301,6 +322,7 @@ const WorldDetail = () => {
           keyword_mind={keyword_mind}
           keyword_cloud={keyword_cloud}
           country={selectCountry}
+          isKorea={false}
         />
       )}
     </div>
