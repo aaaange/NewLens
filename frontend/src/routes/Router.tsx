@@ -8,6 +8,7 @@ import WorldDetail from '../pages/WorldDetail';
 import KoreaAnalysisPage from '../pages/KoreaAnalysisPage';
 import MyPage from '../pages/MyPage';
 import PlayGround from '../components/common/PlayGround';
+import PrivateRoute from './PrivateRoute';
 
 const Router = () => {
   return (
@@ -18,10 +19,11 @@ const Router = () => {
         <Route path="/" element={<Landing />} />
       </Route>
       <Route element={<Layout />}>
-        <Route path="/playground" element={<PlayGround />} />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/mypage" element={<MyPage />} />
         <Route path="/koreaAnalysis" element={<KoreaAnalysisPage />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/mypage" element={<MyPage />} />
+        </Route>
         <Route
           path="/worldDetail/:country/:category/:period/:keyword/:keyword_mind?"
           element={<WorldDetail />}
