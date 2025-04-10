@@ -95,6 +95,7 @@ const KoreaAnalysis = ({
   };
   const handleModalClose = () => {
     setIsModal(false);
+    setKeywordCloud('');
   };
   const handleWordCloudChange = (newKeyword: string) => {
     setKeywordCloud(newKeyword);
@@ -179,7 +180,8 @@ const KoreaAnalysis = ({
           keyword={keyword}
           keyword_mind={keyword_mind}
           keyword_cloud={keyword_cloud}
-          country={selectCountry}
+          country=""
+          isKorea={true}
         />
       )}
     </div>

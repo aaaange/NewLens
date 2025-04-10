@@ -79,27 +79,6 @@ const KeywordRanking = ({
       setKeywords(newKeywords);
     } catch (error) {
       console.error('키워드 랭킹 데이터 가져오기 실패:', error);
-
-      // API 호출 실패 시 임시 데이터로 초기화
-      const defaultKeywords: Keyword[] = [
-        {
-          id: 1,
-          text: '삼성 청년 SW 아카데미',
-          tag: 'HOT',
-          tagColor: 'text-red-600',
-        },
-        { id: 2, text: '김싸피', tag: null, tagColor: '' },
-        { id: 3, text: '삼성 채용', tag: null, tagColor: '' },
-        { id: 4, text: 'IT', tag: null, tagColor: '' },
-        { id: 5, text: '청년 취업', tag: null, tagColor: '' },
-        { id: 6, text: '오픽 접수', tag: null, tagColor: '' },
-        { id: 7, text: '상반기 채용', tag: 'NEW', tagColor: 'text-blue-400' },
-        { id: 8, text: '인공지능', tag: null, tagColor: '' },
-        { id: 9, text: 'Chat GPT', tag: 'NEW', tagColor: 'text-blue-400' },
-        { id: 10, text: '삼성 전자 채용', tag: null, tagColor: '' },
-      ];
-
-      setKeywords(defaultKeywords);
     }
   };
 
