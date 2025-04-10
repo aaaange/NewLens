@@ -113,7 +113,7 @@ public class CountryService {
             }
 
             // articles
-            List<ArticleResponse> articles = processArticles(newsList, isKorea);
+            List<ArticleResponse> articles = processArticles(newsList, isKorea, period);
 
             // videos
             List<VideoResponse> videos;
@@ -666,7 +666,7 @@ public class CountryService {
     }
 
     // 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택 위에서 이미 정렬
-    private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList, boolean isKorea) {
+    private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList, boolean isKorea, int period) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startHour = now.withMinute(0).withSecond(0).withNano(0);
         LocalDateTime endHour = startHour.plusHours(1);
@@ -674,6 +674,7 @@ public class CountryService {
         return newsList.stream()
                 .filter(news -> news.getTitle() != null && news.getUrl() != null)
                 .filter(news -> {
+                    if(period != 0) return true;
                     LocalDateTime publishedAt = news.getPublishedAt();
                     return !publishedAt.isBefore(startHour) && publishedAt.isBefore(endHour);
                 })
