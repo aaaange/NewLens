@@ -288,6 +288,7 @@ const WorldDetail = () => {
             data?.analysis ??
             '비교할 나라를 선택해보세요! 양 측의 입장을 한 줄로 요약해요✨'
           }
+          isLoading={isLoading}
           width={880}
           height={125}
           keyword={keyword}
