@@ -21,7 +21,7 @@ public class KeywordRankingScheduler {
 	/**
 	 * 매일 새벽 4시에 키워드 랭킹 통계 요청을 실행합니다.
 	 */
-//	 @Scheduled(cron = "00 55 03 * * ?") // 03:55분으로 한국 특화 정각 피하기 위해
+	 @Scheduled(cron = "00 05 05 * * ?") // 05:05분으로 한국 특화 정각 피하기 위해
 	public void scheduleKeywordRanking() {
 		List<String> categories = Arrays.asList(
 			"general", "science", "sports", "business", "health",
@@ -45,8 +45,7 @@ public class KeywordRankingScheduler {
 	}
 
 
-//	@Scheduled(cron = "0 0 * * * ?") // 정각 마다
-	@Scheduled(cron = "20 10 02 * * ?")
+	@Scheduled(cron = "0 0 * * * ?") // 정각 마다
 	public void scheduleHourlyKoreaRanking() {
 		List<String> categories = Arrays.asList(
 			"general", "science", "sports", "business", "health",
