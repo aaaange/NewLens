@@ -281,6 +281,7 @@ const WorldDetail = () => {
               handleSecondChange(code);
               setSecondCountryName(name);
             }}
+            firstCountry={firstCountry}
           />
         </div>
         <GptSummary

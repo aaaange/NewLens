@@ -45,6 +45,7 @@ const Header = () => {
       console.log(error);
     } finally {
       clearAccessToken(); // Zustand에서 토큰 제거
+      navigate('/login');
     }
   };
 
@@ -75,11 +76,6 @@ const Header = () => {
               </div>
               {isLogin ? (
                 <div className="flex items-center gap-4">
-                  <div className="w-[30px]">
-                    <Link to="/mypage">
-                      <img src="/assets/images/notifi.png" alt="알람" />
-                    </Link>
-                  </div>
                   {/* 프로필 사진 및 드롭다운 */}
                   <div
                     className="w-[40px] cursor-pointer relative"
