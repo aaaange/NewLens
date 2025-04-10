@@ -101,7 +101,7 @@ const NewsItem = ({
           e.currentTarget.src = '/assets/images/newlens-logo.png';
         }}
         className="w-20 h-14 mr-4 object-fit"
-        src={image}
+        src={image || '/assets/images/newlens-logo.png'}
         alt={title}
       />
       <div className="flex-grow">
