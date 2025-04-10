@@ -68,6 +68,20 @@ const KoreaAnalysisPage = () => {
     setKeywordMind('');
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      // 예: 사이드바(384px) + 메인 콘텐츠 최소 600px 필요 → 최소 984px
+      if (window.innerWidth < 1400) {
+        setIsSidebarOpen(false); // 공간 부족하면 사이드바 닫음
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // 처음에도 바로 확인
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
       {/* 버튼 */}
