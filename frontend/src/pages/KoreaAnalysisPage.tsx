@@ -16,6 +16,7 @@ const KoreaAnalysisPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPeriodSelected, setIsPeriodSelected] = useState<boolean>(false);
   const [isCategorySelected, setIsCategorySelected] = useState(false);
+  const [isRealTime, setIsRealTime] = useState(false); // 실시간 여부
 
   const country: string = 'kr';
   const country_name: string = '대한민국';
@@ -75,6 +76,11 @@ const KoreaAnalysisPage = () => {
     setPeriod(period);
     // setKeywordMind('');
     setIsPeriodSelected(true);
+    if (period === 0) {
+      setIsRealTime(true);
+    } else {
+      setIsRealTime(false);
+    }
   };
 
   useEffect(() => {
@@ -90,6 +96,7 @@ const KoreaAnalysisPage = () => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  console.log(isRealTime);
 
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
@@ -140,6 +147,7 @@ const KoreaAnalysisPage = () => {
           category={category}
           period={period}
           is_korea={true}
+          is_real_time={isRealTime}
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
@@ -159,6 +167,7 @@ const KoreaAnalysisPage = () => {
         <Category
           isCategory={category}
           isPeriod={period}
+          isKorea={true}
           categoryChangeHandler={categoryChangeHandler}
           periodChangeHandler={periodChangeHandler}
         />
