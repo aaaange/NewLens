@@ -57,7 +57,7 @@ const NewsItem = ({
               {keywords?.map((keyword, idx) => (
                 <span
                   key={idx}
-                  className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
+                  className="text-xs text-gray-600 bg-gray-100 bg-opacity-50 px-2 py-1 rounded-full"
                 >
                   #{keyword}
                 </span>
