@@ -49,9 +49,6 @@ const KoreaAnalysisPage = () => {
 
   const onSearch = (keyword: string, mind: string) => {
     setKeyword(keyword);
-    // setInitialKeyword(keyword);
-    console.log(keyword);
-    console.log('onSearch');
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
