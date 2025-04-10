@@ -45,6 +45,13 @@ const KoreaAnalysisPage = () => {
     }
   };
 
+  const onSearch = () => {
+    // setKeyword(inputKeyword);
+    setInitialKeyword(keyword);
+    console.log(keyword);
+    console.log('onSearch');
+  };
+
   const handleMindMapKeywordChange = (newKeyword: string) => {
     setKeywordMind(newKeyword);
   };
@@ -99,11 +106,7 @@ const KoreaAnalysisPage = () => {
             value={keyword}
             onKeyDown={keywordInputKeyDownHandler}
             onChange={keywordInputChangeHandler}
-            onSearch={() => {
-              setInitialKeyword(keyword);
-
-              // setKeywordMind('');
-            }}
+            onSearch={onSearch}
           />
         </div>
 
@@ -125,6 +128,7 @@ const KoreaAnalysisPage = () => {
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
           initDetail={false}
+          onFirstRankingChange={() => {}}
         />
       </div>
 
@@ -141,7 +145,7 @@ const KoreaAnalysisPage = () => {
         <KoreaAnalysis
           country={''}
           country_name={country_name}
-          keyword={initialKeyword ?? keyword}
+          keyword={keyword}
           keyword_mind={keyword_mind ?? ''}
           category={category ?? ''}
           period={period ?? ''}
