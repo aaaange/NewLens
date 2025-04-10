@@ -34,7 +34,7 @@ public class KakaoClient {
 			.bodyToMono(KakaoImageResponse.class)
 			.map(response -> {
 				if (response.getDocuments().isEmpty()) {
-					return null;
+					return "";
 				}
 				return response.getDocuments().get(0).getImageUrl();
 			})

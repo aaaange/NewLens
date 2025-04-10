@@ -377,7 +377,7 @@ public class CountryService {
             .append("에서 어떤 여론이 나타나는지 세 문장으로 요약해 주세요.\n");
         prompt.append("### 출력조건 ### 1,2,3 이렇게 나누지 말고 한번에 말해주세요 줄바꿈도 포함하지 마세요");
         prompt.append("절대 날짜나 카테고리 등은 포함하지 마세요.\n\n");
-        prompt.append("출력 글자 수 는 최대 190자 이하로 설정해주세요");
+        prompt.append("출력 글자 수 는 반드시 공백 포함 180자 이하로 설정해주세요");
 
         prompt.append("관련 뉴스 목록:\n");
 
@@ -643,7 +643,7 @@ public class CountryService {
         }
         prompt.append("\" 키워드에 대한 ").append(country1).append("와 ").append(country2).append("의 뉴스 내용입니다.\n");
         prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 비교해 주세요.\n");
-        prompt.append("절대 날짜, 기간, 카테고리 정보는 포함하지 마세요. 각 국가 입장을 나열하지 말고 비교된 관점으로 1~2문장으로 요약해 주세요.\n\n");
+        prompt.append("절대 날짜, 기간, 카테고리 정보는 포함하지 마세요. 각 국가 입장을 나열하지 말고 비교된 관점으로 1~2문장으로 간략하게 요약해 주세요. 반드시 공백포함 140 글자 이하로 해주세요\n\n");
 
         prompt.append("[").append(country1).append(" 뉴스 목록]\n");
         newsList1.stream()
