@@ -138,6 +138,7 @@ public class SearchService {
 			List<String> relatedKeywords = aggregation.buckets().array().stream()
 				.map(bucket -> bucket.key().stringValue())
 				.filter(rel -> !rel.equals(searchKeyword)) // 자기 자신 제외
+				.filter(rel -> !rel.matches("^[a-zA-Z]+$")) // 영단어 제외
 				.collect(Collectors.toList());
 
 			long end = System.currentTimeMillis();
