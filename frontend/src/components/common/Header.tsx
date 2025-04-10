@@ -36,14 +36,14 @@ const Header = () => {
     };
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      const response = logOutApi(); // 로그아웃 API 호출
+      const response = await logOutApi(); // 로그아웃 API 호출
       setIsModalOpen(false); // 모달 닫기
       console.log(response);
     } catch (error) {
+      console.log(error);
     } finally {
-      navigate('/'); // 메인 페이지로 이동
       clearAccessToken(); // Zustand에서 토큰 제거
     }
   };
