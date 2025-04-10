@@ -5,12 +5,14 @@ import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const errorParam = searchParams.get('error');
+  const query = new URLSearchParams(location.search);
+  const errorParam = query.get('error');
 
   useEffect(() => {
     if (errorParam) {
       // Map error messages
+      navigate('/login', { replace: true });
+
       const errorMessages: Record<string, string> = {
         GOOGLE: '이미 구글 계정으로 가입된 사용자입니다.',
         KAKAO: '이미 카카오 계정으로 가입된 사용자입니다.',
