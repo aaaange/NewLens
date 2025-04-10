@@ -50,6 +50,9 @@ const WorldDetail = () => {
   const [inputKeyword, setInputKeyword] = useState('');
   const [apiKeyword, setApiKeyword] = useState('');
 
+  const [isPeriodSelected, setIsPeriodSelected] = useState<boolean>(false);
+  const [isCategorySelected, setIsCategorySelected] = useState(false);
+
   const shouldCallCompare =
     secondCountry !== '' && category && period && keyword;
 
@@ -69,10 +72,12 @@ const WorldDetail = () => {
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
     setKeywordMind('');
+    setIsCategorySelected(true);
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
-    setKeywordMind('');
+    // setKeywordMind('');
+    setIsPeriodSelected(true);
   };
 
   useEffect(() => {
@@ -234,6 +239,10 @@ const WorldDetail = () => {
           handleInitKeywordChange={handleInitKeywordChange}
           initDetail={initDetail}
           onFirstRankingChange={() => {}}
+          isCategorySelected={isCategorySelected}
+          setIsCategorySelected={setIsCategorySelected}
+          isPeriodSelected={isPeriodSelected}
+          setIsPeriodSelected={setIsPeriodSelected}
         />
       </div>
 
