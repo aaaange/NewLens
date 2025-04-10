@@ -46,7 +46,7 @@ public class KeywordRankingScheduler {
 
 
 //	@Scheduled(cron = "0 0 * * * ?") // 정각 마다
-//	@Scheduled(cron = "20 55 01 * * ?")
+	@Scheduled(cron = "20 10 02 * * ?")
 	public void scheduleHourlyKoreaRanking() {
 		List<String> categories = Arrays.asList(
 			"general", "science", "sports", "business", "health",
