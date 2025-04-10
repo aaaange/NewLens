@@ -377,6 +377,7 @@ public class CountryService {
             .append("에서 어떤 여론이 나타나는지 세 문장으로 요약해 주세요.\n");
         prompt.append("### 출력조건 ### 1,2,3 이렇게 나누지 말고 한번에 말해주세요 줄바꿈도 포함하지 마세요");
         prompt.append("절대 날짜나 카테고리 등은 포함하지 마세요.\n\n");
+        prompt.append("출력 글자 수 는 최대 190자 이하로 설정해주세요");
 
         prompt.append("관련 뉴스 목록:\n");
 
