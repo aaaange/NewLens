@@ -84,9 +84,9 @@ const StackedColumns = ({
   };
 
   const series: { name: string; data: number[] }[] = [
-    { name: 'Positive', data: data.map((item) => item.positive * 100) },
-    { name: 'Neutral', data: data.map((item) => item.neutral * 100) },
-    { name: 'Negative', data: data.map((item) => item.negative * 100) },
+    { name: '긍정', data: data.map((item) => item.positive * 100) },
+    { name: '중립', data: data.map((item) => item.neutral * 100) },
+    { name: '부정', data: data.map((item) => item.negative * 100) },
   ];
 
   const Flags = Flag as any;
