@@ -38,6 +38,8 @@ const MainPage = () => {
   const [firstRanking, setFirstRanking] = useState('');
   const [mapData, setMapData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isPeriodSelected, setIsPeriodSelected] = useState<boolean>(false);
+  const [isCategorySelected, setIsCategorySelected] = useState(false);
 
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
@@ -169,6 +171,10 @@ const MainPage = () => {
           period={period}
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
+          isCategorySelected={isCategorySelected}
+          setIsCategorySelected={setIsCategorySelected}
+          isPeriodSelected={isPeriodSelected}
+          setIsPeriodSelected={setIsPeriodSelected}
           handleInitKeywordChange={handleRankingKeywordChange}
           onFirstRankingChange={handleFirstRanking}
         />
