@@ -35,6 +35,7 @@ interface CountryDropdownProps {
   value?: string; // 선택된 국가 코드
   onChange?: (code: string, name: string) => void; // 선택 변경시 호출되는 콜백
   placeholder?: string;
+  firstCountry?: string;
 }
 
 const CountryDropdown = ({
@@ -43,6 +44,7 @@ const CountryDropdown = ({
   value,
   onChange,
   placeholder,
+  firstCountry,
 }: CountryDropdownProps) => {
   const [selectedCountry, setSelectedCountry] = useState('');
 
@@ -60,6 +62,11 @@ const CountryDropdown = ({
       onChange(newCode, selectedCountry.name);
     }
   };
+
+  // 첫 번째 국가를 제외한 옵션 생성
+  const filteredCountries = g20Countries.filter(
+    (country) => country.code !== firstCountry
+  );
 
   const FixedFlag = Flag as any;
 
@@ -111,7 +118,7 @@ const CountryDropdown = ({
       <MenuItem disabled value="">
         {placeholder || '국가를 선택하세요'}
       </MenuItem>
-      {g20Countries.map((country) => (
+      {filteredCountries.map((country) => (
         <MenuItem
           key={country.code}
           value={country.code}
