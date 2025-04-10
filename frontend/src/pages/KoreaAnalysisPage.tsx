@@ -124,6 +124,7 @@ const KoreaAnalysisPage = () => {
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
+          initDetail={false}
         />
       </div>
 
