@@ -114,7 +114,7 @@ const Map = ({
       Germany: 'DE',
       France: 'FR',
       Italy: 'IT',
-      Spain: 'ES',
+      // Spain: 'ES',
       Canada: 'CA',
       Australia: 'AU',
       Brazil: 'BR',
