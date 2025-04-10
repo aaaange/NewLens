@@ -62,24 +62,21 @@ const MainPage = () => {
 
   const isFirstRender = useRef(true);
   const fetchWorldData = async (keyword: string, mind: string) => {
+    if (loading) return; // 중복 호출 방지
+    if (keyword.length === 1) return; // 1글자 키워드는 무시
+
     setLoading(true);
     try {
-      if (debouncedKeyword.length == 1) {
-        setDebouncedKeyword('');
-        return;
-      }
       const params = {
-        category: category,
-        period: period,
-        keyword: keyword != '' ? keyword : debouncedKeyword,
+        category,
+        period,
+        keyword,
         keyword_mind: mind,
       };
 
       const response = await getWorldMapDataApi(params);
       setMapData(response.data);
-      if (response.data.keyword !== keyword) {
-        setKeyword(response.data.keyword);
-      }
+      setKeyword(response.data.keyword);
     } catch (error) {
       console.error('검색 실패:', error);
     } finally {
@@ -108,9 +105,9 @@ const MainPage = () => {
   }, []);
 
   useEffect(() => {
-    if (debouncedKeyword && isFirstRender.current == false) {
-      fetchWorldData('', keyword_mind);
-    }
+    if (!debouncedKeyword || isFirstRender.current) return;
+
+    fetchWorldData(debouncedKeyword, keyword_mind);
   }, [debouncedKeyword, category, period]);
 
   // useEffect(() => {
@@ -170,6 +167,7 @@ const MainPage = () => {
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
           handleInitKeywordChange={handleRankingKeywordChange}
+          initDetail={false}
         />
       </div>
       <div className="flex flex-col items-end">
