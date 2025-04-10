@@ -53,7 +53,7 @@ const Section2 = forwardRef<HTMLDivElement>((_, ref) => {
           <p className="text-primary-300 display-small">COUNTRIES</p>
           <p className="font-['Cafe24ClassicType-Regular'] text-7xl text-amount-300">
             {inViewCountry ? (
-              <CountUp end={18} duration={0.5} useEasing={false} />
+              <CountUp end={17} duration={0.5} useEasing={false} />
             ) : (
               0
             )}
