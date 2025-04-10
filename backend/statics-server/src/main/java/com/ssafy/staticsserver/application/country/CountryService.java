@@ -667,8 +667,16 @@ public class CountryService {
 
     // 기사 목록: 제목, URL, 발행일, 이미지 URL이 있는 뉴스 중 최신순 상위 5건 선택 위에서 이미 정렬
     private List<ArticleResponse> processArticles(List<ForeignNewsMongo> newsList, boolean isKorea) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startHour = now.withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endHour = startHour.plusHours(1);
+
         return newsList.stream()
                 .filter(news -> news.getTitle() != null && news.getUrl() != null)
+                .filter(news -> {
+                    LocalDateTime publishedAt = news.getPublishedAt();
+                    return !publishedAt.isBefore(startHour) && publishedAt.isBefore(endHour);
+                })
                 .limit(5)
                 .map(news -> {
                     String imageUrl = news.getImageUrl();
@@ -678,9 +686,6 @@ public class CountryService {
                     // 원문 제목가져오고 번역 없으면 기존 번역 그대로
                     String translatedTitle = isKorea ? news.getTitle() : googleTranslate(news.getOriginTitle(), news.getTitle());
 
-                   // String originalTitle = news.getTitle();
-                   // System.out.println("번역 전 : " + originalTitle);
-                   // System.out.println("번역 후: " + translatedTitle);
 
                     return ArticleResponse.builder()
                         .newsId(news.getId())

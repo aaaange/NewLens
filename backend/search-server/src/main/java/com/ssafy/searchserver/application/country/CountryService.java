@@ -80,7 +80,7 @@ public class CountryService {
             String lte = now.format(formatter);
             String requestId = UUID.randomUUID().toString();
             int tempSize = keywordMind.isEmpty() ? 31 : 32;
-            if (isKorea && keyword.equals("윤석열")) tempSize += 90;
+            if (isKorea && keyword.equals("윤석열") && period != 1) tempSize += 90;
             else if (isKorea) tempSize += 40;
             int size = tempSize;
 
