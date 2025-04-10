@@ -47,8 +47,22 @@ const Category = ({
   };
 
   return (
-    <div className="w-full max-w-[938px] h-auto rounded-lg border border-primary-400">
+    <div className="relative w-full max-w-[938px] h-auto rounded-lg border border-primary-400">
       <div className="px-4 py-1.5">
+        <div className="absolute right-2 top-2">
+          <div className="relative group w-4 h-4">
+            <img
+              src="/assets/images/cate_info.png"
+              alt="카테고리 info"
+              className="w-full h-full cursor-pointer"
+            />
+            <div className="absolute top-4 right-0 px-2 py-1 rounded bg-gray-900 text-gray-0 text-xs opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-10">
+              카테고리를 선택하시면 해당 카테고리의 실시간 인기 키워드 1위의
+              분석 결과를 확인하실 수 있습니다.
+            </div>
+          </div>
+        </div>
+        {/* 카테고리 */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center py-2">
           <div className="text-white caption-large mr-4 mb-2 sm:mb-0">
             카테고리
@@ -70,6 +84,7 @@ const Category = ({
           </div>
         </div>
 
+        {/* 기간 */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center py-2">
           <div className="text-white caption-large mr-4 mb-2 sm:mb-0">기간</div>
           <div className="ml-8 flex flex-wrap gap-6">
