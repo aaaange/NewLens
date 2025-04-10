@@ -270,10 +270,16 @@ public class CountryService {
             String index = selectNews(isKorea);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime from = now.minusDays(period);
+            LocalDateTime from;
 
+            if (period == 0) {
+                from = now.minusHours(1);
+            } else {
+                from = now.minusDays(period);
+            }
             String gte = from.format(formatter);
             String lte = now.format(formatter);
+
 
             Query boolQuery = Query.of(q -> q.bool(b -> {
                 List<Query> mustQueries = new ArrayList<>();
