@@ -114,7 +114,7 @@ const MindMap = ({
       const response = await getMindMapApi(params);
       const { keyword: mainKeywordLabel, relatedKeywords } = response.data;
 
-      const truncateLabel = (label: string, maxLength: number = 4) => {
+      const truncateLabel = (label: string, maxLength: number = 5) => {
         return label.length > maxLength
           ? label.slice(0, maxLength) + '…'
           : label;
@@ -173,21 +173,43 @@ const MindMap = ({
   const centerY = 140;
   const radius = 100; // 원형 배치 반지름
 
-  const getCirclePosition = (index: number, total: number) => {
-    const angle = (index / total) * (2 * Math.PI);
-    return {
-      x: centerX + radius * Math.cos(angle) - 35,
-      y: centerY + radius * Math.sin(angle) - 20,
-    };
-  };
-
-  const updatedNodes = nodes.map((node) => ({
-    ...node,
-    data: {
-      ...node.data,
-      isSelected: node.id === selectedNodeId,
+  // const getCirclePosition = (index: number, total: number) => {
+  //   const angle = (index / total) * (2 * Math.PI);
+  //   return {
+  //     x: centerX + radius * Math.cos(angle) - 35,
+  //     y: centerY + radius * Math.sin(angle) - 20,
+  //   };
+  // };
+  // useCallback으로 함수 메모이제이션
+  const getCirclePosition = useCallback(
+    (index: number, total: number) => {
+      const angle = (index / Math.max(total, 1)) * (2 * Math.PI);
+      return {
+        x: centerX + radius * Math.cos(angle) - 35,
+        y: centerY + radius * Math.sin(angle) - 20,
+      };
     },
-  }));
+    [centerX, centerY, radius] // 의존성 배열
+  );
+
+  // const updatedNodes = nodes.map((node) => ({
+  //   ...node,
+  //   data: {
+  //     ...node.data,
+  //     isSelected: node.id === selectedNodeId,
+  //   },
+  // }));
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isSelected: node.id === selectedNodeId, // 선택된 노드인지 확인
+        },
+      }))
+    );
+  }, [selectedNodeId, setNodes]);
 
   return (
     <div
@@ -217,7 +239,7 @@ const MindMap = ({
         }}
       >
         <ReactFlow
-          nodes={updatedNodes}
+          nodes={nodes}
           edges={edges}
           onConnect={onConnect}
           onNodeClick={onNodeClick}

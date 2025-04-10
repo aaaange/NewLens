@@ -5,6 +5,7 @@ interface PropsType {
   periodChangeHandler: (period: number) => void;
   isCategory: string;
   isPeriod: number;
+  isKorea?: boolean;
 }
 
 const Category = ({
@@ -12,6 +13,7 @@ const Category = ({
   periodChangeHandler,
   isCategory,
   isPeriod,
+  isKorea,
 }: PropsType) => {
   const categories = [
     { id: 'all', label: '전체' },
@@ -27,11 +29,18 @@ const Category = ({
     { id: 'travel', label: '여행' },
   ];
 
-  const periods = [
-    { id: 1, label: '하루전' },
-    { id: 7, label: '1주 전' },
-    { id: 30, label: '1달 전' },
-  ];
+  const periods = isKorea
+    ? [
+        { id: 0, label: '실시간' },
+        { id: 1, label: '하루전' },
+        { id: 7, label: '1주 전' },
+        { id: 30, label: '1달 전' },
+      ]
+    : [
+        { id: 1, label: '하루전' },
+        { id: 7, label: '1주 전' },
+        { id: 30, label: '1달 전' },
+      ];
 
   const [selectedCategory, setSelectedCategory] = useState<string>(isCategory);
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(isPeriod);
@@ -56,6 +65,7 @@ const Category = ({
               alt="카테고리 info"
               className="w-full h-full cursor-pointer"
             />
+            {/* <div className="absolute top-[-40px] right-0 px-2 py-1 rounded bg-system-info text-gray-0 text-xs opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-10"> */}
             <div className="absolute top-4 right-0 px-2 py-1 rounded bg-gray-900 text-gray-0 text-xs opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-10">
               카테고리를 선택하시면 해당 카테고리의 실시간 인기 키워드 1위의
               분석 결과를 확인하실 수 있습니다.
