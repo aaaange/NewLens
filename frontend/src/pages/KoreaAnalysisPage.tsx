@@ -45,9 +45,9 @@ const KoreaAnalysisPage = () => {
     }
   };
 
-  const onSearch = () => {
-    // setKeyword(inputKeyword);
-    setInitialKeyword(keyword);
+  const onSearch = (keyword: string, mind: string) => {
+    setKeyword(keyword);
+    // setInitialKeyword(keyword);
     console.log(keyword);
     console.log('onSearch');
   };
