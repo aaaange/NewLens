@@ -201,10 +201,17 @@ public class CountryService {
             String callbackUrl = msg.getCallbackUrl();
             String category = msg.getCategory();
             int period = msg.getPeriod();
+            boolean isKorea = msg.isKorea();
 
-            String prompt = buildComparePrompt(
-                    keyword, keywordMind,
-                    country1, country2, period, category
+            List<String> country1NewsIds = msg.getCountry1NewsIds();
+            List<String> country2NewsIds = msg.getCountry2NewsIds();
+
+            List<ForeignNewsMongo> newsList1 = repository(isKorea).findByIdIn(country1NewsIds);
+            List<ForeignNewsMongo> newsList2 = repository(isKorea).findByIdIn(country2NewsIds);
+
+            String prompt = buildCompareNewsPrompt(
+                keyword, keywordMind, country1, country2,
+                newsList1, newsList2
             );
             String summary = gptClient.ask(prompt);
             // String summary = "결과";
@@ -220,7 +227,7 @@ public class CountryService {
 
             httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             long end = System.currentTimeMillis();
-            System.out.println("뉴스 " + 3 + "개 ====> 지피티 비교 통계 시간: " + (end - start) + "ms");
+            System.out.println("뉴스 " + newsList2.size() * 2 + "개 ====> 지피티 비교 통계 시간: " + (end - start) + "ms");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -368,7 +375,7 @@ public class CountryService {
         prompt.append("\" 키워드와 관련된 ").append(countryName).append(" 뉴스를 참고하여, ");
         prompt.append("이 키워드에 대해 ").append(countryName)
             .append("에서 어떤 여론이 나타나는지 세 문장으로 요약해 주세요.\n");
-        prompt.append("1,2,3 이렇게 나누지 말고 한번에 말해주세요");
+        prompt.append("### 출력조건 ### 1,2,3 이렇게 나누지 말고 한번에 말해주세요 줄바꿈도 포함하지 마세요");
         prompt.append("절대 날짜나 카테고리 등은 포함하지 마세요.\n\n");
 
         prompt.append("관련 뉴스 목록:\n");
@@ -381,9 +388,6 @@ public class CountryService {
                 if (news.getDescription() != null && !news.getDescription().isBlank()) {
                     prompt.append("  요약: ").append(news.getDescription()).append("\n");
                 }
-                System.out.println(news.getTitle());
-                System.out.println(news.getDescription());
-                System.out.println();
             });
 
         return prompt.toString();
@@ -624,32 +628,47 @@ public class CountryService {
     }
 
     //  GPT 한줄 요약
-    public String buildComparePrompt(
-            String keyword, String keywordMind,
-            String country1, String country2, int period, String category
+    private String buildCompareNewsPrompt(
+        String keyword, String keywordMind,
+        String country1, String country2,
+        List<ForeignNewsMongo> newsList1, List<ForeignNewsMongo> newsList2
     ) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("[국가별 뉴스 여론 비교 요약 요청]\n\n");
-
-        prompt.append("아래는 \"").append(keyword);
+        prompt.append("다음은 \"").append(keyword);
         if (keywordMind != null && !keywordMind.isBlank()) {
             prompt.append("\"와 \"").append(keywordMind);
         }
-        prompt.append("\" 키워드에 대한 ").append(country1).append("와 ").append(country2).append("의 뉴스 여론 비교 요청입니다.\n");
-        prompt.append("오늘부터 ").append(period).append("기간전까지");
-        prompt.append(category).append("카테고리에 대해");
-        prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 뉴스를 분석하여,\n");
-        prompt.append("두 국가의 입장을 각각 나열하지 말고 비교된 내용을 한 문장으로 통합해서 요약해 주세요.\n\n");
+        prompt.append("\" 키워드에 대한 ").append(country1).append("와 ").append(country2).append("의 뉴스 내용입니다.\n");
+        prompt.append("각 국가가 이 키워드에 대해 어떤 입장, 전략, 시각을 가지고 있는지 비교해 주세요.\n");
+        prompt.append("절대 날짜, 기간, 카테고리 정보는 포함하지 마세요. 각 국가 입장을 나열하지 말고 비교된 관점으로 1~2문장으로 요약해 주세요.\n\n");
 
-        prompt.append("출력 조건:\n");
-        prompt.append("- 반드시 **한국어로 작성**해 주세요.\n");
-        prompt.append(" 여론이 언제 형성되었는지에 대한 기간 정보(예: '최근 30일간', '최근 며칠간')는 절대 포함하지 마세요. ");
-        prompt.append("- **1~2개 문장**으로 간결하게 정리해 주세요.\n");
-        prompt.append("- 문장은 중립적이고 비교 중심으로 구성해 주세요.\n");
+        prompt.append("[").append(country1).append(" 뉴스 목록]\n");
+        newsList1.stream()
+            .sorted(Comparator.comparing(ForeignNewsMongo::getPublishedAt).reversed())
+            .limit(50)
+            .forEach(news -> {
+                prompt.append("- 제목: ").append(news.getTitle()).append("\n");
+                if (news.getDescription() != null && !news.getDescription().isBlank()) {
+                    prompt.append("  요약: ").append(news.getDescription()).append("\n");
+                }
+            });
+
+        prompt.append("\n[").append(country2).append(" 뉴스 목록]\n");
+        newsList2.stream()
+            .sorted(Comparator.comparing(ForeignNewsMongo::getPublishedAt).reversed())
+            .limit(50)
+            .forEach(news -> {
+                prompt.append("- 제목: ").append(news.getTitle()).append("\n");
+                if (news.getDescription() != null && !news.getDescription().isBlank()) {
+                    prompt.append("  요약: ").append(news.getDescription()).append("\n");
+                }
+            });
 
         return prompt.toString();
     }
+
 
     // 뉴스 리스트 모달창 출력을 위한 집계 로직
     public NewsModalResponse processNews(List<String> newsIds, int page, int size, boolean isKorea, String email) {
