@@ -130,7 +130,7 @@ const RecommendedArticle = () => {
                       size={20}
                       className={`transition-colors duration-200 ${
                         item.is_scrap
-                          ? 'fill-yellow-400 text-yellow-400'
+                          ? 'fill-amount-300 text-amount-300'
                           : 'text-gray-300'
                       }`}
                     />
