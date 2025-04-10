@@ -12,6 +12,7 @@ interface PropsType {
   category: string;
   period: number;
   is_korea: boolean;
+  is_real_time?: boolean;
   onKeywordChange: (keyword: string) => void;
   handleMindMapKeywordChange: (keyword: string) => void;
   handleInitKeywordChange: (keyword: string) => void;
@@ -28,6 +29,7 @@ const KeywordRanking = ({
   category,
   period,
   is_korea,
+  is_real_time,
   onKeywordChange,
   handleMindMapKeywordChange,
   handleInitKeywordChange,
@@ -45,12 +47,17 @@ const KeywordRanking = ({
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
     const ampm = now.getHours() >= 12 ? '오후' : '오전';
     const hour12 = now.getHours() % 12 || 12;
 
-    return `${year}.${month}.${day} ${ampm} ${String(hour12).padStart(2, '0')}:${minutes}`;
+    if (is_real_time) {
+      // `isKorea === true`일 때 분 제외
+      return `${year}.${month}.${day} ${ampm} ${String(hour12).padStart(2, '0')}시 기준`;
+    } else {
+      // 기본 형식
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      return `${year}.${month}.${day} ${ampm} ${String(hour12).padStart(2, '0')}:${minutes}`;
+    }
   });
 
   const handleKeywordClick = (keyword: string) => {
@@ -90,10 +97,12 @@ const KeywordRanking = ({
       );
 
       setKeywords(newKeywords);
+      console.log(newKeywords);
     } catch (error) {
       console.error('키워드 랭킹 데이터 가져오기 실패:', error);
     }
   };
+  console.log(keywords.length);
 
   useEffect(() => {
     fetchKeywordRanking();
@@ -117,39 +126,45 @@ const KeywordRanking = ({
 
         {/* 키워드 목록 */}
         <div className="flex flex-col">
-          {keywords.map((keyword) => (
-            <button
-              key={keyword.id}
-              className="cursor-pointer flex items-center group hover:bg-gray-50 py-1 px-1 rounded transition-colors"
-              onClick={() => handleKeywordClick(keyword.text)}
-            >
-              <span
-                className={`w-5 h-5 text-center mr-2.5 ${
-                  keyword.id <= 3
-                    ? 'text-slate-600 font-bold'
-                    : 'text-gray-500 font-normal'
-                }`}
+          {keywords.length === 0 ? (
+            <div className="text-center p-4 text-tetiary-500 caption-small">
+              해당 카테고리의 키워드 랭킹이 없습니다!
+            </div>
+          ) : (
+            keywords.map((keyword) => (
+              <button
+                key={keyword.id}
+                className="cursor-pointer flex items-center group hover:bg-gray-50 py-1 px-1 rounded transition-colors"
+                onClick={() => handleKeywordClick(keyword.text)}
               >
-                {keyword.id}
-              </span>
-              <span
-                className={`${
-                  keyword.id <= 3
-                    ? 'text-gray-600 font-bold'
-                    : 'text-gray-500 font-normal'
-                } group-hover:text-black`}
-              >
-                {keyword.text}
-              </span>
-              {keyword.tag && (
-                <div className="ml-2.5 px-2 py-1 bg-gray-100 rounded-full h-4 flex items-center">
-                  <span className={`text-xs ${keyword.tagColor}`}>
-                    {keyword.tag}
-                  </span>
-                </div>
-              )}
-            </button>
-          ))}
+                <span
+                  className={`w-5 h-5 text-center mr-2.5 ${
+                    keyword.id <= 3
+                      ? 'text-slate-600 font-bold'
+                      : 'text-gray-500 font-normal'
+                  }`}
+                >
+                  {keyword.id}
+                </span>
+                <span
+                  className={`${
+                    keyword.id <= 3
+                      ? 'text-gray-600 font-bold'
+                      : 'text-gray-500 font-normal'
+                  } group-hover:text-black`}
+                >
+                  {keyword.text}
+                </span>
+                {keyword.tag && (
+                  <div className="ml-2.5 px-2 py-1 bg-gray-100 rounded-full h-4 flex items-center">
+                    <span className={`text-xs ${keyword.tagColor}`}>
+                      {keyword.tag}
+                    </span>
+                  </div>
+                )}
+              </button>
+            ))
+          )}
         </div>
       </div>
     </div>

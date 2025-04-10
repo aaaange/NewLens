@@ -1,5 +1,7 @@
+import GlobalSpinner from '../common/GlobalSpinner';
 interface GptSummaryProps {
   description: string;
+  isLoading: boolean;
   width: number;
   height: number;
   keyword: string;
@@ -7,10 +9,12 @@ interface GptSummaryProps {
 
 const GptSummary = ({
   description,
+  isLoading,
   width,
   height,
   keyword,
 }: GptSummaryProps) => {
+  // if (isLoading) return <GlobalSpinner />;
   return (
     <>
       <div
@@ -21,11 +25,10 @@ const GptSummary = ({
         }}
       >
         <p className="flex items-center flex-wrap text-xl">
-         {/* 두 국가에서 본&nbsp; */}
-          <span className="text-amount-300 ">{keyword}</span>에
-          대한 한 줄 요약
+          {/* 두 국가에서 본&nbsp; */}
+          <span className="text-amount-300 ">{keyword}</span>에 대한 한 줄 요약
         </p>
-        <p>{description}</p>
+        {isLoading ? <GlobalSpinner /> : <p>{description}</p>}
       </div>
     </>
   );
