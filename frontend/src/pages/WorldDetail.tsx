@@ -52,21 +52,20 @@ const WorldDetail = () => {
       ? {
           category,
           period,
-          keyword: apiKeyword,
+          keyword: keyword,
           keyword_mind: keyword_mind,
           country1: firstCountry,
           country2: secondCountry,
         }
       : null
   );
+
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
     setKeywordMind('');
-    console.log(category);
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
-    console.log(period);
     setKeywordMind('');
   };
 
@@ -142,6 +141,15 @@ const WorldDetail = () => {
     setIsModal(false);
   };
 
+  const [initDetail, setInitDetail] = useState(true);
+
+  useEffect(() => {
+    // 컴포넌트가 처음 렌더링될 때 실행
+    if (initDetail) {
+      setInitDetail(false);
+    }
+  }, []);
+
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
       {/* 버튼 */}
@@ -193,6 +201,7 @@ const WorldDetail = () => {
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
+          initDetail={initDetail}
         />
       </div>
 

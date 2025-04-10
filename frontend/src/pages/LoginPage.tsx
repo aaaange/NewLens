@@ -1,8 +1,30 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import PlayGround from '../components/common/PlayGround';
+import { notify } from '../components/common/Toast'; // 토스트 유틸 임포트
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const errorParam = searchParams.get('error');
+
+  useEffect(() => {
+    if (errorParam) {
+      // 에러 메시지 매핑
+      const errorMessages: Record<string, string> = {
+        GOOGLE: '⚠️ 이미 구글 계정으로 가입된 사용자입니다.',
+        KAKAO: '⚠️ 이미 카카오 계정으로 가입된 사용자입니다.',
+        SSAFY: '⚠️ 이미 SSAFY 계정으로 가입된 사용자입니다.',
+      };
+      const errorMessage =
+        errorMessages[errorParam as string] ||
+        '⚠️ 알 수 없는 오류가 발생했습니다.';
+
+      // 토스트 알림 표시
+      notify({ type: 'warning', text: errorMessage });
+    }
+  }, [errorParam]);
+
   const handleBackpage = () => {
     navigate('/main');
   };
@@ -10,9 +32,11 @@ const LoginPage = () => {
   const handleGoogleLogin = () => {
     window.location.href = `${import.meta.env.VITE_APP_GOOGLE_LOGIN}`;
   };
+
   const handleKakaoLogin = () => {
     window.location.href = `${import.meta.env.VITE_APP_KAKAO_LOGIN}`;
   };
+
   const handleSsafyLogin = () => {
     window.location.href = `${import.meta.env.VITE_APP_SSAFY_LOGIN}`;
   };
