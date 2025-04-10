@@ -36,12 +36,17 @@ const Header = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    const response = logOutApi(); // 로그아웃 API 호출
-    console.log(response);
-    clearAccessToken(); // Zustand에서 토큰 제거
-    setIsModalOpen(false); // 모달 닫기
-    navigate('/'); // 메인 페이지로 이동
+  const handleLogout = async () => {
+    try {
+      const response = await logOutApi(); // 로그아웃 API 호출
+      setIsModalOpen(false); // 모달 닫기
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      clearAccessToken(); // Zustand에서 토큰 제거
+      navigate('/login');
+    }
   };
 
   return (

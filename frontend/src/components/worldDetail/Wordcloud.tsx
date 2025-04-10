@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Wordcloud } from '@visx/wordcloud';
 import Flag from 'react-world-flags';
 
@@ -50,6 +50,10 @@ const WordCloud = ({
   handleWordCloudChange,
   handleModalOpen,
 }: WordCloudProps) => {
+  const memoizedKeywords = useMemo(() => {
+    return keywords.map((w) => ({ ...w })); // 새로운 객체로 만들어 메모이제이션
+  }, [keywords]);
+
   // console.log('워드클라우드 키워드:', keyword);
   const handleWordClick = (word: CloudWord): void => {
     // alert는 반환 값이 없음으로 void
@@ -90,12 +94,15 @@ const WordCloud = ({
       </p>
       <svg width={width} height={height}>
         <Wordcloud
-          words={keywords}
+          key="fixed"
+          words={memoizedKeywords}
           width={width}
           height={height}
           fontSize={getFontSize}
           padding={1}
           rotate={0}
+          spiral="archimedean"
+          random={() => 0.42}
         >
           {(cloudWords) => (
             <WordRenderer
@@ -156,4 +163,4 @@ const WordRenderer = React.memo(
   }
 );
 
-export default WordCloud;
+export default React.memo(WordCloud);

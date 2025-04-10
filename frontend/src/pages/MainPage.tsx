@@ -10,6 +10,7 @@ import { getWorldMapDataApi } from '../services/api/worldService';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLocation, useNavigate } from 'react-router';
 import GlobalSpinner from '../components/common/GlobalSpinner';
+import { is } from '@babel/types';
 
 const MainPage = () => {
   //==============================================
@@ -37,6 +38,8 @@ const MainPage = () => {
   const [firstRanking, setFirstRanking] = useState('');
   const [mapData, setMapData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isPeriodSelected, setIsPeriodSelected] = useState<boolean>(false);
+  const [isCategorySelected, setIsCategorySelected] = useState(false);
 
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
@@ -47,10 +50,12 @@ const MainPage = () => {
     setPeriod(period);
   };
 
+  const [isText, setIsText] = useState(false);
   const keywordInputChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setKeyword(e.target.value);
+    setIsText(true);
   };
 
   const handleMindMapKeywordChange = (newKeyword: string) => {
@@ -102,6 +107,8 @@ const MainPage = () => {
   }, [debouncedKeyword]);
 
   useEffect(() => {
+    // if (!debouncedKeyword || isFirstRender.current) return;
+    // fetchWorldData(debouncedKeyword, keyword_mind);
     if (isFirstRender.current == true) {
       fetchWorldData('', '');
     }
@@ -113,19 +120,9 @@ const MainPage = () => {
     }
   }, [debouncedKeyword, category, period]);
 
-  // useEffect(() => {
-  //   if (firstRanking) {
-  //     setKeyword(firstRanking);
-  //     setKeywordMind('');
-  //     setDebouncedKeyword(firstRanking);
-  //   }
-  // }, [firstRanking]);
-
   const headerString = [keyword, keyword_mind]
     .filter((item) => item && item.trim() !== '')
     .join(' > ');
-
-  ///////////////////////////////////////////////// accessToken 세팅
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -143,6 +140,10 @@ const MainPage = () => {
       navigate('/main', { replace: true });
     }
   }, [location, setAccessToken, navigate]);
+
+  const handleFirstRanking = (keyword: string) => {
+    setFirstRanking(keyword);
+  };
 
   return (
     <div className="mt-5 flex gap-20 justify-center overflow-hidden pb-[32px]">
@@ -163,13 +164,19 @@ const MainPage = () => {
           isKorea={false}
         />
         <KeywordRanking
+          initDetail={false}
           fetchWorldData={fetchWorldData}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           category={category}
           period={period}
           is_korea={false}
           onKeywordChange={handleRankingKeywordChange}
+          isCategorySelected={isCategorySelected}
+          setIsCategorySelected={setIsCategorySelected}
+          isPeriodSelected={isPeriodSelected}
+          setIsPeriodSelected={setIsPeriodSelected}
           handleInitKeywordChange={handleRankingKeywordChange}
+          onFirstRankingChange={handleFirstRanking}
         />
       </div>
       <div className="flex flex-col items-end">
@@ -194,12 +201,11 @@ const MainPage = () => {
               )}
             </div>
             <div>
-              {firstRanking == keyword ||
-                (keyword !== '' && (
-                  <div className="body-small text-gray-0">
-                    실시간 가장 핫한 키워드!
-                  </div>
-                ))}
+              {firstRanking == keyword && (
+                <div className="body-small text-gray-0">
+                  실시간 가장 핫한 키워드!
+                </div>
+              )}
               <div className="flex items-center">
                 <span className="text-amount-300 headline-xlarge">
                   {headerString}

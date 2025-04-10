@@ -14,6 +14,8 @@ const KoreaAnalysisPage = () => {
   const [keyword_mind, setKeywordMind] = useState('');
   const [initialKeyword, setInitialKeyword] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPeriodSelected, setIsPeriodSelected] = useState<boolean>(false);
+  const [isCategorySelected, setIsCategorySelected] = useState(false);
 
   const country: string = 'kr';
   const country_name: string = '대한민국';
@@ -45,6 +47,10 @@ const KoreaAnalysisPage = () => {
     }
   };
 
+  const onSearch = (keyword: string, mind: string) => {
+    setKeyword(keyword);
+  };
+
   const handleMindMapKeywordChange = (newKeyword: string) => {
     setKeywordMind(newKeyword);
   };
@@ -62,11 +68,27 @@ const KoreaAnalysisPage = () => {
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
     setKeywordMind('');
+    setIsCategorySelected(true);
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
-    setKeywordMind('');
+    // setKeywordMind('');
+    setIsPeriodSelected(true);
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      // 예: 사이드바(384px) + 메인 콘텐츠 최소 600px 필요 → 최소 984px
+      if (window.innerWidth < 1400) {
+        setIsSidebarOpen(false); // 공간 부족하면 사이드바 닫음
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // 처음에도 바로 확인
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">
@@ -99,11 +121,7 @@ const KoreaAnalysisPage = () => {
             value={keyword}
             onKeyDown={keywordInputKeyDownHandler}
             onChange={keywordInputChangeHandler}
-            onSearch={() => {
-              setInitialKeyword(keyword);
-
-              // setKeywordMind('');
-            }}
+            onSearch={onSearch}
           />
         </div>
 
@@ -124,6 +142,12 @@ const KoreaAnalysisPage = () => {
           onKeywordChange={handleRankingKeywordChange}
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
+          initDetail={false}
+          onFirstRankingChange={() => {}}
+          isCategorySelected={isCategorySelected}
+          setIsCategorySelected={setIsCategorySelected}
+          isPeriodSelected={isPeriodSelected}
+          setIsPeriodSelected={setIsPeriodSelected}
         />
       </div>
 
@@ -140,7 +164,7 @@ const KoreaAnalysisPage = () => {
         <KoreaAnalysis
           country={''}
           country_name={country_name}
-          keyword={initialKeyword ?? keyword}
+          keyword={keyword}
           keyword_mind={keyword_mind ?? ''}
           category={category ?? ''}
           period={period ?? ''}

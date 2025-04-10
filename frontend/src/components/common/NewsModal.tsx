@@ -95,7 +95,15 @@ const NewsItem = ({
         fetchtAccessLog(news_id);
       }}
     >
-      <img className="w-20 h-14 mr-4 object-fit" src={image} alt={title} />
+      <img
+        onError={(e) => {
+          e.currentTarget.onerror = null; // 무한 루프 방지
+          e.currentTarget.src = '/assets/images/newlens-logo.png';
+        }}
+        className="w-20 h-14 mr-4 object-fit"
+        src={image}
+        alt={title}
+      />
       <div className="flex-grow">
         <p className="text-slate-400 text-xs mb-1">
           {formatDate(date, 'full')}
@@ -154,6 +162,7 @@ interface propsType {
   keyword_cloud: string;
   country: string;
   handleModalClose?: () => void;
+  isKorea?: boolean;
 }
 const NewsModal = ({
   category,
@@ -163,6 +172,7 @@ const NewsModal = ({
   keyword_cloud,
   country,
   handleModalClose,
+  isKorea,
 }: propsType) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
@@ -196,7 +206,7 @@ const NewsModal = ({
         country: country,
         page: currentPage,
         size: itemsPerPage,
-        is_korea: false,
+        is_korea: isKorea,
       };
       const response = await getNewsListForModalApi(params);
       console.log(response.data);
@@ -302,7 +312,9 @@ const NewsModal = ({
 
           {/* 뉴스 리스트 또는 알림 메시지 */}
           {loading ? (
-            <GlobalSpinner /> // ✅ 여기서 로딩 보여주기!
+            <div className="flex justify-center items-center w-full h-5/8">
+              <GlobalSpinner />
+            </div>
           ) : newsItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
               <SentimentDissatisfiedIcon

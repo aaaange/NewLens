@@ -15,6 +15,7 @@ public class CountryNewsMessage {
     private String country2;
     private String category;
     private int period;
+    private boolean isKorea;
     private List<String> country1NewsIds;
     private List<String> country2NewsIds;
 }

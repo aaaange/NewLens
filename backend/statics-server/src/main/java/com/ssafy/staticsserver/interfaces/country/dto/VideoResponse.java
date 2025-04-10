@@ -14,7 +14,6 @@ import lombok.Getter;
 public class VideoResponse {
 	private String title;
 	private String url;
-	private LocalDateTime publishedAt;
 	private String thumbnailUrl;
 
 	@Override
@@ -22,7 +21,6 @@ public class VideoResponse {
 		return "VideoResponse{" +
 				"title='" + title + '\'' +
 				", url='" + url + '\'' +
-				", publishedAt=" + publishedAt +
 				", thumbnailUrl='" + thumbnailUrl + '\'' +
 				'}';
 	}

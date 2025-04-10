@@ -52,7 +52,6 @@ interface MindMapProps {
   keyword_mind: string;
   fetchWorldData: (keyword: string, mind: string) => void; // 추가된 prop
 }
-
 const MindMap = ({
   onKeywordChange,
   category,
@@ -232,7 +231,7 @@ const MindMap = ({
           elementsSelectable={false}
           nodesDraggable={false}
           nodeTypes={nodeTypes}
-          proOptions={{ hideAttribution: false }}
+          proOptions={{ hideAttribution: true }}
           style={{ cursor: 'default' }}
         >
           {/* <Controls showZoom={true} showFitView={true} showInteractive={true} /> */}
