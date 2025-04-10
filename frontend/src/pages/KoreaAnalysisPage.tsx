@@ -14,6 +14,8 @@ const KoreaAnalysisPage = () => {
   const [keyword_mind, setKeywordMind] = useState('');
   const [initialKeyword, setInitialKeyword] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPeriodSelected, setIsPeriodSelected] = useState<boolean>(false);
+  const [isCategorySelected, setIsCategorySelected] = useState(false);
 
   const country: string = 'kr';
   const country_name: string = '대한민국';
@@ -66,10 +68,12 @@ const KoreaAnalysisPage = () => {
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
     setKeywordMind('');
+    setIsCategorySelected(true);
   };
   const periodChangeHandler = (period: number) => {
     setPeriod(period);
-    setKeywordMind('');
+    // setKeywordMind('');
+    setIsPeriodSelected(true);
   };
 
   useEffect(() => {
@@ -140,6 +144,10 @@ const KoreaAnalysisPage = () => {
           handleInitKeywordChange={handleInitKeywordChange}
           initDetail={false}
           onFirstRankingChange={() => {}}
+          isCategorySelected={isCategorySelected}
+          setIsCategorySelected={setIsCategorySelected}
+          isPeriodSelected={isPeriodSelected}
+          setIsPeriodSelected={setIsPeriodSelected}
         />
       </div>
 
