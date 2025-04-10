@@ -372,7 +372,7 @@ public class SearchService {
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			LocalDateTime to = LocalDateTime.now();
-			LocalDateTime from = to.minusHours(1); //
+			LocalDateTime from = to.minusHours(20); //
 
 			String gte = from.format(formatter);
 			String lte = to.format(formatter);
