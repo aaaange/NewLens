@@ -68,6 +68,11 @@ public class CountryService {
             System.out.println(index);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            boolean flag = false;
+            if(period == 0)  {
+                flag = true;
+                period = 1;
+            }
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime from = now.minusDays(period);
 
@@ -75,7 +80,7 @@ public class CountryService {
             String lte = now.format(formatter);
             String requestId = UUID.randomUUID().toString();
             int tempSize = keywordMind.isEmpty() ? 31 : 32;
-            if (isKorea && keyword.equals("윤석열")) tempSize += 90;
+            if (isKorea && keyword.equals("윤석열") && period != 1) tempSize += 90;
             else if (isKorea) tempSize += 40;
             int size = tempSize;
 
@@ -159,7 +164,7 @@ public class CountryService {
 
 
             List<String> idList = sliceScroll(boolQuery, index);
-
+            if(flag) period = 0;
             // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
             Map<String, Object> payload = new HashMap<>();
             payload.put("newsIds", idList);
@@ -270,10 +275,16 @@ public class CountryService {
             String index = selectNews(isKorea);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime from = now.minusDays(period);
+            LocalDateTime from;
 
+            if (period == 0) {
+                from = now.minusHours(1);
+            } else {
+                from = now.minusDays(period);
+            }
             String gte = from.format(formatter);
             String lte = now.format(formatter);
+
 
             Query boolQuery = Query.of(q -> q.bool(b -> {
                 List<Query> mustQueries = new ArrayList<>();
@@ -303,7 +314,7 @@ public class CountryService {
                             .field("published_at")
                             .order(SortOrder.Desc)
                     ))
-                    .size(50)
+                    .size(100)
                     .source(src -> src.filter(f -> f.includes("id")))
             );
 
@@ -328,8 +339,14 @@ public class CountryService {
             String index = selectNews(isKorea);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime from = now.minusDays(period);
+            LocalDateTime from;
 
+            if (period == 0) {
+                from = now.minusHours(1);
+            } else {
+                from = now.minusDays(period);
+            }
+            System.out.println("시간" + from.format(formatter));
             String gte = from.format(formatter);
             String lte = now.format(formatter);
             String requestId = UUID.randomUUID().toString();
