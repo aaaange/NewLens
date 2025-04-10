@@ -58,6 +58,9 @@ const useCountryData = (params: CountryParams) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (!params.keyword || params.keyword.trim() === '') return; // keyword 없으면 요청 안 함
+    if (params.is_korea && params.country !== '') return; // is_korea가 true일 땐 country는 빈 문자열이 되어야 함
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
