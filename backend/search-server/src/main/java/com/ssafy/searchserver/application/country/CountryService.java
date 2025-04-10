@@ -146,7 +146,7 @@ public class CountryService {
             List<KeywordResponse> wordCloud = aggregation.buckets().array().stream()
                 .filter(bucket -> {
                     String key = bucket.key().stringValue();
-                    return !excludeWords.contains(key);
+                    return !excludeWords.contains(key) && !key.matches("^[a-zA-Z]+$");
                 })
                 .map(bucket -> KeywordResponse.builder()
                     .name(bucket.key().stringValue())
