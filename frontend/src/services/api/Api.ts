@@ -10,11 +10,11 @@ const setupInterceptors = (instance: AxiosInstance) => {
     (config) => {
       console.log('API 호출:', config.url);
 
-      // Zustand에서 토큰 가져오기
       const { accessToken } = useAuthStore.getState();
+
       if (accessToken) {
-        axios.defaults.withCredentials = true;
         config.headers.Authorization = `Bearer ${accessToken}`;
+        config.withCredentials = true;
       }
 
       return config;
