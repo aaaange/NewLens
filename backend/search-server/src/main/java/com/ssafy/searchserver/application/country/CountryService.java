@@ -68,6 +68,11 @@ public class CountryService {
             System.out.println(index);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            boolean flag = false;
+            if(period == 0)  {
+                flag = true;
+                period = 1;
+            }
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime from = now.minusDays(period);
 
@@ -159,7 +164,7 @@ public class CountryService {
 
 
             List<String> idList = sliceScroll(boolQuery, index);
-
+            if(flag) period = 0;
             // kafka로 전달할 payload에 newsIds, page, size를 함께 포함
             Map<String, Object> payload = new HashMap<>();
             payload.put("newsIds", idList);
