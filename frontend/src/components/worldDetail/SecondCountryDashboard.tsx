@@ -73,7 +73,9 @@ const SecondCountryBoard = ({
     articles: newsData,
     videos: videos,
   };
-  const description = gpt_data || '뉴스 요약을 불러오는 중입니다...🔥';
+  const description = isLoading_GPT
+    ? '뉴스 요약을 불러오는 중입니다...🔥'
+    : (gpt_data ?? '요약 데이터가 없습니다.');
 
   // 모든 데이터가 비어있는지 확인하는 조건
   const isAllDataEmpty =

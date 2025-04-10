@@ -67,6 +67,7 @@ const KoreaAnalysisPage = () => {
   };
   const categoryChangeHandler = (category: string) => {
     setCategory(category);
+    setKeyword(''); // ✅ keyword 비워서 중간 호출 방지
     setKeywordMind('');
     setIsCategorySelected(true);
   };
