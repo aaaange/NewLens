@@ -17,6 +17,7 @@ const useDescription = (params: DescriptionParams) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (!params.keyword) return; // keyword 없으면 호출 막기
     const fetchData = async () => {
       setIsLoading(true);
       try {

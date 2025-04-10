@@ -70,7 +70,10 @@ const KoreaAnalysis = ({
       </div>
     );
 
-  const description = gpt_data || '뉴스 요약을 불러오는 중입니다...🔥';
+  // const description = gpt_data || '뉴스 요약을 불러오는 중입니다...🔥';
+  const description = isLoading_GPT
+    ? '뉴스 요약을 불러오는 중입니다...🔥'
+    : (gpt_data ?? '요약 데이터가 없습니다.');
 
   const isAllDataEmpty =
     data.keywords?.length === 0 &&
@@ -79,17 +82,17 @@ const KoreaAnalysis = ({
     data.articles?.length === 0 &&
     data.videos?.length === 0;
 
-    const handleModalOpen = (country: string) => {
-      setIsModal(true);
-      setSelectCountry('KR');
-    };
-    const handleModalClose = () => {
-      setIsModal(false);
-      setKeywordCloud('');
-    };
-    const handleWordCloudChange = (newKeyword: string) => {
-      setKeywordCloud(newKeyword);
-    };
+  const handleModalOpen = (country: string) => {
+    setIsModal(true);
+    setSelectCountry('KR');
+  };
+  const handleModalClose = () => {
+    setIsModal(false);
+    setKeywordCloud('');
+  };
+  const handleWordCloudChange = (newKeyword: string) => {
+    setKeywordCloud(newKeyword);
+  };
 
   return (
     <div className="flex flex-col gap-5 mb-5">
