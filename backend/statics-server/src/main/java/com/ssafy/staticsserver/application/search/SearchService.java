@@ -59,13 +59,17 @@ public class SearchService {
 			int period = (int) payload.get("period");
 			boolean isKorea = (Boolean) payload.get("isKorea");
 			boolean isLastBatch = Boolean.parseBoolean(payload.get("isLastBatch").toString());
+			long start = System.currentTimeMillis();
 			// 한국 실시간 데이터가 아닌 경우
 			if(period < 100) {
 				// 해당 배치의 뉴스 데이터 조회
 				List<KeywordsOnly> batchNewsList = repository(isKorea).findKeywordsOnly(newsIds);
-				System.out.println("뉴스사이즈: "+ batchNewsList.size() +"period: " + period + "isKorea: " + isKorea + "category: " + category);
+				// System.out.println("뉴스사이즈: "+ batchNewsList.size() +"period: " + period + "isKorea: " + isKorea + "category: " + category);
 				// 배치별 집계 업데이트
 				processKeywordRankingBatch(batchNewsList);
+				long end = System.currentTimeMillis();
+				int newsSize = newsIds.size();
+				System.out.println("뉴스 " + newsSize + "개 ====> 대시보드 통계 시간: " + (end - start) + "ms");
 
 				if (isLastBatch) {
 					// 최종 집계 후 결과 생성
@@ -93,6 +97,7 @@ public class SearchService {
 
 	// 각 배치에 대한 키워드 집계 업데이트
 	private void processKeywordRankingBatch(List<KeywordsOnly> batchNewsList) {
+		long start = System.currentTimeMillis();
 		// 불용어 목록 설정
 		Set<String> stopWords = new HashSet<>(Arrays.asList(
 			"경기", "선수", "축구", "뉴스", "지역", "발표", "시작", "대통령", "경찰", "말", "세계", "리그", "대회", "팀", "클럽",
@@ -105,7 +110,9 @@ public class SearchService {
 			"리뷰", "감독", "완벽", "생산", "설명", "발견", "효과", "가지", "지침", "혁신", "시스템", "출연", "여성", "월요일",
 			"화요일" ,"수요일", "목요일", "금요일", "토요일", "일요일", "형식", "있다", "이날", "지난", "밝혔다", "방송된", "통해", "있는",
 			"에서는", "자신의", "특히", "빠르게", "열린", "경기에서", "신한", "이번", "위한", "최근", "논문이", "위해", "오전", "오후",
-			"헌법재판소의", "헌법재판소가", "대통령이", "정관장은", "있습니다", "다시", "있었다"
+			"헌법재판소의", "헌법재판소가", "대통령이", "정관장은", "있습니다", "다시", "있었다", "함께", "이하", "에서", "오는",
+			"에는", "대한", "9일", "현지시간", "채널", "대해", "따르면", "출연했다", "전했다", "이후", "방송되는", "제목의", "라는",
+			"영상이", "했다", "한다"
 		));
 
 		for (KeywordsOnly dto : batchNewsList) {
