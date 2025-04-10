@@ -202,6 +202,7 @@ const WorldDetail = () => {
           handleMindMapKeywordChange={handleMindMapKeywordChange}
           handleInitKeywordChange={handleInitKeywordChange}
           initDetail={initDetail}
+          onFirstRankingChange={() => {}}
         />
       </div>
 
