@@ -2,7 +2,7 @@
 
 > 🕰️ **진행 기간** : _2025. 02.24 ~ 2025. 04 .11 **(7주)**_
 
-<img style="width: full;" src='docs\gif\landing.gif' alt='랜딩 페이지'/>
+<img style="width: full;" src='./docs/gif/landing.gif' alt='랜딩 페이지'/>
 
 ### ✅ 주요 기능 summary
 
@@ -85,7 +85,7 @@ _**👍🏻 Database & Infra**_
 
 # ✨ 시스템 아키텍처
 
-## <div style="width :100vh; "><img src='docs\images\시스템아키텍처.png' alt='시스템 아키텍처'/></div>
+## <div style="width :100vh; "><img src='./docs/images/시스템아키텍처.png' alt='시스템 아키텍처'/></div>
 
 # 🧠 AI 기술 적용
 
@@ -113,20 +113,20 @@ _**👍🏻 Database & Infra**_
 
 # 🔭 주요 기능
 ## 1️⃣ 전 세계 뉴스 검색
-<img style="width: full;" src='docs\gif\전세계뉴스검색.gif' alt='랜딩 페이지'/>
+<img style="width: full;" src='./docs/gif/전세계뉴스검색.gif' alt='랜딩 페이지'/>
 
 ## 2️⃣ 실시간 핫 키워드 및 랭킹 제공
-<img style="width: full;" src='docs\gif\실시간핫키워드랭킹.gif' alt='랜딩 페이지'/>
+<img style="width: full;" src='./docs/gif/실시간핫키워드랭킹.gif' alt='랜딩 페이지'/>
 
 ## 3️⃣ 주요국 지도 시각화 제공
-<img style="width: full;" src='docs\gif\주요국지도시각화.gif' alt='랜딩 페이지'/>
+<img style="width: full;" src='./docs/gif/주요국지도시각화.gif' alt='랜딩 페이지'/>
 
 ## 4️⃣ 국가별 뉴스 심층 분석 대시보드
-<img style="width: full;" src='docs\gif\뉴스심층분석.gif' alt='랜딩 페이지'/>
+<img style="width: full;" src='./docs/gif/뉴스심층분석.gif' alt='랜딩 페이지'/>
 
 ## 5️⃣ 맞춤형 개인 기능
-<img style="width: full;" src='docs\images\로그인페이지.png' alt='로그인 페이지'/>
+<img style="width: full;" src='./docs/images/로그인페이지.png' alt='로그인 페이지'/>
 - 구글, 카카오, SSAFY 자체 로그인 제공공
-<img style="width: full;" src='docs\gif\맞춤형개인기능.gif' alt='마이페이지'/>
+<img style="width: full;" src='./docs/gif/맞춤형개인기능.gif' alt='마이페이지'/>
 - 프로필 정보 제공 및 닉네임 변경
 - 최근 본 뉴스, 추천 뉴스, 스크랩 뉴스 제공
