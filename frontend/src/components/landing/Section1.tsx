@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PlayGround from '../common/PlayGround';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 interface Section1Props {
   onArrowClick?: () => void;
@@ -13,6 +14,15 @@ const Section1 = forwardRef<HTMLDivElement, Section1Props>(
       hidden: { opacity: 0, y: -20 },
       visible: { opacity: 1, y: 0 },
     };
+
+    const {
+      accessToken,
+      clearAccessToken,
+      userInfo,
+      setUserInfo,
+      clearUserInfo,
+    } = useAuthStore();
+    const isLogin = !!accessToken; // 로그인 여부 확인
 
     return (
       <div
@@ -62,13 +72,23 @@ const Section1 = forwardRef<HTMLDivElement, Section1Props>(
             </motion.div>
           </div>
           {/* button */}
-          <Link
-            to="/login"
-            className="flex items-center justify-center w-[270px] h-[60px] rounded-[20px] z-20 text-gray-0 body-medium-bold mb-[20px] border-2 border-amount-300 hover:bg-amount-300 hover:text-gray-700"
-            onClick={() => window.scrollTo(0, 0)}
-          >
-            <p>지금 시작하기</p>
-          </Link>
+          {isLogin ? (
+            <Link
+              to="/main"
+              className="flex items-center justify-center w-[270px] h-[60px] rounded-[20px] z-20 text-gray-0 body-medium-bold mb-[20px] border-2 border-amount-300 hover:bg-amount-300 hover:text-gray-700"
+              onClick={() => window.scrollTo(0, 0)}
+            >
+              <p>지금 시작하기</p>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="flex items-center justify-center w-[270px] h-[60px] rounded-[20px] z-20 text-gray-0 body-medium-bold mb-[20px] border-2 border-amount-300 hover:bg-amount-300 hover:text-gray-700"
+              onClick={() => window.scrollTo(0, 0)}
+            >
+              <p>지금 시작하기</p>
+            </Link>
+          )}
         </div>
 
         <img
