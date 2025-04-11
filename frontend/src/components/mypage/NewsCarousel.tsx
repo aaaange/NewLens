@@ -66,7 +66,7 @@ export default function NewsCarousel() {
         onClick={() => instanceRef.current?.prev()}
         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-700 shadow rounded-full p-2 hover:bg-gray-800"
       >
-        <ArrowLeft className="w-5 h-5" />
+        <ArrowLeft className="w-5 h-5 cursor-pointer" />
       </button>
 
       {/* 슬라이더 본체 */}
@@ -134,7 +134,7 @@ export default function NewsCarousel() {
         onClick={() => instanceRef.current?.next()}
         className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-700 shadow rounded-full p-2 hover:bg-gray-800"
       >
-        <ArrowRight className="w-5 h-5" />
+        <ArrowRight className="w-5 h-5 cursor-pointer" />
       </button>
     </div>
   );
