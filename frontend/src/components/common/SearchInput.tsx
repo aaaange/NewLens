@@ -29,7 +29,7 @@ const SearchInput = ({ onChange, onSearch, value, onKeyDown }: propsType) => {
       return;
     }
 
-    if (newValue.length > 20) {
+    if (newValue.length > 11) {
       notify({ type: 'warning', text: '10자 이하로 입력해 주세요.' });
       return;
     }
