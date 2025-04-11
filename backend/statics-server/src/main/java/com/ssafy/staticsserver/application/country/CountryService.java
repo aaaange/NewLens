@@ -325,7 +325,7 @@ public class CountryService {
                 for (int p = startPage; p <= endPage; p++) {
                     pageGroup.add(processNews(newsIds, p, size, isKorea, email));
                 }
-                redisTemplate.opsForValue().set(redisKey, pageGroup, Duration.ofMinutes(5));
+                redisTemplate.opsForValue().set(redisKey, pageGroup, Duration.ofMinutes(120));
                 sendCallback(callbackUrl, requestId, pageGroup.get(page - startPage));
                 System.out.println("캐시 안된: 페이지 " + page + " 캐싱 및 응답");
             }
