@@ -9,7 +9,7 @@ export const DropdownMenu = ({
 }) => {
   return (
     <div className="right-[80px] w-[180px] rounded-[10px] p-1 bg-gray-0 border border-gray-200 shadow-xsmall cursor-pointer z-10">
-      <div className="text-gray-800 p-2 justify-center border-b border-b-gray-300 flex">
+      <div className="text-gray-800 p-2 justify-center cursor-default border-b border-b-gray-300 flex">
         <span className="font-bold">{name}</span>
         <span>님 안녕하세요!</span>
       </div>
