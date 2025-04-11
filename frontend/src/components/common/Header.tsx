@@ -121,7 +121,7 @@ const Header = () => {
                       // 드롭다운 메뉴
                       <div className="absolute top-[50px] right-0 z-200">
                         <DropdownMenu
-                          name={userInfo?.name}
+                          name={userInfo?.nickname}
                           list={[
                             {
                               text: '프로필 보기',
