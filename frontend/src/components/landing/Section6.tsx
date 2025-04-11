@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { forwardRef, useEffect, useState, useRef } from 'react';
 import { useInView } from 'framer-motion';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 const Section6 = forwardRef<HTMLDivElement>((_, ref) => {
   const txt = '지금 가입하고 나만의 NEWLENS를 써보세요.';
@@ -34,6 +35,15 @@ const Section6 = forwardRef<HTMLDivElement>((_, ref) => {
         </span>
       ));
 
+  const {
+    accessToken,
+    clearAccessToken,
+    userInfo,
+    setUserInfo,
+    clearUserInfo,
+  } = useAuthStore();
+  const isLogin = !!accessToken;
+
   return (
     <div
       ref={ref}
@@ -48,12 +58,21 @@ const Section6 = forwardRef<HTMLDivElement>((_, ref) => {
         <p className="display-small text-gray-950 text-center min-h-[3rem]">
           {renderTypedText()}
         </p>
-        <Link
-          to="/login"
-          className="flex items-center justify-center bg-amount-300 w-[270px] h-[60px] mt-[40px] rounded-[20px] text-gray-700 body-medium-bold hover:bg-amount-400 hover:text-gray-700"
-        >
-          <p className="text-gray-950">지금 시작하기</p>
-        </Link>
+        {isLogin ? (
+          <Link
+            to="/login"
+            className="flex items-center justify-center bg-amount-300 w-[270px] h-[60px] mt-[40px] rounded-[20px] text-gray-700 body-medium-bold hover:bg-amount-400 hover:text-gray-700"
+          >
+            <p className="text-gray-950">지금 시작하기</p>
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="flex items-center justify-center bg-amount-300 w-[270px] h-[60px] mt-[40px] rounded-[20px] text-gray-700 body-medium-bold hover:bg-amount-400 hover:text-gray-700"
+          >
+            <p className="text-gray-950">지금 시작하기</p>
+          </Link>
+        )}
       </div>
     </div>
   );

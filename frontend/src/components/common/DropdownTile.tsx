@@ -7,7 +7,7 @@ export const DropdownTile = ({
 }) => {
   return (
     <div
-      className="block px-[8px] py-[8px] text-gray-800 hover:bg-gray-100"
+      className="block px-[8px] py-[8px] text-gray-800 text-center hover:bg-gray-100"
       onClick={onClick}
     >
       {text}
