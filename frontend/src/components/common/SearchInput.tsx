@@ -44,7 +44,6 @@ const SearchInput = ({ onChange, onSearch, value, onKeyDown }: propsType) => {
       return;
     }
     onSearch(inputValue, ''); // Enter 키나 버튼 클릭 시 검색 실행
-    console.log(inputValue);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

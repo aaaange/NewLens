@@ -38,8 +38,6 @@ const NewsItem = ({
   news_id,
   onToggleBookmark,
 }: itemPropsType) => {
-  console.log(isScrap);
-
   const { accessToken } = useAuthStore();
   const isLogin = !!accessToken;
   const [scrap, setScrap] = useState(isScrap);
@@ -59,7 +57,6 @@ const NewsItem = ({
     const response = postAccessLogApi({
       news_id: newsId,
     });
-    console.log(response);
   };
 
   const getSentimentStyle = (sentiment: string) => {
@@ -209,7 +206,6 @@ const NewsModal = ({
         is_korea: isKorea,
       };
       const response = await getNewsListForModalApi(params);
-      console.log(response.data);
       setNewsItems(response.data.news);
       setCurrentPage(response.data.page);
       setTotalPages(response.data.totalPages);
@@ -222,8 +218,6 @@ const NewsModal = ({
       setLoading(false);
     }
   };
-
-  console.log('뉴스 목록:', newsItems);
 
   const [bookmarks, setBookmarks] = useState<{ [key: number]: boolean }>({});
 
@@ -239,7 +233,6 @@ const NewsModal = ({
   };
   const handleNewsClick = (newsUrl: string) => {
     window.open(newsUrl, '_blank'); // 새 탭에서 URL 열기
-    console.log(`새 탭에서 뉴스 URL ${newsUrl} 열림`);
   };
 
   const Flags = Flag as any;

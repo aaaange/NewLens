@@ -46,7 +46,6 @@ const Header = () => {
     try {
       const response = await logOutApi(); // 로그아웃 API 호출
       setIsModalOpen(false); // 모달 닫기
-      console.log(response);
     } catch (error) {
       console.log(error);
     } finally {
@@ -59,7 +58,6 @@ const Header = () => {
   const fetchUserInfo = async () => {
     try {
       const response = await getUserInfoApi(); // 사용자 정보 API 호출
-      console.log(response);
       setUserInfo(response.data); // Zustand 스토어에 사용자 정보 저장
     } catch (error) {
       console.log(error);
@@ -127,7 +125,6 @@ const Header = () => {
                               text: '프로필 보기',
                               onClick: () => {
                                 navigate('/mypage');
-                                console.log('프로필 보기 클릭됨');
                                 setIsDropdownOpen(false); // 닫기
                               },
                             },
