@@ -54,7 +54,6 @@ const WordCloud = ({
     return keywords.map((w) => ({ ...w })); // 새로운 객체로 만들어 메모이제이션
   }, [keywords]);
 
-  // console.log('워드클라우드 키워드:', keyword);
   const handleWordClick = (word: CloudWord): void => {
     // alert는 반환 값이 없음으로 void
     if (word.text) {
