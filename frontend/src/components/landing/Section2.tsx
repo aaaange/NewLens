@@ -81,7 +81,7 @@ const Section2 = forwardRef<HTMLDivElement>((_, ref) => {
           <p className="font-['Cafe24ClassicType-Regular'] text-7xl text-amount-300">
             {inViewTotal ? (
               <CountUp
-                end={1116279}
+                end={1216279}
                 duration={2.7}
                 useEasing={false}
                 delay={2.2}

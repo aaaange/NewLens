@@ -2,11 +2,17 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { DropdownMenu } from './DropdownMenu';
-import { logOutApi } from '../../services/api/AuthService';
+import { getUserInfoApi, logOutApi } from '../../services/api/AuthService';
 
 const Header = () => {
-  const { accessToken, clearAccessToken } = useAuthStore();
-  const isLogin = !!accessToken;
+  const {
+    accessToken,
+    clearAccessToken,
+    userInfo,
+    setUserInfo,
+    clearUserInfo,
+  } = useAuthStore();
+  const isLogin = !!accessToken; // 로그인 여부 확인
 
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,9 +51,26 @@ const Header = () => {
       console.log(error);
     } finally {
       clearAccessToken(); // Zustand에서 토큰 제거
+      clearUserInfo();
       navigate('/login');
     }
   };
+
+  const fetchUserInfo = async () => {
+    try {
+      const response = await getUserInfoApi(); // 사용자 정보 API 호출
+      console.log(response);
+      setUserInfo(response.data); // Zustand 스토어에 사용자 정보 저장
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isLogin) {
+      fetchUserInfo();
+    }
+  }, [isLogin]);
 
   return (
     <div>
@@ -60,13 +83,13 @@ const Header = () => {
               </Link>
             </div>
 
-            <div className="flex items-end gap-4 mr-4">
+            <div className="flex items-center gap-4 mr-4">
               <div className="w-[44px]">
                 <Link to="/">
                   <img src="/assets/images/info.png" alt="서비스소개" />
                 </Link>
               </div>
-              <div className="w-[35px]">
+              <div className="w-[35px] mt-1.5">
                 <Link to="/koreaAnalysis">
                   <img
                     src="/assets/images/domesticNews.png"
@@ -82,11 +105,23 @@ const Header = () => {
                     onClick={toggleDropdown}
                     ref={dropdownRef} // 드롭다운 참조 추가
                   >
-                    <img src="/assets/images/profile.png" alt="프로필사진" />
+                    {/* 사용자 프로필 사진 표시 */}
+                    <img
+                      src={
+                        userInfo?.profileImage &&
+                        userInfo.profileImage.trim() !== ''
+                          ? userInfo.profileImage
+                          : '/assets/images/profile.png'
+                      }
+                      alt="프로필사진"
+                      className="rounded-4xl"
+                    />
+
                     {isDropdownOpen && (
                       // 드롭다운 메뉴
                       <div className="absolute top-[50px] right-0 z-200">
                         <DropdownMenu
+                          name={userInfo?.name}
                           list={[
                             {
                               text: '프로필 보기',
@@ -111,7 +146,7 @@ const Header = () => {
                 </div>
               ) : (
                 // 로그인 버튼
-                <div className="w-[35px] ">
+                <div className="w-[35px] mt-1.5 ">
                   <Link to="/login">
                     <img src="/assets/images/signin.png" alt="로그인" />
                   </Link>
