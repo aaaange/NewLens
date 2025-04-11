@@ -2,6 +2,7 @@ import * as am5 from '@amcharts/amcharts5';
 import * as am5map from '@amcharts/amcharts5/map';
 import am5geodata_worldLow from '@amcharts/amcharts5-geodata/worldLow';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
+import { getCountryName } from '../../utils/countryUtils';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -324,6 +325,7 @@ const Map = ({
         const shortName = countryName[fullName];
         (polygon.dataItem?.dataContext as { shortName: string }).shortName =
           shortName; // shortName 추가
+        const displayName = shortName ? getCountryName(shortName) : fullName; // 한글 이름으로 변환
 
         //===========================================================================
         // 언급량 관련 설정
@@ -363,8 +365,8 @@ const Map = ({
           polygon.set(
             'tooltipText',
             mentionCount >= 0
-              ? `${fullName}\n(언급량: {mentionCount})`
-              : `${fullName}`
+              ? `${displayName}\n(언급량: {mentionCount})`
+              : `${displayName}`
           );
 
           const countRange = [
@@ -415,8 +417,8 @@ const Map = ({
           polygon.set(
             'tooltipText',
             sentiment
-              ? `${fullName}\n긍정: ${Math.round(positive * 100)}%\n중립: ${Math.round(neutral * 100)}%\n부정: ${Math.round(negative * 100)}%`
-              : `${fullName}`
+              ? `${displayName}\n긍정: ${Math.round(positive * 100)}%\n중립: ${Math.round(neutral * 100)}%\n부정: ${Math.round(negative * 100)}%`
+              : `${displayName}`
           );
           legend.data.setAll([
             {
