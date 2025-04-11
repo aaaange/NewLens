@@ -44,7 +44,6 @@ const KoreaAnalysisPage = () => {
     if (e.key === 'Enter') {
       setKeyword(inputKeyword); // Enter 키로만 키워드 업데이트
       userTyped.current = false;
-      console.log(inputKeyword);
     }
   };
 
@@ -96,7 +95,6 @@ const KoreaAnalysisPage = () => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  console.log(isRealTime);
 
   return (
     <div className="flex mt-5 transition-all duration-500 ease-in-out w-full">

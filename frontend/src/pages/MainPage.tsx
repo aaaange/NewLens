@@ -92,7 +92,6 @@ const MainPage = () => {
       isFirstRender.current = false;
     }
   };
-  console.log(keyword_mind);
 
   useEffect(() => {
     const handler = debounce(() => {

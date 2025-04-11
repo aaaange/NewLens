@@ -8,7 +8,7 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 const setupInterceptors = (instance: AxiosInstance) => {
   instance.interceptors.request.use(
     (config) => {
-      console.log('API 호출:', config.url);
+      // console.log('API 호출:', config.url);
 
       const { accessToken } = useAuthStore.getState();
 

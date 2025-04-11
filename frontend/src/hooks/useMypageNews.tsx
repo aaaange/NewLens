@@ -92,7 +92,6 @@ export const useScrapNews = () => {
   const fetchtAccessLog = async (news_id: string) => {
     try {
       const response = await postAccessLogApi({ news_id });
-      console.log(news_id);
 
       return response.data;
     } catch (err) {
@@ -129,7 +128,6 @@ export const useScrapNews = () => {
   const fetchUserInfo = async () => {
     try {
       const response = await getUserInfoApi();
-      console.log('회원 정보 :', response.data);
       return response.data;
     } catch (err) {
       setError(err as Error);
