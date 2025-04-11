@@ -74,7 +74,6 @@ const WorldDetail = () => {
     setKeywordMind('');
     setIsCategorySelected(true);
   };
-  console.log(keyword);
 
   const periodChangeHandler = (period: number) => {
     setPeriod(period);

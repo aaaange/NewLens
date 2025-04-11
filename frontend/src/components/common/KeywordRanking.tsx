@@ -62,7 +62,6 @@ const KeywordRanking = ({
 
   const handleKeywordClick = (keyword: string) => {
     onKeywordChange(keyword);
-    console.log(keyword);
     handleMindMapKeywordChange('');
   };
 
@@ -97,12 +96,10 @@ const KeywordRanking = ({
       );
 
       setKeywords(newKeywords);
-      console.log(newKeywords);
     } catch (error) {
       console.error('키워드 랭킹 데이터 가져오기 실패:', error);
     }
   };
-  console.log(keywords.length);
 
   useEffect(() => {
     fetchKeywordRanking();

@@ -54,7 +54,6 @@ const KoreaAnalysis = ({
   const [selectCountry, setSelectCountry] = useState('');
 
   const { data, isLoading, error } = useCountryData(memoizedParams);
-  console.log(keyword);
 
   const {
     data: gpt_data,
