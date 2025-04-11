@@ -106,7 +106,6 @@ export const getNewsListForModalApi = async (params: NewsModalReqType) => {
 
 export const getCountryDataApi = async (params: CountryParams) => {
   const response = await api.get('search/country/dashboard', { params });
-  console.log(params);
 
   return response.data; // { code, success, message, data }
 };
